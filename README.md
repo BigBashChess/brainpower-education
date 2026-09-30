@@ -1,4 +1,7 @@
-# Brainpower Education V3
+# Brainpower Education V4
+
+Precision quality pass focused on the core learning experience: Learn, Practice, Tests, The Vault and Progress.
+
 
 Brainpower Education is a static VCE Mathematics learning platform for:
 
@@ -34,7 +37,7 @@ This build deliberately uses **no AI**, **no database**, and **no paid API**. It
 
 The project is intentionally build-step-free. `index.html` loads ES modules from `src/` directly, so GitHub Pages can host the repository from the root without Vite, npm or a server build.
 
-Progress is stored in browser `localStorage` under `brainpower-progress-v3`.
+Progress is stored in browser `localStorage` under `brainpower-progress-v4`.
 
 ## Preview locally
 

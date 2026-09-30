@@ -92,47 +92,62 @@ function bindLesson(){
 }
 
 function bindPractice(){
-  const search=qs('#practice-search'), course=qs('#practice-course'), topic=qs('#practice-topic'), diff=qs('#practice-difficulty'), list=qs('#practice-list'), count=qs('#practice-count');
-  const focus=list?.dataset.focus||'';
+  const search=qs('#practice-search'), course=qs('#practice-course'), topic=qs('#practice-topic'), diff=qs('#practice-difficulty'), list=qs('#practice-list'), count=qs('#practice-count'), label=qs('#practice-mode-label');
+  const focus=list?.dataset.focus||''; let mode='all'; let shuffled=false;
+  const p=load();
   function updateTopics(){
     const c=course.value; const topics=[...new Map(practiceQuestions.filter(q=>c==='all'||q.course===c).map(q=>[q.topic,q.topicLabel])).entries()];
-    const old=topic.value; topic.innerHTML='<option value="all">All topics</option>'+topics.map(([id,label])=>`<option value="${id}">${label}</option>`).join('');
-    if([...topic.options].some(o=>o.value===old))topic.value=old;
+    const requested=topic.dataset.preset||topic.value; topic.innerHTML='<option value="all">All topics</option>'+topics.map(([id,title])=>`<option value="${id}">${title}</option>`).join('');
+    if([...topic.options].some(o=>o.value===requested))topic.value=requested; topic.dataset.preset='';
   }
+  const shuffleRows=rows=>{const a=[...rows];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
   function filter(){
     const term=search.value.trim().toLowerCase(), c=course.value, t=topic.value, d=diff.value;
-    const matches=practiceQuestions.filter(q=>(c==='all'||q.course===c)&&(t==='all'||q.topic===t)&&(d==='all'||q.difficulty===d)&&(!term||`${q.prompt} ${q.topicLabel} ${q.difficulty}`.toLowerCase().includes(term)));
-    count.textContent=matches.length;
-    list.innerHTML=matches.length?matches.map(q=>questionCard(q)).join(''):`<div class="empty-state"><div class="empty-icon">∅</div><h3>No matching questions</h3><p>Try clearing one of your filters.</p></div>`;
+    let matches=practiceQuestions.filter(q=>(c==='all'||q.course===c)&&(t==='all'||q.topic===t)&&(d==='all'||q.difficulty===d)&&(!term||`${q.prompt} ${q.topicLabel} ${q.difficulty}`.toLowerCase().includes(term)));
+    if(mode==='unresolved')matches=matches.filter(q=>p.attemptedQuestions?.[q.id]&&!p.correctQuestions.includes(q.id));
+    if(mode==='separator')matches=matches.filter(q=>q.difficulty==='Separator');
+    if(shuffled||mode==='quick')matches=shuffleRows(matches);
+    if(mode==='quick')matches=matches.slice(0,5);
+    count.textContent=matches.length; label.textContent={all:'Full bank',quick:'Quick 5',unresolved:'Revisit misses',separator:'Separator only'}[mode];
+    list.innerHTML=matches.length?matches.map(q=>questionCard(q)).join(''):`<div class="empty-state"><div class="empty-icon">∅</div><h3>No matching questions</h3><p>${mode==='unresolved'?'You have no unresolved questions in this filter.':'Try clearing one of your filters.'}</p></div>`;
     bindQuestions(list);
     if(focus){const target=qs(`[data-question="${CSS.escape(focus)}"]`,list);target?.scrollIntoView({behavior:'smooth',block:'center'});target?.classList.add('focus-flash')}
   }
+  qsa('[data-practice-mode]').forEach(btn=>btn.addEventListener('click',()=>{qsa('[data-practice-mode]').forEach(x=>x.classList.remove('active'));btn.classList.add('active');mode=btn.dataset.practiceMode;filter()}));
+  qs('#practice-shuffle')?.addEventListener('click',()=>{shuffled=true;filter()});
+  qs('#practice-reset')?.addEventListener('click',()=>{search.value='';course.value='all';diff.value='all';mode='all';shuffled=false;qsa('[data-practice-mode]').forEach(x=>x.classList.toggle('active',x.dataset.practiceMode==='all'));updateTopics();topic.value='all';filter()});
   updateTopics(); filter();
   course.addEventListener('change',()=>{updateTopics();filter()}); topic.addEventListener('change',filter); diff.addEventListener('change',filter); search.addEventListener('input',filter);
 }
 
 function bindTests(){
-  const s=qs('#test-search'),c=qs('#test-course'),d=qs('#test-diff'),list=qs('#test-list');
-  const filter=()=>{const term=s.value.toLowerCase(),cv=c.value,dv=d.value;const rows=tests.filter(t=>(cv==='all'||t.course===cv)&&(dv==='all'||t.difficulty===dv)&&(!term||`${t.title} ${t.topics.join(' ')} ${t.subject}`.toLowerCase().includes(term)));list.innerHTML=rows.length?rows.map(testCard).join(''):'<div class="empty-state"><h3>No matching tests yet</h3><p>The library will grow as new Brainpower assessments are added.</p></div>'};
-  s.addEventListener('input',filter);c.addEventListener('change',filter);d.addEventListener('change',filter);
+  const s=qs('#test-search'),c=qs('#test-course'),d=qs('#test-diff'),tech=qs('#test-tech'),list=qs('#test-list'),count=qs('#test-count');
+  const filter=()=>{const term=s.value.toLowerCase(),cv=c.value,dv=d.value,tv=tech.value;const rows=tests.filter(t=>(cv==='all'||t.course===cv)&&(dv==='all'||t.difficulty===dv)&&(tv==='all'||t.tech===tv)&&(!term||`${t.title} ${t.topics.join(' ')} ${t.subject}`.toLowerCase().includes(term)));count.textContent=rows.length;list.innerHTML=rows.length?rows.map(testCard).join(''):'<div class="empty-state"><h3>No matching tests yet</h3><p>Try a broader filter. The library will grow as new Brainpower assessments are added.</p></div>'};
+  s.addEventListener('input',filter);c.addEventListener('change',filter);d.addEventListener('change',filter);tech.addEventListener('change',filter);
 }
 
 function bindResources(){
-  const s=qs('#vault-search'),t=qs('#vault-type'),c=qs('#vault-course'),list=qs('#vault-list'); const focus=list?.dataset.focus||'';
-  const filter=()=>{const term=s.value.toLowerCase(),tv=t.value,cv=c.value;const rows=resources.filter(r=>(tv==='all'||r.type===tv)&&(cv==='all'||r.course===cv)&&(!term||`${r.title} ${r.type} ${r.topics.join(' ')}`.toLowerCase().includes(term)));list.innerHTML=rows.length?rows.map(resourceCard).join(''):'<div class="empty-state"><h3>No matching resources</h3><p>Try another search term.</p></div>';bindBookmarks();if(focus)qs(`[data-resource="${CSS.escape(focus)}"]`,list)?.scrollIntoView({behavior:'smooth',block:'center'})};
-  s.addEventListener('input',filter);t.addEventListener('change',filter);c.addEventListener('change',filter);
+  const s=qs('#vault-search'),t=qs('#vault-type'),c=qs('#vault-course'),sort=qs('#vault-sort'),list=qs('#vault-list'),count=qs('#vault-count'); const focus=list?.dataset.focus||'';
+  const filter=()=>{const term=s.value.toLowerCase(),tv=t.value,cv=c.value;let rows=resources.filter(r=>(tv==='all'||r.type===tv)&&(cv==='all'||r.course===cv)&&(!term||`${r.title} ${r.type} ${r.topics.join(' ')}`.toLowerCase().includes(term)));rows=[...rows].sort((a,b)=>sort.value==='type'?a.type.localeCompare(b.type)||a.title.localeCompare(b.title):a.title.localeCompare(b.title));count.textContent=rows.length;list.innerHTML=rows.length?rows.map(resourceCard).join(''):'<div class="empty-state"><h3>No matching resources</h3><p>Try another search term or clear a filter.</p></div>';bindBookmarks();if(focus)qs(`[data-resource="${CSS.escape(focus)}"]`,list)?.scrollIntoView({behavior:'smooth',block:'center'})};
+  qsa('[data-vault-type]').forEach(btn=>btn.addEventListener('click',()=>{qsa('[data-vault-type]').forEach(x=>x.classList.remove('active'));btn.classList.add('active');t.value=btn.dataset.vaultType;filter()}));
+  s.addEventListener('input',filter);t.addEventListener('change',()=>{qsa('[data-vault-type]').forEach(x=>x.classList.toggle('active',x.dataset.vaultType===t.value));filter()});c.addEventListener('change',filter);sort.addEventListener('change',filter);filter();
 }
 
 function bindExam(){
-  const start=qs('#exam-start'),pause=qs('#exam-pause'),reset=qs('#exam-reset'),display=qs('#exam-timer'),label=qs('#timer-label'),phaseEl=qs('#exam-phase'),help=qs('#phase-help');
+  const begin=qs('#exam-begin'),rules=qs('#exam-rules'),workspace=qs('#exam-workspace'),finished=qs('#exam-finished'),start=qs('#exam-start'),pause=qs('#exam-pause'),reset=null,skip=qs('#exam-skip-reading'),finish=qs('#exam-finish'),display=qs('#exam-timer'),label=qs('#timer-label'),phaseEl=qs('#exam-phase'),help=qs('#phase-help');
   const reading=Number(start?.dataset.reading||0)*60, writing=Number(start?.dataset.writing||0)*60;
   let phase='reading',remain=reading,timer=null,running=false,started=false;
   const format=n=>`${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;
-  function paint(){display.textContent=format(remain);phaseEl.textContent=started?(phase==='reading'?'READING':'WRITING'):'READY';label.textContent=phase==='reading'?'Reading time':'Writing time';help.textContent=!started?'Start when you are ready. Reading time will run first.':phase==='reading'?'Do not begin writing until reading time finishes.':'Writing time is running.'}
-  function tick(){remain--;if(remain<=0){if(phase==='reading'){phase='writing';remain=writing;paint()}else{clearInterval(timer);timer=null;running=false;remain=0;paint();phaseEl.textContent='TIME';help.textContent='Writing time has finished.'}}else paint()}
-  function play(){if(running)return;started=true;running=true;start.textContent='Resume';pause.disabled=false;timer=setInterval(tick,1000);paint()}
-  start?.addEventListener('click',play); pause?.addEventListener('click',()=>{if(!running)return;clearInterval(timer);timer=null;running=false;pause.disabled=true;help.textContent='Timer paused.'}); reset?.addEventListener('click',()=>{clearInterval(timer);timer=null;running=false;started=false;phase='reading';remain=reading;start.textContent='Start test';pause.disabled=true;paint()});
-  qs('#save-score')?.addEventListener('click',e=>{const input=qs('#exam-score'),score=Number(input.value),max=Number(e.currentTarget.dataset.max),msg=qs('#score-message');if(!Number.isFinite(score)||score<0||score>max){msg.innerHTML='<div class="feedback bad">Enter a valid score.</div>';return}addScore(e.currentTarget.dataset.test,score,max);msg.innerHTML=`<div class="feedback good"><strong>Saved.</strong> ${score}/${max} = ${Math.round(score/max*100)}%.</div>`});
+  function paint(){if(!display)return;display.textContent=format(remain);phaseEl.textContent=started?(phase==='reading'?'READING':'WRITING'):'READY';label.textContent=phase==='reading'?'Reading time':'Writing time';help.textContent=!started?'Start when you are ready.':phase==='reading'?'Do not begin writing until reading time finishes.':'Writing time is running.';if(skip)skip.hidden=phase!=='reading'}
+  function stop(){clearInterval(timer);timer=null;running=false;if(pause)pause.disabled=true}
+  function tick(){remain--;if(remain<=0){if(phase==='reading'){phase='writing';remain=writing;paint()}else{remain=0;stop();paint();phaseEl.textContent='TIME';help.textContent='Writing time has finished.'}}else paint()}
+  function play(){if(running)return;started=true;running=true;if(start)start.textContent='Resume';if(pause)pause.disabled=false;timer=setInterval(tick,1000);paint()}
+  begin?.addEventListener('click',()=>{rules.hidden=true;workspace.hidden=false;play()});
+  start?.addEventListener('click',play);
+  pause?.addEventListener('click',()=>{if(!running)return;stop();help.textContent='Timer paused.'});
+  skip?.addEventListener('click',()=>{stop();phase='writing';remain=writing;started=true;paint();play()});
+  finish?.addEventListener('click',()=>{if(!confirm('Finish this test? The marking scheme will become available.'))return;stop();workspace.hidden=true;finished.hidden=false;phaseEl.textContent='FINISHED'});
+  qs('#save-score')?.addEventListener('click',e=>{const input=qs('#exam-score'),score=Number(input.value),max=Number(e.currentTarget.dataset.max),msg=qs('#score-message');if(!Number.isFinite(score)||score<0||score>max){msg.innerHTML='<div class="feedback bad">Enter a valid score.</div>';return}addScore(e.currentTarget.dataset.test,score,max);msg.innerHTML=`<div class="feedback good"><strong>Saved.</strong> ${score}/${max} = ${Math.round(score/max*100)}%. Your dashboard has been updated.</div>`});
   paint(); addCleanup(()=>clearInterval(timer));
 }
 
