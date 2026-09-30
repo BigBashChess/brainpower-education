@@ -1,5 +1,5 @@
 import {header,footer,questionCard,testCard,resourceCard} from './components.js';
-import {homePage,learnPage,coursePage,lessonPage,practicePage,testsPage,testPage,examPage,resourcesPage,toolsPage,arcadePage,adminPage,progressPage,aboutPage,searchPage,notFoundPage,searchResultsMarkup} from './pages.js';
+import {homePage,learnPage,coursePage,diagnosticPage,lessonPage,practicePage,testsPage,testPage,examPage,resourcesPage,toolsPage,arcadePage,adminPage,progressPage,aboutPage,searchPage,notFoundPage,searchResultsMarkup} from './pages.js';
 import {practiceQuestions,questionById} from './data/questions.js';
 import {courses} from './data/courses.js';
 import {tests} from './data/tests.js';
@@ -20,6 +20,7 @@ function currentPage(){
     case 'home': return homePage();
     case 'learn': return learnPage();
     case 'course': return coursePage(id);
+    case 'diagnostic': return diagnosticPage(id);
     case 'lesson': return lessonPage(id);
     case 'practice': return practicePage(params);
     case 'tests': return testsPage();

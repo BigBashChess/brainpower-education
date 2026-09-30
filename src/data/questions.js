@@ -1,3 +1,4 @@
+import {v6Questions} from './questions-v6.js';
 export const baseQuestions = [
   {
     "id": "m12-fn-1",
@@ -1637,7 +1638,7 @@ export const baseQuestions = [
 ];
 
 import {adminQuestions} from './admin-content.js';
-export const questions = [...baseQuestions,...adminQuestions];
+export const questions = [...baseQuestions,...v6Questions,...adminQuestions];
 export const questionById = id => questions.find(q => q.id === id);
 export const dailyQuestions = questions.filter(q => q.daily);
 export const practiceQuestions = questions.filter(q => !q.daily);

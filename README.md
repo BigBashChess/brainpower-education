@@ -1,110 +1,87 @@
-# Brainpower Education V5
+# Brainpower Education V7 — Deep Lesson Experience
 
-Precision quality pass focused on the core learning experience: Learn, Practice, Tests, The Vault and Progress.
+V7 keeps Brainpower Education static, free to host on GitHub Pages and independent of AI/database services, while substantially upgrading the quality and depth of the interactive courses.
 
+## Courses
 
-Brainpower Education is a static VCE Mathematics learning platform for:
+- Mathematical Methods Units 1 & 2 — 22 lessons/checkpoints, 65 practice questions
+- Mathematical Methods Units 3 & 4 — 19 lessons/checkpoints, 57 practice questions
+- Specialist Mathematics Units 1 & 2 — 22 lessons/checkpoints, 59 practice questions
+- Specialist Mathematics Units 3 & 4 — 35 lessons/checkpoints, 74 practice questions
 
-- Mathematical Methods Units 1 & 2
-- Mathematical Methods Units 3 & 4
-- Specialist Mathematics Units 1 & 2
-- Specialist Mathematics Units 3 & 4
+Total: **98 interactive lessons/checkpoints**, **255 practice-bank questions**, plus **14 Daily Brainpower** challenges.
 
-This build deliberately uses **no AI**, **no database**, and **no paid API**. It is designed to work directly on GitHub Pages.
+## V7 lesson model
 
-## Included in this build
+Lessons are no longer short explanations followed immediately by questions. Each lesson now follows a deeper mastery sequence:
 
-- Brainpower-branded responsive homepage
-- Four course hubs and visual topic pathways
-- 16 interactive lesson previews
-- Pre-built question bank with Core / VCAA / Advanced / Separator difficulty
-- Local XP, levels, streaks, mastery and achievements
-- Practice Test Centre
-- The supplied Specialist 1/2 Kinematics test
-- PDF preview, download and marking-scheme link
-- Exam Mode with reading time, writing time and score tracking
-- The Vault resource library
-- Global search across courses, lessons, questions, tests and resources
-- Percentage calculator, target-score calculator, exact trig reference, study timer, vector visualiser and random practice
-- Daily Brainpower challenge
-- Derivative Dash
-- Brainpower Bird
-- Dark mode
-- Instagram and Discord links
-- Mobile layout
+1. Learning goals
+2. Big-picture intuition
+3. Key conceptual lens
+4. Why the method works / derivation
+5. Core relation or formula in context
+6. Worked-method skeleton
+7. Full worked example where available
+8. Common exam traps
+9. Strong-solution strategy
+10. Required guided practice
+11. Optional transfer practice
+12. Retrieval check
+13. Mastery gate
 
-## How it works
+Specialist Mathematics 3/4 is the flagship course and receives extensive lesson-specific deep dives and worked examples across functions, complex numbers, vectors, calculus, differential equations, probability/statistics and mechanics.
 
-The project is intentionally build-step-free. `index.html` loads ES modules from `src/` directly, so GitHub Pages can host the repository from the root without Vite, npm or a server build.
+## Content architecture
 
-Progress is stored in browser `localStorage` under `brainpower-progress-v4`.
+V7 adds:
 
-## Preview locally
+```text
+src/data/lesson-depth-v7.js
+```
 
-Opening `index.html` directly may work in some browsers, but ES modules are most reliable through a tiny local web server.
+This content layer keeps detailed teaching material separate from sequencing and question-bank data. It makes future lesson expansion much easier without rewriting the course engine.
 
-If Python is installed:
+## Existing systems retained
+
+- Course diagnostics
+- 100% required-question lesson mastery
+- Specialist topic checkpoints
+- MathPad answer input and live rendering
+- Algebraic-equivalence checking where supported
+- Hidden Brainpower Admin Studio at `#admin`
+- Test library + Exam Mode
+- The Vault
+- Progress dashboard
+- Tools
+- Brainpower Arcade
+- Brainpower Bird Chill / Standard / Chaos modes
+- Instagram + Discord links
+- Dark mode and responsive layout
+
+## Admin Studio
+
+Route: `#admin`
+
+Current development credentials:
+
+- Username: `brainpower-admin`
+- Password: `BrainpowerV5!`
+
+This remains a static-client authoring gate rather than server-grade authentication. Never put GitHub write tokens or other private credentials in the frontend.
+
+## Hosting
+
+The project remains build-step-free and works directly on GitHub Pages.
+
+1. Settings → Pages
+2. Source: Deploy from a branch
+3. Branch: `main`
+4. Folder: `/ (root)`
+
+## Local preview
 
 ```bash
 python -m http.server 8000
 ```
 
 Then open `http://localhost:8000`.
-
-## GitHub Pages
-
-Repository settings:
-
-1. **Settings → Pages**
-2. Source: **Deploy from a branch**
-3. Branch: **main**
-4. Folder: **/ (root)**
-
-No build command is required.
-
-## Project structure
-
-```text
-brainpower-education/
-├── index.html
-├── 404.html
-├── public/
-│   ├── brand/
-│   ├── thumbnails/
-│   └── resources/
-│       ├── methods-12/
-│       ├── methods-34/
-│       ├── specialist-12/
-│       └── specialist-34/
-└── src/
-    ├── data/
-    │   ├── site.js
-    │   ├── courses.js
-    │   ├── lessons.js
-    │   ├── questions.js
-    │   ├── tests.js
-    │   └── resources.js
-    ├── progress/
-    │   └── store.js
-    ├── styles/
-    │   └── main.css
-    ├── components.js
-    ├── pages.js
-    ├── utils.js
-    └── main.js
-```
-
-See `ADDING_RESOURCES.md` before adding new PDFs.
-
-
-## V5 Admin Studio
-
-The hidden admin route is `#admin`. It is deliberately not linked from the public navigation.
-
-Default V5 development credentials:
-- Username: `brainpower-admin`
-- Password: `BrainpowerV5!`
-
-**Change these before treating the route as private.** The static admin gate is not equivalent to server-side authentication; public GitHub Pages source can be inspected. The studio does not write to GitHub directly. Instead, it exports a GitHub-ready ZIP publish pack.
-
-Admin additions are loaded from `src/data/admin-content.js`.

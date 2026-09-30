@@ -1,4 +1,5 @@
-export const lessons = [
+import {v6Lessons} from './lessons-v6.js';
+export const baseLessons = [
   {id:'m12-function-notation',course:'methods-12',topic:'functions',title:'Function notation & evaluation',minutes:8,difficulty:'Core',xp:40,summary:'Read function notation fluently and evaluate expressions without treating f(x) as multiplication.',explanation:'A function is a rule that assigns an output to each permitted input. The notation $f(a)$ means substitute $x=a$ into the rule for $f$.',formula:'If $f(x)=2x^2-3x+1$, then $f(a)=2a^2-3a+1$.',worked:['Start with $f(x)=2x^2-3x+1$.','Substitute $x=2$.','$f(2)=2(2)^2-3(2)+1=3$.'],questions:['m12-fn-1','m12-fn-2']},
   {id:'m12-factor-theorem',course:'methods-12',topic:'algebra',title:'Factor theorem',minutes:10,difficulty:'Core',xp:45,summary:'Use roots to identify polynomial factors quickly.',explanation:'For a polynomial $P(x)$, if $P(a)=0$, then $x-a$ is a factor. This gives a fast bridge between roots, factors and graph intercepts.',formula:'$P(a)=0\\iff(x-a)$ is a factor of $P(x)$.',worked:['Evaluate the polynomial at the proposed root.','If the value is zero, record the corresponding linear factor.','Continue with division or factorisation if required.'],questions:['m12-alg-1']},
   {id:'m12-power-rule',course:'methods-12',topic:'differentiation',title:'The derivative power rule',minutes:9,difficulty:'Core',xp:45,summary:'Differentiate polynomial terms accurately and interpret the derivative as gradient.',explanation:'For any suitable power $n$, differentiation multiplies by the power and reduces the exponent by one.',formula:'$\\frac{d}{dx}(x^n)=nx^{n-1}$.',worked:['Differentiate each term separately.','Constants differentiate to zero.','Collect like terms only if useful.'],questions:['m12-diff-1']},
@@ -21,6 +22,18 @@ export const lessons = [
   {id:'s34-substitution',course:'specialist-34',topic:'calculus',title:'Integration by substitution',minutes:14,difficulty:'Advanced',xp:70,summary:'Reverse the chain rule to simplify composite integrals.',explanation:'Choose a substitution that turns the inner expression into a single variable and whose derivative is already present, up to a constant factor.',formula:'$u=g(x),\\quad du=g\'(x)dx$.',worked:['Choose the inner expression as $u$.','Replace its derivative factor with $du$.','Integrate in $u$ and substitute back.'],questions:['s34-cal-2','s34-sep-1']}
 ];
 
+const COURSE_ORDER=['methods-12','methods-34','specialist-12','specialist-34'];
+const TOPIC_ORDER={
+  'methods-12':['functions','algebra','exp-log','trig','differentiation','integration','probability'],
+  'methods-34':['functions','differentiation','applications','integration','probability','random-variables','exam-prep'],
+  'specialist-12':['number-proof','algebra','functions','trig','vectors','complex','calculus','kinematics'],
+  'specialist-34':['functions','complex','vectors','calculus','differential-equations','statistics','mechanics']
+};
+export const lessons = [...baseLessons,...v6Lessons].sort((a,b)=>{
+  const c=COURSE_ORDER.indexOf(a.course)-COURSE_ORDER.indexOf(b.course); if(c)return c;
+  const t=(TOPIC_ORDER[a.course]||[]).indexOf(a.topic)-(TOPIC_ORDER[b.course]||[]).indexOf(b.topic); if(t)return t;
+  return 0;
+});
 export const lessonById = id => lessons.find(l => l.id === id);
 export const lessonsForCourse = id => lessons.filter(l => l.course === id);
 export const lessonsForTopic = (course, topic) => lessons.filter(l => l.course === course && l.topic === topic);

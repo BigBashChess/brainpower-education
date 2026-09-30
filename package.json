@@ -1,9 +1,9 @@
 {
   "name": "brainpower-education",
-  "version": "5.0.0",
+  "version": "7.0.0",
   "private": true,
   "type": "module",
-  "description": "Brainpower Education V5 static VCE Mathematics platform",
+  "description": "Brainpower Education V7 deep lesson experience",
   "scripts": {
     "serve": "python -m http.server 8000"
   }

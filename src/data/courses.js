@@ -29,9 +29,10 @@ export const courses = [
   },
   {
     id:'specialist-12', short:'Specialist 1/2', title:'Specialist Mathematics Units 1 & 2',
-    desc:'Advanced algebra, trigonometry, vectors, complex numbers, calculus and kinematics.',
+    desc:'A rigorous bridge into Specialist 3/4: proof, algebra, functions, trigonometry, vectors, complex numbers, calculus and kinematics.',
     accent:'specialist',
     topics:[
+      {id:'number-proof',title:'Number & Proof',icon:'∀'},
       {id:'algebra',title:'Algebra & Partial Fractions',icon:'Σ'},
       {id:'functions',title:'Functions',icon:'ƒ'},
       {id:'trig',title:'Trigonometry',icon:'θ'},
@@ -43,7 +44,7 @@ export const courses = [
   },
   {
     id:'specialist-34', short:'Specialist 3/4', title:'Specialist Mathematics Units 3 & 4',
-    desc:'High-level VCE mathematics with rigorous VCAA-style and Separator practice.',
+    desc:'A mastery-first Specialist 3/4 pathway with rigorous VCAA-style practice, checkpoints and Separator problems.',
     accent:'specialist',
     topics:[
       {id:'functions',title:'Functions & Graphs',icon:'ƒ'},
