@@ -11,21 +11,63 @@ export function renderMathString(input=''){
 }
 function safeKatex(tex,displayMode){try{return window.katex.renderToString(tex,{throwOnError:false,displayMode})}catch{return esc(tex)}}
 
+export function answerPreview(input=''){
+  const raw=String(input||'').trim();
+  if(!raw)return '<span class="math-preview-empty">Your formatted answer appears here</span>';
+  try{
+    if(window.math){
+      const cleaned=raw.replace(/√/g,'sqrt').replace(/π/g,'pi').replace(/\bln\b/g,'log');
+      const tex=window.math.parse(cleaned).toTex({parenthesis:'keep'}).replace(/\\log/g,'\\ln');
+      return window.katex?safeKatex(tex,false):esc(raw);
+    }
+  }catch{}
+  return window.katex?safeKatex(`\\text{${raw.replace(/[{}]/g,'')}}`,false):esc(raw);
+}
+
 export function routeTo(path){location.hash=path.startsWith('#')?path:`#${path}`}
 export function routeParts(){const raw=location.hash.replace(/^#/,'')||'home';return raw.split('/').filter(Boolean)}
 export function qs(sel,root=document){return root.querySelector(sel)}
 export function qsa(sel,root=document){return [...root.querySelectorAll(sel)]}
 export function clamp(n,min,max){return Math.min(max,Math.max(min,n))}
 
-const norm=s=>String(s??'').toLowerCase().replace(/\s+/g,'').replace(/\\left|\\right/g,'').replace(/[{}]/g,'').replace(/\*/g,'').replace(/−/g,'-');
+const norm=s=>String(s??'').toLowerCase().replace(/\s+/g,'').replace(/\\left|\\right/g,'').replace(/[{}]/g,'').replace(/\*/g,'').replace(/−/g,'-').replace(/π/g,'pi').replace(/\\pi/g,'pi').replace(/\\sqrt/g,'sqrt').replace(/\\sin/g,'sin').replace(/\\cos/g,'cos').replace(/\\tan/g,'tan').replace(/\\ln/g,'ln');
+function mathExpr(s){return String(s??'').trim().replace(/π/g,'pi').replace(/\\pi/g,'pi').replace(/√/g,'sqrt').replace(/\\sqrt\{([^{}]+)\}/g,'sqrt($1)').replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g,'(($1)/($2))').replace(/\\sin/g,'sin').replace(/\\cos/g,'cos').replace(/\\tan/g,'tan').replace(/\\ln/g,'log').replace(/\bln\b/g,'log').replace(/\|([^|]+)\|/g,'abs($1)');}
+function closeEnough(a,b,tol=1e-9){return Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)<=tol*Math.max(1,Math.abs(b));}
+function symbolicEquivalent(a,b){
+  if(!window.math)return false;
+  try{
+    const A=mathExpr(a),B=mathExpr(b);
+    const simplified=window.math.simplify(`(${A})-(${B})`).toString();
+    if(simplified==='0')return true;
+    const vars=['x','t','y'];
+    const samples=[0.37,0.83,1.41,2.17,-0.61];
+    let checked=0;
+    for(const v of samples){
+      const scope={x:v,t:v+0.4,y:v+1.7,e:Math.E,pi:Math.PI};
+      try{
+        const av=window.math.evaluate(A,scope),bv=window.math.evaluate(B,scope);
+        if(typeof av==='number'&&typeof bv==='number'&&Number.isFinite(av)&&Number.isFinite(bv)){
+          checked++; if(!closeEnough(av,bv,1e-7))return false;
+        }
+      }catch{}
+    }
+    return checked>=2;
+  }catch{return false}
+}
 export function checkAnswer(q,value){
   const raw=String(value??'').trim();
+  if(!raw)return false;
   if(q.type==='numeric'){
-    const a=Number(raw), b=Number(q.answer);
-    if(Number.isFinite(a)&&Number.isFinite(b)) return Math.abs(a-b)<=Number(q.tolerance??1e-9);
+    try{
+      const a=window.math?Number(window.math.evaluate(mathExpr(raw))):Number(raw), b=window.math?Number(window.math.evaluate(mathExpr(q.answer))):Number(q.answer);
+      if(Number.isFinite(a)&&Number.isFinite(b)) return Math.abs(a-b)<=Number(q.tolerance??1e-9)*Math.max(1,Math.abs(b));
+    }catch{
+      const a=Number(raw),b=Number(q.answer);if(Number.isFinite(a)&&Number.isFinite(b))return Math.abs(a-b)<=Number(q.tolerance??1e-9);
+    }
   }
-  const allowed=[...(q.answers||[]),...(q.answer!==undefined?[q.answer]:[])].map(norm);
-  return allowed.includes(norm(raw));
+  const candidates=[...(q.answers||[]),...(q.answer!==undefined?[q.answer]:[])];
+  if(candidates.map(norm).includes(norm(raw)))return true;
+  return candidates.some(ans=>symbolicEquivalent(raw,ans));
 }
 
 export function todayKey(){return new Date().toISOString().slice(0,10)}
@@ -52,7 +94,7 @@ export function searchEverything(term,tests,resources){
   questions.filter(x=>!x.daily).forEach(x=>{if(`${x.prompt} ${x.topicLabel} ${x.difficulty}`.toLowerCase().includes(q))out.push({type:'Question',title:x.topicLabel,sub:x.difficulty,go:`practice?focus=${x.id}`})});
   tests.forEach(t=>{if(`${t.title} ${t.subject} ${t.topics.join(' ')}`.toLowerCase().includes(q))out.push({type:'Test',title:t.title,sub:`${t.subject} ${t.units}`,go:`test/${t.id}`})});
   resources.forEach(r=>{if(`${r.title} ${r.type} ${r.topics.join(' ')}`.toLowerCase().includes(q))out.push({type:'Resource',title:r.title,sub:r.type,go:`resources?focus=${r.id}`})});
-  return out.slice(0,40);
+  return out.slice(0,60);
 }
 
 export function parseRouteQuery(){const raw=location.hash.replace(/^#/,'')||'home';const [path,query='']=raw.split('?');return {parts:path.split('/').filter(Boolean),params:new URLSearchParams(query)}}

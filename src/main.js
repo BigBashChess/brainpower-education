@@ -1,11 +1,13 @@
 import {header,footer,questionCard,testCard,resourceCard} from './components.js';
-import {homePage,learnPage,coursePage,lessonPage,practicePage,testsPage,testPage,examPage,resourcesPage,toolsPage,arcadePage,progressPage,aboutPage,searchPage,notFoundPage,searchResultsMarkup} from './pages.js';
+import {homePage,learnPage,coursePage,lessonPage,practicePage,testsPage,testPage,examPage,resourcesPage,toolsPage,arcadePage,adminPage,progressPage,aboutPage,searchPage,notFoundPage,searchResultsMarkup} from './pages.js';
 import {practiceQuestions,questionById} from './data/questions.js';
 import {courses} from './data/courses.js';
 import {tests} from './data/tests.js';
 import {resources} from './data/resources.js';
-import {checkAnswer,parseRouteQuery,qs,qsa,renderMathString,routeTo,clamp} from './utils.js';
+import {checkAnswer,parseRouteQuery,qs,qsa,renderMathString,routeTo,clamp,answerPreview} from './utils.js';
 import {awardQuestion,completeLesson,addScore,toggleBookmark,load,saveArcade,resetProgress,isBookmarked} from './progress/store.js';
+import {ADMIN_USERNAME,ADMIN_PASSWORD_SHA256,ADMIN_SESSION_KEY,ADMIN_DRAFT_KEY} from './data/admin.js';
+import {adminTests,adminResources,adminQuestions} from './data/admin-content.js';
 
 const app=document.querySelector('#app');
 let cleanups=[];
@@ -26,6 +28,7 @@ function currentPage(){
     case 'resources': return resourcesPage(params);
     case 'tools': return toolsPage();
     case 'arcade': return arcadePage();
+    case 'admin': return adminPage();
     case 'progress': return progressPage();
     case 'about': return aboutPage();
     case 'search': return searchPage();
@@ -60,20 +63,30 @@ function bindQuestions(root=document){
   qsa('[data-question]',root).forEach(card=>{
     if(card.dataset.bound==='1')return; card.dataset.bound='1';
     const q=questionById(card.dataset.question); if(!q)return;
-    const fb=qs('.feedback',card);
+    const fb=qs('.feedback',card), input=qs('[data-math-input]',card), preview=qs('[data-math-preview]',card);
+    const updatePreview=()=>{if(preview)preview.innerHTML=answerPreview(input?.value||'')};
     const submit=value=>{
       const ok=checkAnswer(q,value); awardQuestion(q.id,q.xp||10,ok);
       qsa('.choice',card).forEach(b=>b.disabled=true);
-      const input=qs('input',card); if(input)input.disabled=true;
+      if(input)input.disabled=true;
+      qsa('[data-math-insert]',card).forEach(b=>b.disabled=true);
       const check=qs('.check-answer',card); if(check)check.disabled=true;
       fb.hidden=false; fb.className=`feedback ${ok?'good':'bad'}`;
       fb.innerHTML=ok?`<strong>✓ Correct.</strong> ${renderMathString(q.solution)} <span class="feedback-xp">+${q.xp||10} XP</span>`:`<strong>Not quite.</strong> ${renderMathString(q.solution)}`;
     };
-    qs('.check-answer',card)?.addEventListener('click',()=>submit(qs('input',card)?.value||''));
-    qs('input',card)?.addEventListener('keydown',e=>{if(e.key==='Enter')submit(e.currentTarget.value)});
+    qs('.check-answer',card)?.addEventListener('click',()=>submit(input?.value||''));
+    input?.addEventListener('keydown',e=>{if(e.key==='Enter')submit(e.currentTarget.value)});
+    input?.addEventListener('input',updatePreview);
+    qsa('[data-math-insert]',card).forEach(btn=>btn.addEventListener('click',()=>{
+      if(!input)return; const ins=btn.dataset.mathInsert||''; const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;
+      input.value=input.value.slice(0,start)+ins+input.value.slice(end);
+      const pos=start+ins.length-Number(btn.dataset.back||0); input.focus(); input.setSelectionRange(pos,pos); updatePreview();
+    }));
     qsa('[data-choice]',card).forEach(btn=>btn.addEventListener('click',()=>{qsa('[data-choice]',card).forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');submit(btn.dataset.choice)}));
+    updatePreview();
   });
 }
+
 
 function bindRoute(base){
   if(base==='lesson') bindLesson();
@@ -83,6 +96,7 @@ function bindRoute(base){
   if(base==='resources') bindResources();
   if(base==='tools') bindTools();
   if(base==='arcade') bindArcade();
+  if(base==='admin') bindAdmin();
   if(base==='progress') bindProgress();
   if(base==='search') bindSearch();
 }
@@ -180,16 +194,42 @@ function bindDerivativeDash(){
 }
 
 function bindBird(){
-  const canvas=qs('#bird-canvas'); if(!canvas)return; const ctx=canvas.getContext('2d');const overlay=qs('#bird-overlay'),start=qs('#bird-start');
-  let raf=0,running=false,last=0,score=0,bird,obstacles=[];const labels=['SAC','EXAM 1','EXAM 2','CAS ERROR','DOMAIN'];
-  function reset(){bird={x:150,y:180,vy:0,r:16};obstacles=[];score=0;last=0}
-  function flap(){if(running)bird.vy=-6.2}
-  function spawn(){const gap=128;const mid=80+Math.random()*200;obstacles.push({x:740,w:72,top:mid-gap/2,bottom:mid+gap/2,label:labels[Math.floor(Math.random()*labels.length)],counted:false})}
-  function hit(o){return bird.x+bird.r>o.x&&bird.x-bird.r<o.x+o.w&&(bird.y-bird.r<o.top||bird.y+bird.r>o.bottom)}
-  function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);const grad=ctx.createLinearGradient(0,0,0,360);grad.addColorStop(0,'#0c4776');grad.addColorStop(1,'#08283f');ctx.fillStyle=grad;ctx.fillRect(0,0,720,360);ctx.fillStyle='rgba(255,255,255,.08)';for(let i=0;i<12;i++){ctx.beginPath();ctx.arc((i*83+score*5)%760,35+(i%4)*78,2,0,Math.PI*2);ctx.fill()}ctx.fillStyle='#ff6255';ctx.beginPath();ctx.arc(bird.x,bird.y,bird.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.font='900 16px system-ui';ctx.textAlign='center';ctx.fillText('B',bird.x,bird.y+6);obstacles.forEach(o=>{ctx.fillStyle='#e7eef5';ctx.fillRect(o.x,0,o.w,o.top);ctx.fillRect(o.x,o.bottom,o.w,360-o.bottom);ctx.fillStyle='#082f50';ctx.font='800 11px system-ui';ctx.save();ctx.translate(o.x+o.w/2,Math.max(24,o.top-20));ctx.rotate(-Math.PI/2);ctx.fillText(o.label,0,0);ctx.restore();});ctx.fillStyle='#fff';ctx.textAlign='left';ctx.font='800 17px system-ui';ctx.fillText(`Score ${score}`,18,28)}
-  function gameOver(){running=false;cancelAnimationFrame(raf);saveArcade('bird',score);overlay.hidden=false;overlay.querySelector('h3').textContent=`Study score: ${Math.max(23,Math.min(50,23+score))}`;overlay.querySelector('p').textContent=score===0?'Statistically impressive.':`You cleared ${score} academic obstacle${score===1?'':'s'}.`;start.textContent='Try again'}
-  function loop(ts){if(!running)return;const dt=Math.min(32,ts-last||16);last=ts;bird.vy+=0.0009*dt*16;bird.y+=bird.vy*dt/16;if(!obstacles.length||obstacles.at(-1).x<480)spawn();obstacles.forEach(o=>{o.x-=3.1*dt/16;if(!o.counted&&o.x+o.w<bird.x){o.counted=true;score++}});obstacles=obstacles.filter(o=>o.x>-100);if(bird.y-bird.r<0||bird.y+bird.r>360||obstacles.some(hit)){draw();gameOver();return}draw();raf=requestAnimationFrame(loop)}
-  start?.addEventListener('click',()=>{reset();overlay.hidden=true;running=true;raf=requestAnimationFrame(loop)});canvas.addEventListener('pointerdown',flap);const key=e=>{if(e.code==='Space'&&running){e.preventDefault();flap()}};window.addEventListener('keydown',key);addCleanup(()=>{cancelAnimationFrame(raf);window.removeEventListener('keydown',key)});reset();draw();
+  const canvas=qs('#bird-canvas'); if(!canvas)return; const ctx=canvas.getContext('2d');const overlay=qs('#bird-overlay'),start=qs('#bird-start'),difficulty=qs('#bird-difficulty');
+  let raf=0,running=false,last=0,score=0,lives=3,bird,obstacles=[],invincible=0;const labels=['SAC','EXAM 1','EXAM 2','CAS ERROR','DOMAIN'];
+  const configs={chill:{gap:188,speed:2.05,gravity:.00062,flap:-5.45,lives:3,spawnAt:430},standard:{gap:155,speed:2.55,gravity:.00076,flap:-5.8,lives:2,spawnAt:455},chaos:{gap:128,speed:3.12,gravity:.0009,flap:-6.2,lives:1,spawnAt:480}};
+  const cfg=()=>configs[difficulty?.value||'chill'];
+  function reset(){bird={x:150,y:180,vy:0,r:16};obstacles=[];score=0;lives=cfg().lives;last=0;invincible=0}
+  function flap(){if(running)bird.vy=cfg().flap}
+  function spawn(){const c=cfg(),margin=c.gap/2+28;const mid=margin+Math.random()*(360-2*margin);obstacles.push({x:760,w:68,top:mid-c.gap/2,bottom:mid+c.gap/2,label:labels[Math.floor(Math.random()*labels.length)],counted:false})}
+  function hit(o){const rr=10;return bird.x+rr>o.x&&bird.x-rr<o.x+o.w&&(bird.y-rr<o.top||bird.y+rr>o.bottom)}
+  function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);const grad=ctx.createLinearGradient(0,0,0,360);grad.addColorStop(0,'#0c4776');grad.addColorStop(1,'#08283f');ctx.fillStyle=grad;ctx.fillRect(0,0,720,360);ctx.fillStyle='rgba(255,255,255,.08)';for(let i=0;i<12;i++){ctx.beginPath();ctx.arc((i*83+score*5)%760,35+(i%4)*78,2,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=invincible>0?.48:1;ctx.fillStyle='#ff6255';ctx.beginPath();ctx.arc(bird.x,bird.y,bird.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.font='900 16px system-ui';ctx.textAlign='center';ctx.fillText('B',bird.x,bird.y+6);ctx.globalAlpha=1;obstacles.forEach(o=>{ctx.fillStyle='#e7eef5';ctx.fillRect(o.x,0,o.w,o.top);ctx.fillRect(o.x,o.bottom,o.w,360-o.bottom);ctx.fillStyle='#082f50';ctx.font='800 11px system-ui';ctx.save();ctx.translate(o.x+o.w/2,Math.max(24,o.top-20));ctx.rotate(-Math.PI/2);ctx.fillText(o.label,0,0);ctx.restore();});ctx.fillStyle='#fff';ctx.textAlign='left';ctx.font='800 17px system-ui';ctx.fillText(`Score ${score}`,18,28);ctx.textAlign='right';ctx.fillText(`Lives ${'♥'.repeat(lives)}${'♡'.repeat(Math.max(0,cfg().lives-lives))}`,700,28)}
+  function loseLife(){if(invincible>0)return false;lives--;if(lives<=0)return true;bird.y=180;bird.vy=0;invincible=1100;obstacles=obstacles.filter(o=>o.x>260);return false}
+  function gameOver(){running=false;cancelAnimationFrame(raf);saveArcade('bird',score);if(difficulty)difficulty.disabled=false;overlay.hidden=false;overlay.querySelector('h3').textContent=`Study score: ${Math.max(23,Math.min(50,23+score))}`;overlay.querySelector('p').textContent=score===0?'Statistically impressive.':`You cleared ${score} academic obstacle${score===1?'':'s'}.`;start.textContent='Try again'}
+  function loop(ts){if(!running)return;const dt=Math.min(32,ts-last||16);last=ts;const c=cfg();invincible=Math.max(0,invincible-dt);bird.vy+=c.gravity*dt*16;bird.y+=bird.vy*dt/16;if(!obstacles.length||obstacles.at(-1).x<c.spawnAt)spawn();obstacles.forEach(o=>{o.x-=c.speed*dt/16;if(!o.counted&&o.x+o.w<bird.x){o.counted=true;score++}});obstacles=obstacles.filter(o=>o.x>-100);const collision=bird.y-bird.r<0||bird.y+bird.r>360||obstacles.some(hit);if(collision&&invincible<=0){if(loseLife()){draw();gameOver();return}}draw();raf=requestAnimationFrame(loop)}
+  start?.addEventListener('click',()=>{reset();overlay.hidden=true;running=true;difficulty.disabled=true;raf=requestAnimationFrame(loop)});canvas.addEventListener('pointerdown',flap);const key=e=>{if(e.code==='Space'&&running){e.preventDefault();flap()}};window.addEventListener('keydown',key);addCleanup(()=>{cancelAnimationFrame(raf);window.removeEventListener('keydown',key);if(difficulty)difficulty.disabled=false});reset();draw();
+}
+
+
+function slugify(value){return String(value||'item').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,80)||'item'}
+async function sha256(text){const data=new TextEncoder().encode(text);const hash=await crypto.subtle.digest('SHA-256',data);return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+function adminDrafts(){try{return JSON.parse(localStorage.getItem(ADMIN_DRAFT_KEY)||'{"tests":[],"resources":[],"questions":[]}')}catch{return {tests:[],resources:[],questions:[]}}}
+function saveAdminDrafts(d){localStorage.setItem(ADMIN_DRAFT_KEY,JSON.stringify(d))}
+function bindAdmin(){
+  const login=qs('#admin-login-form');
+  if(login){login.addEventListener('submit',async e=>{e.preventDefault();const u=qs('#admin-username').value.trim(),p=qs('#admin-password').value,msg=qs('#admin-login-message');if(u===ADMIN_USERNAME&&await sha256(p)===ADMIN_PASSWORD_SHA256){sessionStorage.setItem(ADMIN_SESSION_KEY,'1');render()}else msg.innerHTML='<div class="feedback bad"><strong>Access denied.</strong> Check the admin username and password.</div>'});return}
+  if(sessionStorage.getItem(ADMIN_SESSION_KEY)!=='1')return;
+  qs('#admin-logout')?.addEventListener('click',()=>{sessionStorage.removeItem(ADMIN_SESSION_KEY);render()});
+  window.__bpAdminFiles=window.__bpAdminFiles||new Map();
+  const drafts=adminDrafts();
+  const drawDrafts=()=>{const count=drafts.tests.length+drafts.resources.length+drafts.questions.length;const countEl=qs('#admin-draft-count');if(countEl)countEl.textContent=count;const list=qs('#admin-draft-list');if(!list)return;const rows=[...drafts.tests.map(x=>['Test',x.title]),...drafts.resources.map(x=>[x.type,x.title]),...drafts.questions.map(x=>['Question',x.topicLabel])];list.innerHTML=rows.length?rows.map(([type,title])=>`<div><span>${type}</span><b>${title}</b></div>`).join(''):'<p class="muted">No drafts yet.</p>'};
+  const qCourse=qs('#admin-question-course'),qTopic=qs('#admin-question-topic');
+  const updateTopics=()=>{const c=courses.find(x=>x.id===qCourse.value)||courses[0];qTopic.innerHTML=c.topics.map(t=>`<option value="${t.id}" data-label="${t.title}">${t.title}</option>`).join('')};qCourse?.addEventListener('change',updateTopics);updateTopics();
+  qs('#admin-add-test')?.addEventListener('click',()=>{const title=qs('#admin-test-title').value.trim(),course=qs('#admin-test-course').value,topic=qs('#admin-test-topic').value.trim(),file=qs('#admin-test-file').files[0],sol=qs('#admin-solution-file').files[0],thumb=qs('#admin-thumbnail-file').files[0],msg=qs('#admin-test-message');if(!title||!topic||!file){msg.innerHTML='<div class="feedback bad">Title, topic and test PDF are required.</div>';return}const slug=slugify(title),c=courses.find(x=>x.id===course),draftId=`test-${Date.now()}`;const testPath=`public/resources/${course}/tests/${slug}.pdf`,solPath=sol?`public/resources/${course}/solutions/${slug}-solutions.pdf`:testPath,thumbPath=thumb?`public/thumbnails/${slug}.${(thumb.name.split('.').pop()||'jpg').toLowerCase()}`:'public/brand/brainpower-logo.jpg';const item={id:slug,title,subject:c.short.startsWith('Methods')?'Mathematical Methods':'Specialist Mathematics',units:c.short.includes('1/2')?'1 & 2':'3 & 4',course,topics:[topic],difficulty:qs('#admin-test-difficulty').value,tech:qs('#admin-test-tech').value,year:new Date().getFullYear(),reading:Number(qs('#admin-test-reading').value||0),minutes:Number(qs('#admin-test-writing').value||0),marks:Number(qs('#admin-test-marks').value||0),questions:Number(qs('#admin-test-questions').value||0),file:testPath,solutionFile:solPath,thumbnail:thumbPath,description:qs('#admin-test-description').value.trim()||`${topic} practice assessment.`,dateAdded:new Date().toISOString().slice(0,10),_draftId:draftId};drafts.tests.push(item);window.__bpAdminFiles.set(draftId,{test:file,solution:sol,thumbnail:thumb,testPath,solPath,thumbPath});saveAdminDrafts(drafts);drawDrafts();msg.innerHTML='<div class="feedback good">Added to the local publish pack.</div>'});
+  qs('#admin-add-resource')?.addEventListener('click',()=>{const title=qs('#admin-resource-title').value.trim(),course=qs('#admin-resource-course').value,topic=qs('#admin-resource-topic').value.trim(),file=qs('#admin-resource-file').files[0],msg=qs('#admin-resource-message');if(!title||!topic||!file){msg.innerHTML='<div class="feedback bad">Title, topic and file are required.</div>';return}const slug=slugify(title),type=qs('#admin-resource-type').value,folder=type==='Worksheet'?'worksheets':type==='Solutions'?'solutions':'notes',path=`public/resources/${course}/${folder}/${slug}.pdf`,c=courses.find(x=>x.id===course),draftId=`resource-${Date.now()}`;const item={id:`res-${slug}`,title,type,course,subject:c.short.startsWith('Methods')?'Mathematical Methods':'Specialist Mathematics',units:c.short.includes('1/2')?'1 & 2':'3 & 4',topics:[topic],difficulty:qs('#admin-resource-difficulty').value,file:path,thumbnail:'public/brand/brainpower-logo.jpg',description:qs('#admin-resource-description').value.trim()||`${topic} ${type.toLowerCase()}.`,_draftId:draftId};drafts.resources.push(item);window.__bpAdminFiles.set(draftId,{resource:file,path});saveAdminDrafts(drafts);drawDrafts();msg.innerHTML='<div class="feedback good">Added to the local publish pack.</div>'});
+  qs('#admin-add-question')?.addEventListener('click',()=>{const course=qCourse.value,topic=qTopic.value,label=qTopic.selectedOptions[0]?.dataset.label||topic,prompt=qs('#admin-question-prompt').value.trim(),answer=qs('#admin-question-answer').value.trim(),solution=qs('#admin-question-solution').value.trim(),msg=qs('#admin-question-message');if(!prompt||!answer||!solution){msg.innerHTML='<div class="feedback bad">Question, accepted answer and solution are required.</div>';return}drafts.questions.push({id:`admin-${slugify(course)}-${Date.now()}`,course,topic,topicLabel:label,difficulty:qs('#admin-question-difficulty').value,type:qs('#admin-question-type').value,prompt,answer,solution,xp:qs('#admin-question-difficulty').value==='Separator'?25:14});saveAdminDrafts(drafts);drawDrafts();msg.innerHTML='<div class="feedback good">Question added to the local publish pack.</div>'});
+  qs('#admin-clear-drafts')?.addEventListener('click',()=>{if(confirm('Clear all local Admin Studio drafts?')){drafts.tests=[];drafts.resources=[];drafts.questions=[];window.__bpAdminFiles.clear();saveAdminDrafts(drafts);drawDrafts()}});
+  qs('#admin-export')?.addEventListener('click',async()=>{if(!window.JSZip){alert('ZIP library has not loaded yet. Refresh the page and try again.');return}const zip=new window.JSZip();const clean=x=>{const y={...x};delete y._draftId;return y};const testsOut=[...adminTests,...drafts.tests.map(clean)],questionsOut=[...adminQuestions,...drafts.questions.map(clean)];const resourcesFromTests=drafts.tests.flatMap(t=>{const x=clean(t);const base={course:x.course,subject:x.subject,units:x.units,topics:x.topics,difficulty:x.difficulty,thumbnail:x.thumbnail};const rows=[{id:`res-${x.id}`,title:x.title,type:'Practice Test',...base,file:x.file,description:x.description}];if(x.solutionFile&&x.solutionFile!==x.file)rows.push({id:`res-${x.id}-solutions`,title:`${x.title}: Solutions`,type:'Solutions',...base,file:x.solutionFile,description:`Solutions and marking material for ${x.title}.`});return rows});const resourcesOut=[...adminResources,...drafts.resources.map(clean),...resourcesFromTests];const js=`// Generated by Brainpower Admin Studio V5\nexport const adminTests = ${JSON.stringify(testsOut,null,2)};\nexport const adminResources = ${JSON.stringify(resourcesOut,null,2)};\nexport const adminQuestions = ${JSON.stringify(questionsOut,null,2)};\n`;zip.file('src/data/admin-content.js',js);let missing=0;for(const t of drafts.tests){const f=window.__bpAdminFiles.get(t._draftId);if(f?.test)zip.file(f.testPath,f.test);else missing++;if(f?.solution)zip.file(f.solPath,f.solution);if(f?.thumbnail)zip.file(f.thumbPath,f.thumbnail)}for(const r of drafts.resources){const f=window.__bpAdminFiles.get(r._draftId);if(f?.resource)zip.file(f.path,f.resource);else missing++}zip.file('PUBLISH_README.txt','Upload the contents of this ZIP over the root of your Brainpower Education GitHub repository. Keep the same folder structure. GitHub Pages will redeploy automatically.\n'+(missing?`WARNING: ${missing} attached file(s) were not available in this browser session and must be uploaded separately.\n`:''));const blob=await zip.generateAsync({type:'blob'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`brainpower-publish-pack-${new Date().toISOString().slice(0,10)}.zip`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
+  drawDrafts();
 }
 
 function bindProgress(){

@@ -1,4 +1,4 @@
-# Brainpower Education V4
+# Brainpower Education V5
 
 Precision quality pass focused on the core learning experience: Learn, Practice, Tests, The Vault and Progress.
 
@@ -95,3 +95,16 @@ brainpower-education/
 ```
 
 See `ADDING_RESOURCES.md` before adding new PDFs.
+
+
+## V5 Admin Studio
+
+The hidden admin route is `#admin`. It is deliberately not linked from the public navigation.
+
+Default V5 development credentials:
+- Username: `brainpower-admin`
+- Password: `BrainpowerV5!`
+
+**Change these before treating the route as private.** The static admin gate is not equivalent to server-side authentication; public GitHub Pages source can be inspected. The studio does not write to GitHub directly. Instead, it exports a GitHub-ready ZIP publish pack.
+
+Admin additions are loaded from `src/data/admin-content.js`.

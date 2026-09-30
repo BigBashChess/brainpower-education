@@ -1,4 +1,6 @@
-export const tests = [
+import {adminTests} from './admin-content.js';
+
+export const baseTests = [
   {
     id:'kinematics-party-quiz-showdown',
     title:'Kinematics - Party Quiz Showdown',
@@ -12,4 +14,5 @@ export const tests = [
     dateAdded:'2026-09-29'
   }
 ];
+export const tests = [...baseTests,...adminTests];
 export const testById = id => tests.find(t=>t.id===id);
