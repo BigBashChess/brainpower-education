@@ -1,0 +1,10 @@
+{
+  "name": "brainpower-education",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static Brainpower Education VCE Mathematics platform",
+  "scripts": {
+    "serve": "python -m http.server 8000"
+  }
+}
