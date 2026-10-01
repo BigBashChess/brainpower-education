@@ -1,87 +1,40 @@
-# Brainpower Education V7 — Deep Lesson Experience
+# Brainpower Education — 1.0 Release Candidate
 
-V7 keeps Brainpower Education static, free to host on GitHub Pages and independent of AI/database services, while substantially upgrading the quality and depth of the interactive courses.
+Brainpower Education is a free, static VCE learning platform for Mathematical Methods, Specialist Mathematics and Physics. It combines structured courses, practice banks, formal assessments, resources, study tools, progress tracking and an optional arcade in one GitHub Pages site.
 
-## Courses
+This repository is currently the **pre-1.0 release candidate**. The public version should not be labelled 1.0 until the final QA pass is complete.
 
-- Mathematical Methods Units 1 & 2 — 22 lessons/checkpoints, 65 practice questions
-- Mathematical Methods Units 3 & 4 — 19 lessons/checkpoints, 57 practice questions
-- Specialist Mathematics Units 1 & 2 — 22 lessons/checkpoints, 59 practice questions
-- Specialist Mathematics Units 3 & 4 — 35 lessons/checkpoints, 74 practice questions
+## Current learning platform
 
-Total: **98 interactive lessons/checkpoints**, **255 practice-bank questions**, plus **14 Daily Brainpower** challenges.
+- 98 interactive mathematics lessons/checkpoints
+- 255 practice-bank questions plus Daily Brainpower challenges
+- Mathematical Methods Units 1 & 2 and Units 3 & 4
+- Specialist Mathematics Units 1 & 2 and Units 3 & 4
+- Physics Units 1 & 2 content
+- Course diagnostics and mastery tracking
+- 100% required-question lesson mastery and 90%+ checkpoint standard
+- MathPad input with live mathematical formatting
+- Formal Brainpower assessment library and Exam Mode where metadata is verified
+- 2026 Brainpower Mock Exam Series for Methods and Specialist
+- Searchable resource Vault
+- Progress dashboard and local score history
+- Study tools and Brainpower Arcade
+- Responsive light/dark interface and reduced-motion support
 
-## V7 lesson model
+## Architecture
 
-Lessons are no longer short explanations followed immediately by questions. Each lesson now follows a deeper mastery sequence:
+The site deliberately remains build-step-free. It uses native ES modules, HTML/CSS/JavaScript, KaTeX and math.js and can be served directly by GitHub Pages. Student progress is stored locally in the browser; there is no required account, database or AI service.
 
-1. Learning goals
-2. Big-picture intuition
-3. Key conceptual lens
-4. Why the method works / derivation
-5. Core relation or formula in context
-6. Worked-method skeleton
-7. Full worked example where available
-8. Common exam traps
-9. Strong-solution strategy
-10. Required guided practice
-11. Optional transfer practice
-12. Retrieval check
-13. Mastery gate
-
-Specialist Mathematics 3/4 is the flagship course and receives extensive lesson-specific deep dives and worked examples across functions, complex numbers, vectors, calculus, differential equations, probability/statistics and mechanics.
-
-## Content architecture
-
-V7 adds:
-
-```text
-src/data/lesson-depth-v7.js
-```
-
-This content layer keeps detailed teaching material separate from sequencing and question-bank data. It makes future lesson expansion much easier without rewriting the course engine.
-
-## Existing systems retained
-
-- Course diagnostics
-- 100% required-question lesson mastery
-- Specialist topic checkpoints
-- MathPad answer input and live rendering
-- Algebraic-equivalence checking where supported
-- Hidden Brainpower Admin Studio at `#admin`
-- Test library + Exam Mode
-- The Vault
-- Progress dashboard
-- Tools
-- Brainpower Arcade
-- Brainpower Bird Chill / Standard / Chaos modes
-- Instagram + Discord links
-- Dark mode and responsive layout
+Detailed lesson teaching content lives separately from sequencing and question-bank data, making it possible to expand lessons without rewriting the course engine.
 
 ## Admin Studio
 
-Route: `#admin`
-
-Current development credentials:
-
-- Username: `brainpower-admin`
-- Password: `BrainpowerV5!`
-
-This remains a static-client authoring gate rather than server-grade authentication. Never put GitHub write tokens or other private credentials in the frontend.
+A hidden client-side Admin Studio exists for authoring and exporting publish packs. It is a convenience gate only, **not secure authentication**. Credentials are intentionally not documented here. Never store GitHub tokens, API keys or other secrets in the frontend.
 
 ## Hosting
 
-The project remains build-step-free and works directly on GitHub Pages.
+GitHub Pages can serve the repository directly from the `main` branch and repository root. For local preview, run `python -m http.server 8000` from the repository and open `http://localhost:8000`.
 
-1. Settings → Pages
-2. Source: Deploy from a branch
-3. Branch: `main`
-4. Folder: `/ (root)`
+## Release process
 
-## Local preview
-
-```bash
-python -m http.server 8000
-```
-
-Then open `http://localhost:8000`.
+The final release checklist lives in `docs/PRE_1_0_REVIEW.md`. Version 1.0 should only be declared after route, content, assessment, mobile, accessibility and regression checks pass.
