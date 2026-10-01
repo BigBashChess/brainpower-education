@@ -9,6 +9,7 @@ export const SITE = {
 };
 
 export const WHATS_NEW = [
+  {date:'1 Oct 2026', title:'V8: Assessment Library Update', text:'The Test Centre now contains the full current Brainpower assessment collection: Methods 1/2 and 3/4, Specialist 1/2, Physics Motion and the Partial Fraction Bee, with marking schemes linked where available.'},
   {date:'30 Sep 2026', title:'V7: Deep Lesson Experience', text:'All 98 course lessons now use a substantially deeper teaching format with big-picture intuition, why-the-method-works explanations, worked examples, common traps, exam strategy, retrieval checks and optional transfer practice.'},
   {date:'30 Sep 2026', title:'V6: Mastery Course Expansion', text:'The four VCE mathematics courses contain 98 interactive lessons/checkpoints and 255 practice-bank questions, with Specialist 3/4 as the flagship mastery path.'},
   {date:'30 Sep 2026', title:'Course diagnostics', text:'Each course now has a topic-spanning diagnostic so students can identify where to begin instead of repeating content they already know.'},
