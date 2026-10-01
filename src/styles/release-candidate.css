@@ -1,0 +1,23 @@
+/* Brainpower 0.9 release-candidate polish. Intentionally last in the cascade. */
+:root{--bp-focus:#63c9ff;--bp-dark:#061f35;--bp-panel-dark:#0b304b}
+/* Make numerical/statistical content unambiguously readable in dark mode. */
+.dark .quick-stats strong,.dark .quick-stats span,.dark .mastery-standard-strip b,.dark .mastery-standard-strip span,.dark .snapshot-metrics b,.dark .snapshot-metrics span,.dark .practice-kpi b,.dark .practice-kpi span,.dark .practice-kpi small,.dark .mini-stat b,.dark .mini-stat span,.dark .mini-stat small,.dark .featured-test h2,.dark .featured-test p,.dark .featured-test-meta b,.dark .featured-test-meta span,.dark .test-info dt,.dark .test-info dd{color:#f3f9fd!important}
+.dark .quick-stats span,.dark .mastery-standard-strip span,.dark .practice-kpi span,.dark .mini-stat span{color:#b9cfdd!important}
+/* Preserve hierarchy without low-contrast navy-on-navy headings. */
+.dark .section h1,.dark .section h2,.dark .section h3,.dark .section h4{color:#f3f9fd}
+.dark .eyebrow.dark{color:#63c9ff!important}
+/* Assessment cards: stable image sizing and a deliberate visual surface. */
+.test-thumb,.featured-test>img,.cover-card>img{display:block;object-fit:cover;background:linear-gradient(145deg,#0a4774,#082f50);border:1px solid rgba(120,190,230,.22)}
+.test-thumb{aspect-ratio:16/9;min-height:150px}.featured-test>img{aspect-ratio:4/5;object-fit:contain}.cover-card>img{width:100%;object-fit:contain}
+.test-card{overflow:hidden}.test-main{min-width:0}.test-main h3{line-height:1.12}.test-actions{align-self:center}
+/* Never let metadata placeholders look like real data. */
+.metadata-pending{display:none!important}.exam-disabled{opacity:.58;pointer-events:none;cursor:not-allowed}
+/* Buttons and focus states should feel like one system. */
+.btn{transition:transform .16s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease}.btn:not(:disabled):hover{transform:translateY(-1px)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--bp-focus);outline-offset:3px}
+/* Reduce accidental crowding on cards and metadata rows. */
+.meta,.card-meta,.featured-test-meta{gap:.65rem 1.15rem;flex-wrap:wrap}.tagrow{gap:.45rem;flex-wrap:wrap}.test-card{gap:1.5rem}.featured-test{gap:2.2rem}
+/* Mobile/tablet cleanup. */
+@media(max-width:900px){.featured-test{grid-template-columns:1fr!important}.featured-test>img{width:min(320px,100%);margin-inline:auto}.test-card{grid-template-columns:1fr!important}.test-thumb{width:100%;max-width:360px}.test-actions{width:100%;display:flex;flex-wrap:wrap;align-items:center}.brainy-companion{right:12px;bottom:12px}.brainy-companion img{width:68px}.brainy-say{max-width:200px}}
+@media(max-width:620px){.section{padding-left:1rem;padding-right:1rem}.page-head h1{font-size:clamp(2.5rem,14vw,4rem)}.hero h1{font-size:clamp(3.2rem,16vw,5rem)}.brainy-say{display:none}.quick-stats{grid-template-columns:repeat(2,1fr)}.quick-stats div:nth-child(2){border-right:0}.test-actions .btn{flex:1 1 140px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
