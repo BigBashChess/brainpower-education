@@ -1,9 +1,9 @@
 {
   "name": "brainpower-education",
-  "version": "7.0.0",
+  "version": "8.0.0",
   "private": true,
   "type": "module",
-  "description": "Brainpower Education V7 deep lesson experience",
+  "description": "Brainpower Education V8 assessment library expansion",
   "scripts": {
     "serve": "python -m http.server 8000"
   }
