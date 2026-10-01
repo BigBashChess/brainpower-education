@@ -1,9 +1,9 @@
 {
   "name": "brainpower-education",
-  "version": "8.0.0",
+  "version": "0.9.0",
   "private": true,
   "type": "module",
-  "description": "Brainpower Education V8 assessment library expansion",
+  "description": "Brainpower Education pre-1.0 release candidate",
   "scripts": {
     "serve": "python -m http.server 8000"
   }
