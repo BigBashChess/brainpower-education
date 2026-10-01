@@ -6,9 +6,7 @@ export const adminTests = [
     "subject": "Specialist Mathematics",
     "units": "1 & 2",
     "course": "specialist-12",
-    "topics": [
-      "Number and Proof"
-    ],
+    "topics": ["Number and Proof"],
     "difficulty": "Advanced",
     "tech": "Tech-free",
     "year": 2026,
@@ -16,9 +14,9 @@ export const adminTests = [
     "minutes": 50,
     "marks": 31,
     "questions": 7,
-    "file": "public/resources/specialist-12/tests/number-and-proof-blackburn-lip-sync-scandal.pdf",
-    "solutionFile": "public/resources/specialist-12/tests/number-and-proof-blackburn-lip-sync-scandal.pdf",
-    "thumbnail": "public/brand/brainpower-logo.jpg",
+    "file": "public/resources/specialist-12/tests/proof-2026.pdf",
+    "solutionFile": "public/resources/specialist-12/solutions/proof-2026-solutions.pdf",
+    "thumbnail": "public/thumbnails/specialist-12-test.svg",
     "description": "Number and Proof practice assessment.",
     "dateAdded": "2026-09-30"
   }
@@ -31,12 +29,10 @@ export const adminResources = [
     "course": "specialist-12",
     "subject": "Specialist Mathematics",
     "units": "1 & 2",
-    "topics": [
-      "Number and Proof"
-    ],
+    "topics": ["Number and Proof"],
     "difficulty": "Advanced",
-    "thumbnail": "public/brand/brainpower-logo.jpg",
-    "file": "public/resources/specialist-12/tests/number-and-proof-blackburn-lip-sync-scandal.pdf",
+    "thumbnail": "public/thumbnails/specialist-12-test.svg",
+    "file": "public/resources/specialist-12/tests/proof-2026.pdf",
     "description": "Number and Proof practice assessment."
   }
 ];
