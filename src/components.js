@@ -3,8 +3,44 @@ import {lessonsForCourse} from './data/lessons.js';
 import {renderMathString,courseMastery,firstIncompleteLesson,esc} from './utils.js';
 import {isBookmarked,load} from './progress/store.js';
 
-export function header(route){return `<header class="topbar"><a class="brand" href="#home" aria-label="Brainpower Education home"><img src="public/brand/brainpower-logo.jpg" alt="Brainpower Education logo"><span><b>BRAINPOWER</b><small>EDUCATION</small></span></a><nav class="nav" aria-label="Main navigation">${SITE.nav.map(([r,n])=>`<a class="${route===r?'active':''}" href="#${r}">${n}</a>`).join('')}</nav><div class="top-actions"><a class="iconbtn" href="#search" aria-label="Search">⌕</a><button class="iconbtn" id="theme-toggle" type="button" aria-label="Toggle colour theme">◐</button><button class="iconbtn mobile-only" id="menu-toggle" type="button" aria-label="Open navigation">☰</button></div></header><div class="mobile-nav" id="mobile-nav" hidden>${SITE.nav.map(([r,n])=>`<a href="#${r}">${n}</a>`).join('')}</div>`}
-export function footer(){return `<footer class="footer"><div class="footer-brand"><img src="public/brand/brainpower-logo.jpg" alt=""><div><strong>BRAINPOWER EDUCATION</strong><p>Learn. Practise. Test. Master.</p></div></div><div><b>Platform</b><a href="#learn">Courses</a><a href="#practice">Practice</a><a href="#tests">Practice Tests</a><a href="#resources">The Vault</a><a href="#arcade">Arcade</a></div><div><b>Brainpower</b><a href="${SITE.instagram}" target="_blank" rel="noopener">Instagram ↗</a><a href="${SITE.discord}" target="_blank" rel="noopener">Discord ↗</a><a href="#about">About</a><a href="#about">Report an issue</a></div><div><b>About this build</b><p>Static, no AI, no paywall. Progress is stored in this browser.</p><small>Brainpower Education • 2026</small></div></footer>`}
+const icon=(name)=>{
+  const icons={
+    search:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.7-3.7"></path></svg>',
+    theme:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.8 6.8 0 0 0 21 12.8Z"></path></svg>',
+    menu:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>',
+    home:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-7 9 7v9H7v-6h10v6"></path></svg>',
+    learn:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22V5.5Z"></path><path d="M4 19a3 3 0 0 1 3-3h13"></path></svg>',
+    practice:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>',
+    tests:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v4h3v14H4V7h3Z"></path><path d="M8 11h8M8 15h8"></path></svg>',
+    progress:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg>'
+  };
+  return icons[name]||icons.home;
+};
+
+export function header(route){
+  const nav=SITE.nav.map(([r,n])=>`<a class="${route===r?'active':''}" href="#${r}">${n}</a>`).join('');
+  const secondary=SITE.nav.filter(([r])=>!['home','learn','practice','tests','progress'].includes(r)).map(([r,n])=>`<a class="${route===r?'active':''}" href="#${r}">${n}</a>`).join('');
+  const dock=[['home','Home','home'],['learn','Learn','learn'],['practice','Practice','practice'],['tests','Tests','tests'],['progress','Progress','progress']].map(([r,n,i])=>`<a class="${route===r?'active':''}" href="#${r}">${icon(i)}<span>${n}</span></a>`).join('');
+  return `<header class="bp-topbar" data-shell-header>
+    <div class="bp-topbar__inner">
+      <a class="bp-brand" href="#home" aria-label="Brainpower Education home">
+        <span class="bp-brand__mark"><img src="public/brand/brainpower-logo.jpg" alt=""></span>
+        <span class="bp-brand__copy"><strong>BRAINPOWER</strong><small>EDUCATION</small></span>
+      </a>
+      <nav class="bp-nav" aria-label="Main navigation">${nav}</nav>
+      <div class="bp-top-actions">
+        <a class="bp-shell-action bp-shell-action--search" href="#search" aria-label="Search Brainpower">${icon('search')}<span>Search</span></a>
+        <button class="bp-shell-action" id="theme-toggle" type="button" aria-label="Toggle colour theme">${icon('theme')}</button>
+        <button class="bp-shell-action bp-menu-button" id="menu-toggle" type="button" aria-label="Open more navigation" aria-controls="mobile-nav" aria-expanded="false">${icon('menu')}</button>
+      </div>
+    </div>
+  </header>
+  <div class="bp-mobile-sheet" id="mobile-nav" hidden><div class="bp-mobile-sheet__grid">${secondary}</div></div>
+  <nav class="bp-mobile-dock" aria-label="Mobile primary navigation">${dock}</nav>`;
+}
+
+export function footer(){return `<footer class="bp-footer"><div class="bp-footer__inner"><div class="bp-footer__brand"><img src="public/brand/brainpower-logo.jpg" alt=""><div><strong>BRAINPOWER EDUCATION</strong><p>A connected VCE study environment for learning, practice, assessments, resources and progress.</p></div></div><div class="bp-footer__col"><b>Study</b><a href="#learn">Courses</a><a href="#practice">Practice</a><a href="#tests">Test Centre</a><a href="#resources">Resources</a></div><div class="bp-footer__col"><b>Explore</b><a href="#tools">Tools</a><a href="#arcade">Arcade</a><a href="#progress">Progress</a><a href="#search">Search</a></div><div class="bp-footer__col"><b>Brainpower</b><a href="${SITE.instagram}" target="_blank" rel="noopener">Instagram ↗</a><a href="${SITE.discord}" target="_blank" rel="noopener">Discord ↗</a><a href="#about">About</a><span>Independent VCE education platform</span></div></div><div class="bp-footer__base"><span>Brainpower Education • 2026</span><span>Learn → Practise → Test → Review → Progress</span></div></footer>`}
+
 export const pageHead=(eyebrow,title,desc,actions='')=>`<section class="page-head"><div class="page-head-inner"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p>${desc}</p></div>${actions?`<div class="head-actions">${actions}</div>`:''}</div></section>`;
 export const tag=(text,kind='')=>text?`<span class="tag ${kind}">${text}</span>`:'';
 export const progressBar=(value,label='')=>`<div class="progress-wrap">${label?`<div class="progress-label"><span>${label}</span><b>${value}%</b></div>`:''}<div class="progress"><span style="width:${value}%"></span></div></div>`;
