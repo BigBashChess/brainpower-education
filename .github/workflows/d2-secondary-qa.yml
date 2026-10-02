@@ -1,0 +1,46 @@
+name: D2 secondary routes browser QA
+
+on:
+  push:
+    branches: [revamp/milestone-d2-secondary]
+    paths:
+      - 'src/revamp/secondary.js'
+      - 'src/revamp/update-log.js'
+      - 'src/styles/revamp/secondary.css'
+      - 'public/art/about/**'
+      - 'index.html'
+      - 'src/main.js'
+      - 'src/data/**'
+      - 'scripts/d2-secondary-qa.mjs'
+      - '.github/workflows/d2-secondary-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start static server
+        run: |
+          python3 -m http.server 8000 >/tmp/brainpower-server.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:8000/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/brainpower-server.log
+          exit 1
+      - name: Run D2 browser QA
+        run: node scripts/d2-secondary-qa.mjs
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: milestone-d2-secondary-qa
+          path: qa-d2-secondary/
+          retention-days: 14
