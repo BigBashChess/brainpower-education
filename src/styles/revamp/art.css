@@ -1,0 +1,20 @@
+/*
+ * Brainpower artwork ownership layer.
+ *
+ * Milestone A still uses the approved hosted review artwork through home.css.
+ * This file owns safe fallbacks now and is the intended home for local production
+ * asset bindings once the approved masters are copied into public/art/.
+ */
+.bp-home-hero__art{background-color:#071522}
+.bp-home-subject--methods{background-color:#0a2944}
+.bp-home-subject--specialist{background-color:#191d43}
+.bp-home-subject--physics{background-color:#19281f}
+
+/* Keep artwork decorative: the interface remains readable if any image request fails. */
+.bp-home-hero__art,.bp-home-subject{background-repeat:no-repeat}
+
+/* Lower sections can skip off-screen painting without changing document flow. */
+@supports(content-visibility:auto){
+  .bp-home-section{content-visibility:auto;contain-intrinsic-size:auto 560px}
+  .bp-home-community{content-visibility:auto;contain-intrinsic-size:auto 220px}
+}
