@@ -4,7 +4,7 @@ import {load} from '../progress/store.js';
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const lessonRoute=()=>{const raw=(location.hash.slice(1)||'').split('?')[0].split('/').filter(Boolean);return raw[0]==='lesson'?raw[1]||'':null};
 
 const HERO_ART={
