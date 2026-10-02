@@ -2,11 +2,18 @@ import {resources} from '../data/resources.js';
 import {courses} from '../data/courses.js';
 import {load} from '../progress/store.js';
 
+if(!document.querySelector('link[data-bp-resources-tools]')){
+  const link=document.createElement('link');
+  link.rel='stylesheet';
+  link.href='src/styles/revamp/resources-tools.css';
+  link.dataset.bpResourcesTools='1';
+  document.head.appendChild(link);
+}
+
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const route=()=>((location.hash.slice(1)||'home').split('?')[0].split('/')[0]||'home');
-let active='';
 
 const RESOURCE_TYPES=[...new Set(resources.map(r=>r.type))];
 const COURSE_NAME=id=>courses.find(c=>c.id===id)?.short||'Other';
@@ -52,7 +59,6 @@ function enhanceResources(main){
   list?.classList.add('bp-archive__grid');
   note?.classList.add('bp-archive__note');
 
-  // Give resource cards a more useful archive hierarchy while preserving original links/buttons/listeners.
   $$('.resource-card',list).forEach((card,i)=>{
     card.classList.add('bp-archive-card');
     const id=card.dataset.resource;
@@ -67,7 +73,6 @@ function enhanceResources(main){
     }
   });
 
-  // Quick saved-only view that composes with the legacy filter engine by driving its real search field.
   const chipHost=$('.vault-type-chips',section);
   if(chipHost&&!$('[data-bp-saved]',chipHost)){
     chipHost.insertAdjacentHTML('beforeend','<button class="vault-chip bp-saved-chip" type="button" data-bp-saved>★ Saved</button>');
@@ -107,9 +112,9 @@ function enhanceTools(main){
 
 function apply(){
   const r=route();
-  if(!['resources','tools'].includes(r)){active='';return}
+  if(!['resources','tools'].includes(r))return;
   const main=$('main');if(!main||main.dataset.bpUtility===r)return;
-  main.dataset.bpUtility=r;active=r;
+  main.dataset.bpUtility=r;
   if(r==='resources')enhanceResources(main);else enhanceTools(main);
 }
 
