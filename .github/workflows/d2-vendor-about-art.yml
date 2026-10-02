@@ -1,0 +1,44 @@
+name: Vendor D2 About hero artwork
+
+on:
+  push:
+    branches:
+      - revamp/milestone-d2-secondary
+    paths:
+      - .github/workflows/d2-vendor-about-art.yml
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: revamp/milestone-d2-secondary
+      - name: Install WebP encoder
+        run: |
+          if ! command -v cwebp >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y webp
+          fi
+      - name: Download and compress approved About hero
+        env:
+          ABOUT_HERO_URL: "https://dnznrvs05pmza.cloudfront.net/gemini/gemini-3-pro-image/images/08292b2b-8c45-4aa1-8e68-bace5af86051/a9f59c86-3a5f-47ee-b372-6f4a8ad95888/Create_one_standalone_ultra_wide_cinematic_website_hero_back.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZDI2MWE0OGVhMTM2YWE1MyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTA3MzY3OH0.yc9sN4ll5VG1sZF4bCxAFjtcHZgesgzZva1oNzOHGgE"
+        run: |
+          mkdir -p public/art/about
+          curl -L --fail --retry 3 "$ABOUT_HERO_URL" -o /tmp/brainpower-about-hero.png
+          cwebp -quiet -q 82 /tmp/brainpower-about-hero.png -o public/art/about/hero-about.webp
+          ls -lh public/art/about/hero-about.webp
+      - name: Commit production asset
+        run: |
+          git config user.name "Brainpower Build"
+          git config user.email "actions@users.noreply.github.com"
+          git add public/art/about/hero-about.webp
+          if git diff --cached --quiet; then
+            echo "About artwork already vendored."
+            exit 0
+          fi
+          git commit -m "Vendor D2 About hero artwork"
+          git push origin HEAD:revamp/milestone-d2-secondary
