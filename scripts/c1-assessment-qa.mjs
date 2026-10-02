@@ -53,7 +53,7 @@ await checkCentre({width:1440,height:900},'test-centre-full',true);
 // Partial metadata must never render null/undefined and must explain absent scheme.
 {
   const {page,errors}=await ctx({width:390,height:844});await page.goto(base+'#test/methods-sem2-tf-2026',{waitUntil:'networkidle'});await page.waitForSelector('.bp-test-detail-page');await page.waitForTimeout(400);
-  const text=await page.locator('main').innerText();if(/\b(null|undefined)\b/i.test(text)||!text.includes('not currently published'))problems.push('partial detail exposes unknown metadata or lacks transparent scheme state');
+  const text=await page.locator('main.bp-test-detail-page').innerText();if(/\b(null|undefined)\b/i.test(text)||!text.includes('not currently published'))problems.push('partial detail exposes unknown metadata or lacks transparent scheme state');
   await page.screenshot({path:`${out}/test-detail-partial-mobile.png`,fullPage:true});if(errors.length)problems.push(`partial detail errors: ${[...new Set(errors)].join(' | ')}`);await page.close();
 }
 
