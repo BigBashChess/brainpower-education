@@ -28,6 +28,8 @@
   <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script type="module" src="src/data/test-metadata-audit.js"></script>
   <script type="module" src="src/physics-register.js"></script>
+  <!-- Must load before main.js so the transition overlay activates before each route render. -->
+  <script type="module" src="src/revamp/page-transitions.js"></script>
   <script type="module" src="src/main.js"></script>
   <script type="module" src="src/pre1-overhaul.js"></script>
   <script type="module" src="src/pre1-safety.js"></script>
