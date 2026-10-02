@@ -9,20 +9,30 @@ await fs.mkdir(out,{recursive:true});
 
 const browser=await chromium.launch({headless:true});
 
+async function waitForCourseReady(page){
+  await page.waitForSelector('.bp-course-page',{timeout:10000});
+  await page.waitForSelector('.bp-course-hero__art',{timeout:10000});
+  await page.waitForFunction(()=>{
+    const loader=document.querySelector('.bp-route-loader');
+    return !loader||!loader.classList.contains('is-active');
+  },{timeout:4000});
+  await page.waitForTimeout(120);
+}
+
 async function openCourse(id,{width=1440,height=900,fullPage=false,name=`${id}-${width}x${height}`}={}){
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
   const errors=[];
   page.on('pageerror',e=>errors.push(`pageerror: ${e.message}`));
   page.on('console',msg=>{if(msg.type()==='error')errors.push(`console: ${msg.text()}`)});
   await page.goto(`${base}#course/${id}`,{waitUntil:'networkidle'});
-  await page.waitForSelector('.bp-course-page',{timeout:10000});
-  await page.waitForSelector('.bp-course-hero__art',{timeout:10000});
-  await page.waitForTimeout(500);
+  await waitForCourseReady(page);
   const checks=await page.evaluate(()=>({
     h1:document.querySelector('.bp-course-hero h1')?.textContent?.trim()||'',
     chapters:document.querySelectorAll('.bp-chapter').length,
     openChapters:document.querySelectorAll('.bp-chapter[open]').length,
     lessons:document.querySelectorAll('.bp-course-lesson').length,
+    assessments:document.querySelectorAll('.bp-course-assessment').length,
+    resourceSections:document.querySelectorAll('.bp-course-support').length,
     art:getComputedStyle(document.querySelector('.bp-course-hero__art')).backgroundImage,
     bodyWidth:document.body.scrollWidth,
     viewport:innerWidth,
@@ -32,6 +42,7 @@ async function openCourse(id,{width=1440,height=900,fullPage=false,name=`${id}-$
   if(checks.chapters<4)problems.push(`${id}: only ${checks.chapters} chapters rendered`);
   if(checks.openChapters<1)problems.push(`${id}: no chapter opens by default`);
   if(checks.lessons<1)problems.push(`${id}: no lesson rows rendered`);
+  if(checks.resourceSections!==2)problems.push(`${id}: expected 2 support sections, got ${checks.resourceSections}`);
   if(!checks.art.includes('/public/art/courses/')||checks.art.includes('cloudfront'))problems.push(`${id}: hero is not using local production artwork (${checks.art})`);
   if(checks.bodyWidth>checks.viewport+2)problems.push(`${id} ${width}px: horizontal overflow ${checks.bodyWidth-checks.viewport}px`);
   if(checks.oldCourseCards)problems.push(`${id}: legacy course UI still present`);
@@ -55,6 +66,7 @@ await openCourse('methods-12',{width:1440,height:900,fullPage:true,name:'methods
   const ids=await page.evaluate(async()=>{const m=await import('./src/data/lessons.js');return m.lessons.filter(x=>x.course==='methods-12').map(x=>x.id)});
   await page.evaluate(ids=>localStorage.setItem('brainpower-progress-v3',JSON.stringify({xp:4500,completedLessons:ids,correctQuestions:[],attemptedQuestions:{},scores:[],bookmarks:[],streak:12,lastActive:null,activityDays:[],arcade:{derivativeDash:0,bird:0}})),ids);
   await page.goto(`${base}#course/methods-12`,{waitUntil:'networkidle'});
+  await waitForCourseReady(page);
   await page.waitForSelector('.bp-course-mastered');
   const mastered=await page.locator('.bp-course-mastered').isVisible();
   const masteryText=await page.locator('.bp-course-progress-ring strong').textContent();
