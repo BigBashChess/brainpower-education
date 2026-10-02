@@ -1,14 +1,12 @@
 /*
  * Brainpower artwork ownership layer.
- *
- * Milestone A still uses the approved hosted review artwork through home.css.
- * This file owns safe fallbacks now and is the intended home for local production
- * asset bindings once the approved masters are copied into public/art/.
+ * Approved Milestone A generation masters are vendored into public/art/home/
+ * so production never depends on expiring third-party generation URLs.
  */
-.bp-home-hero__art{background-color:#071522}
-.bp-home-subject--methods{background-color:#0a2944}
-.bp-home-subject--specialist{background-color:#191d43}
-.bp-home-subject--physics{background-color:#19281f}
+.bp-home-hero__art{background-color:#071522;background-image:url('../../../public/art/home/hero-study-room.webp')}
+.bp-home-subject--methods{background-color:#0a2944;background-image:url('../../../public/art/home/methods-gateway.webp')}
+.bp-home-subject--specialist{background-color:#191d43;background-image:url('../../../public/art/home/specialist-gateway.webp')}
+.bp-home-subject--physics{background-color:#19281f;background-image:url('../../../public/art/home/physics-gateway.webp')}
 
 /* Keep artwork decorative: the interface remains readable if any image request fails. */
 .bp-home-hero__art,.bp-home-subject{background-repeat:no-repeat}
