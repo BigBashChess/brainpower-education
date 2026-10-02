@@ -1,3 +1,4 @@
+import './resources-tools.js';
 import {courses,courseById} from '../data/courses.js';
 import {lessons,lessonsForCourse} from '../data/lessons.js';
 import {WHATS_NEW} from '../data/site.js';
