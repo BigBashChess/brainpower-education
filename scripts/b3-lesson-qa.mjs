@@ -50,7 +50,7 @@ async function openLesson(row,{width=1440,height=900,name=`${row.course}-desktop
   if(checks.blocks<4)problems.push(`${row.id}: only ${checks.blocks} lesson blocks rendered`);
   if(checks.outline<4)problems.push(`${row.id}: outline has only ${checks.outline} sections`);
   if(checks.questions<1&&row.questions?.length)problems.push(`${row.id}: required questions missing`);
-  if(!checks.hero.includes('/public/art/courses/')||checks.hero.includes('cloudfront'))problems.push(`${row.id}: lesson hero not using local course art (${checks.hero})`);
+  if(!checks.hero.includes('public/art/courses/')||checks.hero.includes('cloudfront'))problems.push(`${row.id}: lesson hero not using local course art (${checks.hero})`);
   if(checks.bodyWidth>checks.viewport+2)problems.push(`${row.id} ${width}px: horizontal overflow ${checks.bodyWidth-checks.viewport}px`);
   if(checks.oldNav)problems.push(`${row.id}: legacy lesson nav remains`);
   if(errors.length)problems.push(`${row.id}: browser errors: ${errors.join(' | ')}`);
