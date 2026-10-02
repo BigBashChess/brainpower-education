@@ -13,6 +13,7 @@ const required=[
   'src/styles/revamp/shell.css',
   'src/styles/revamp/home.css',
   'src/styles/revamp/learn.css',
+  'src/styles/revamp/learn-route.css',
   'src/styles/revamp/art.css',
   'src/styles/revamp/exam-season.css',
   'src/styles/revamp/overlays.css',
@@ -58,6 +59,10 @@ if(!learnJs.includes("route()!=='learn'"))failures.push('Learn revamp route guar
 const learnCss=readFileSync('src/styles/revamp/learn.css','utf8');
 if(!learnCss.includes("public/art/learn/learn-hero.webp"))failures.push('Learn page is not bound to its local generated hero artwork.');
 if(!learnCss.includes('@media(max-width:650px)'))failures.push('Learn mobile breakpoint is missing.');
+
+const learnRoute=readFileSync('src/styles/revamp/learn-route.css','utf8');
+if(!learnRoute.includes('main.bp-learn-page'))failures.push('Learn full-width dark route canvas is missing.');
+if(!learnRoute.includes('body[data-route="learn"]'))failures.push('Learn route body isolation is missing.');
 
 if(failures.length){
   console.error('\nRevamp smoke check failed:\n- '+failures.join('\n- '));
