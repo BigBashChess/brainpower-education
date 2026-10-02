@@ -13,6 +13,10 @@
 /* Keep artwork decorative: the interface remains readable if any image request fails. */
 .bp-home-hero__art,.bp-home-subject{background-repeat:no-repeat}
 
+/* Home is permanently dark in this visual system; legacy ghost buttons were tuned for light surfaces. */
+.bp-home .btn.ghost,.bp-home-section__head .btn.ghost{color:#eaf5ff;border-color:rgba(125,186,228,.24);background:rgba(255,255,255,.025)}
+.bp-home .btn.ghost:hover,.bp-home-section__head .btn.ghost:hover{color:#fff;border-color:rgba(109,187,255,.48);background:rgba(51,136,255,.08)}
+
 /* Lower sections can skip off-screen painting without changing document flow. */
 @supports(content-visibility:auto){
   .bp-home-section{content-visibility:auto;contain-intrinsic-size:auto 560px}
