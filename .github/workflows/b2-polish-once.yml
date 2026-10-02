@@ -1,0 +1,58 @@
+name: B2 one-time architecture polish
+
+on:
+  push:
+    branches: [revamp/milestone-b2-courses]
+    paths:
+      - '.github/workflows/b2-polish-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  polish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: revamp/milestone-b2-courses
+      - name: Remove temporary art URLs and polish course controls
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          js=Path('src/revamp/course-overview.js')
+          text=js.read_text()
+          local="""const HERO_ART={
+            'methods-12':'public/art/courses/methods-12-hero.webp',
+            'methods-34':'public/art/courses/methods-34-hero.webp',
+            'specialist-12':'public/art/courses/specialist-12-hero.webp',
+            'specialist-34':'public/art/courses/specialist-34-hero.webp',
+            'physics-12':'public/art/courses/physics-12-hero.webp'
+          };"""
+          text,n=re.subn(r"// Review assets generated specifically for B2\.[\s\S]*?const HERO_ART=\{[\s\S]*?\n\};", "// Repository-owned, compressed production hero artwork.\n"+local, text, count=1)
+          if n!=1: raise SystemExit('Could not replace HERO_ART block')
+          js.write_text(text)
+
+          css=Path('src/styles/revamp/course-overview.css')
+          c=css.read_text()
+          needle='.bp-course-hero__actions .btn{min-height:52px}'
+          repl=needle+'\n.bp-course-hero__actions .btn.secondary{border:1px solid rgba(var(--course-accent-rgb),.3);background:rgba(5,18,29,.64);color:#e8f4fb;backdrop-filter:blur(12px)}\n.bp-course-hero__actions .btn.secondary:hover{border-color:rgba(var(--course-accent-rgb),.58);background:rgba(var(--course-accent-rgb),.11);color:#fff;transform:translateY(-2px)}'
+          if needle not in c: raise SystemExit('Could not find hero action rule')
+          c=c.replace(needle,repl,1)
+          c=re.sub(r'\n@supports\(content-visibility:auto\)\{\.bp-course-support\{content-visibility:auto;contain-intrinsic-size:auto 500px\}\}\s*$', '\n', c)
+          css.write_text(c)
+
+          idx=Path('index.html')
+          i=idx.read_text().replace('  <link rel="stylesheet" href="src/styles/revamp/course-art.css">\n','')
+          idx.write_text(i)
+          PY
+          rm -f src/styles/revamp/course-art.css
+      - name: Commit polish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/revamp/course-overview.js src/styles/revamp/course-overview.css src/styles/revamp/course-art.css index.html
+          git commit -m "Polish B2 course architecture and controls"
+          git push origin HEAD:revamp/milestone-b2-courses
