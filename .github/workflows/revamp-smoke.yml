@@ -1,0 +1,22 @@
+name: Revamp static smoke
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [revamp/milestone-a]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check Milestone A static integrity
+        run: node scripts/revamp-smoke.mjs
