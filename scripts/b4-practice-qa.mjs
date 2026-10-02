@@ -75,8 +75,8 @@ await checkPractice({width:1440,height:900},'practice-full', '#practice?course=s
   await page.selectOption('#bp-session-time','10');
   await page.click('[data-start-session]');
   await page.waitForSelector('.bp-session-shell');
-  const state=await page.evaluate(()=>({open:document.body.classList.contains('bp-practice-session-open'),timer:document.querySelector('[data-session-timer]')?.textContent,header:document.querySelector('.bp-topbar')?getComputedStyle(document.querySelector('.bp-topbar')).display:null,q:document.querySelector('.bp-session-work .question-card')?.dataset.question,bodyWidth:document.body.scrollWidth,viewport:innerWidth}));
-  if(!state.open||!/^10:00|9:5\d$/.test(state.timer||'')||state.header!=='none'||!state.q)problems.push(`session start failed ${JSON.stringify(state)}`);
+  const state=await page.evaluate(()=>({open:document.body.classList.contains('bp-practice-session-open'),timer:document.querySelector('[data-session-timer]')?.textContent,header:document.querySelector('.bp-topbar')?getComputedStyle(document.querySelector('.bp-topbar')).display:null,hub:document.querySelector('[data-practice-hub]')?getComputedStyle(document.querySelector('[data-practice-hub]')).display:null,q:document.querySelector('.bp-session-work .question-card')?.dataset.question,bodyWidth:document.body.scrollWidth,viewport:innerWidth}));
+  if(!state.open||!/^10:00|9:5\d$/.test(state.timer||'')||state.header!=='none'||state.hub!=='none'||!state.q)problems.push(`session start failed ${JSON.stringify(state)}`);
   if(state.bodyWidth>state.viewport+2)problems.push(`session desktop overflow ${state.bodyWidth-state.viewport}px`);
 
   const q=await page.evaluate(async()=>{const id=document.querySelector('.bp-session-work .question-card')?.dataset.question;const m=await import('./src/data/questions.js');return m.practiceQuestions.find(x=>x.id===id)});
@@ -107,8 +107,8 @@ await checkPractice({width:1440,height:900},'practice-full', '#practice?course=s
     await page.waitForTimeout(120);
   }
   await page.waitForSelector('.bp-session-review',{timeout:5000});
-  const review=await page.evaluate(()=>({title:document.querySelector('.bp-session-review__hero h2')?.textContent,topicRows:document.querySelectorAll('.bp-session-topicrows>div').length,builder:!!document.querySelector('[data-review-builder]')}));
-  if(!review.title||review.topicRows<1||!review.builder)problems.push(`session review incomplete ${JSON.stringify(review)}`);
+  const review=await page.evaluate(()=>({title:document.querySelector('.bp-session-review__hero h2')?.textContent,topicRows:document.querySelectorAll('.bp-session-topicrows>div').length,builder:!!document.querySelector('[data-review-builder]'),hub:document.querySelector('[data-practice-hub]')?getComputedStyle(document.querySelector('[data-practice-hub]')).display:null}));
+  if(!review.title||review.topicRows<1||!review.builder||review.hub!=='none')problems.push(`session review incomplete ${JSON.stringify(review)}`);
   await page.screenshot({path:`${out}/practice-session-review.png`,fullPage:false});
   if(errors.length)problems.push(`session browser errors: ${[...new Set(errors)].join(' | ')}`);
   await page.close();
@@ -117,8 +117,8 @@ await checkPractice({width:1440,height:900},'practice-full', '#practice?course=s
 {
   const {page,errors}=await pageWith({width:390,height:844});
   await page.goto(base+'#practice',{waitUntil:'networkidle'});await page.waitForSelector('[data-preset-session="quick"]');await page.waitForTimeout(400);await page.click('[data-preset-session="quick"]');await page.waitForSelector('.bp-session-shell');
-  const s=await page.evaluate(()=>({width:document.body.scrollWidth,viewport:innerWidth,question:!!document.querySelector('.bp-session-work .question-card'),header:!!document.querySelector('.bp-session-header')}));
-  if(!s.question||!s.header||s.width>s.viewport+2)problems.push(`mobile session failed ${JSON.stringify(s)}`);
+  const s=await page.evaluate(()=>({width:document.body.scrollWidth,viewport:innerWidth,question:!!document.querySelector('.bp-session-work .question-card'),header:!!document.querySelector('.bp-session-header'),hub:document.querySelector('[data-practice-hub]')?getComputedStyle(document.querySelector('[data-practice-hub]')).display:null}));
+  if(!s.question||!s.header||s.hub!=='none'||s.width>s.viewport+2)problems.push(`mobile session failed ${JSON.stringify(s)}`);
   await page.screenshot({path:`${out}/practice-mobile-session.png`,fullPage:false});
   if(errors.length)problems.push(`mobile session browser errors: ${[...new Set(errors)].join(' | ')}`);
   await page.close();
