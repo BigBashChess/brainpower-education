@@ -1,0 +1,22 @@
+/*
+ * Brainpower artwork ownership layer.
+ * Approved Milestone A generation masters are vendored into public/art/home/
+ * so production never depends on expiring third-party generation URLs.
+ */
+.bp-home-hero__art{background-color:#071522;background-image:url('../../../public/art/home/hero-study-room.webp')}
+.bp-home-subject--methods{background-color:#0a2944;background-image:url('../../../public/art/home/methods-gateway.webp')}
+.bp-home-subject--specialist{background-color:#191d43;background-image:url('../../../public/art/home/specialist-gateway.webp')}
+.bp-home-subject--physics{background-color:#19281f;background-image:url('../../../public/art/home/physics-gateway.webp')}
+
+/* Keep artwork decorative: the interface remains readable if any image request fails. */
+.bp-home-hero__art,.bp-home-subject{background-repeat:no-repeat}
+
+/* Home is permanently dark in this visual system; legacy ghost buttons were tuned for light surfaces. */
+.bp-home .btn.ghost,.bp-home-section__head .btn.ghost{color:#eaf5ff;border-color:rgba(125,186,228,.24);background:rgba(255,255,255,.025)}
+.bp-home .btn.ghost:hover,.bp-home-section__head .btn.ghost:hover{color:#fff;border-color:rgba(109,187,255,.48);background:rgba(51,136,255,.08)}
+
+/* Lower sections can skip off-screen painting without changing document flow. */
+@supports(content-visibility:auto){
+  .bp-home-section{content-visibility:auto;contain-intrinsic-size:auto 560px}
+  .bp-home-community{content-visibility:auto;contain-intrinsic-size:auto 220px}
+}

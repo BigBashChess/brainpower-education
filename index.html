@@ -3,19 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#082f50">
+  <meta name="theme-color" content="#030a12">
   <meta name="description" content="Brainpower Education - interactive VCE Mathematics and Physics courses, practice, tests and free resources.">
   <title>Brainpower Education</title>
   <link rel="icon" href="public/brand/brainpower-logo.jpg">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+
+  <!-- Legacy layers remain during staged migration. Milestone A revamp files load last and become authoritative for migrated UI. -->
   <link rel="stylesheet" href="src/styles/main.css">
   <link rel="stylesheet" href="src/styles/pre1-overhaul.css">
   <link rel="stylesheet" href="src/styles/release-candidate.css">
   <link rel="stylesheet" href="src/styles/v1-final.css">
-  <link rel="stylesheet" href="src/styles/brainy-v1-gallery.css">
-  <link rel="stylesheet" href="src/styles/home-reference.css">
-  <link rel="stylesheet" href="src/styles/generated-art.css">
+  <link rel="stylesheet" href="src/styles/revamp/tokens.css">
+  <link rel="stylesheet" href="src/styles/revamp/base.css">
+  <link rel="stylesheet" href="src/styles/revamp/shell.css">
+  <link rel="stylesheet" href="src/styles/revamp/home.css">
+  <link rel="stylesheet" href="src/styles/revamp/art.css">
+  <link rel="stylesheet" href="src/styles/revamp/exam-season.css">
+  <link rel="stylesheet" href="src/styles/revamp/overlays.css">
+
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjs@14.6.0/lib/browser/math.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
@@ -25,13 +32,23 @@
   <script type="module" src="src/pre1-overhaul.js"></script>
   <script type="module" src="src/pre1-safety.js"></script>
   <script type="module" src="src/release-candidate.js"></script>
-  <script type="module" src="src/brainy-plus.js"></script>
   <script type="module" src="src/mock-exams-2026.js"></script>
-  <script type="module" src="src/v1-final.js"></script>
-  <script type="module" src="src/brainy-v1-gallery.js"></script>
+  <script type="module" src="src/revamp/runtime.js"></script>
+  <script type="module" src="src/revamp/update-log.js"></script>
 </head>
-<body>
-  <div id="app"><div class="boot">Loading Brainpower…</div></div>
+<body class="bp-revamp">
+  <div id="app">
+    <div class="bp-boot" role="status" aria-live="polite" aria-label="Loading Brainpower Education">
+      <div class="bp-boot__inner">
+        <div class="bp-boot__logo"><img src="public/brand/brainpower-logo.jpg" alt=""></div>
+        <div class="bp-boot__title">Brainpower</div>
+        <div class="bp-boot__sub">Education</div>
+        <div class="bp-boot__message">Opening your study space…</div>
+        <div class="bp-boot__track"><div class="bp-boot__bar"></div></div>
+        <div class="bp-boot__micro"><span>Lessons</span><span>Practice</span><span>Assessments</span><span>Progress</span></div>
+      </div>
+    </div>
+  </div>
   <noscript>Brainpower Education requires JavaScript for interactive features.</noscript>
 </body>
 </html>

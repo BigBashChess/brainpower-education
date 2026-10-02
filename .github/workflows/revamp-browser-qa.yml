@@ -1,0 +1,73 @@
+name: Revamp browser QA
+
+on:
+  push:
+    branches: [revamp/milestone-a]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start static site
+        run: |
+          python3 -m http.server 8000 > /tmp/brainpower-http.log 2>&1 &
+          echo $! > /tmp/brainpower-http.pid
+          for i in {1..20}; do
+            curl -fsS http://127.0.0.1:8000/ >/dev/null && exit 0
+            sleep .25
+          done
+          cat /tmp/brainpower-http.log
+          exit 1
+      - name: Locate Chrome
+        id: chrome
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$CHROME" || { echo 'Chrome/Chromium not found on runner'; exit 1; }
+          echo "path=$CHROME" >> "$GITHUB_OUTPUT"
+          "$CHROME" --version
+      - name: Capture Home at target viewports
+        env:
+          CHROME: ${{ steps.chrome.outputs.path }}
+        run: |
+          mkdir -p qa/screenshots
+          capture () {
+            name="$1"; width="$2"; height="$3"
+            "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars \
+              --virtual-time-budget=4500 --window-size="$width,$height" \
+              --screenshot="qa/screenshots/$name.png" \
+              "http://127.0.0.1:8000/#home"
+          }
+          capture home-1920x1080 1920 1080
+          capture home-1440x900 1440 900
+          capture home-1024x768 1024 768
+          capture home-768x1024 768 1024
+          capture home-390x844 390 844
+          capture home-360x800 360 800
+          # Tall desktop evidence for below-the-fold visual QA.
+          capture home-1440-full 1440 5200
+      - name: Dump rendered Home DOM
+        env:
+          CHROME: ${{ steps.chrome.outputs.path }}
+        run: |
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=4500 \
+            --dump-dom "http://127.0.0.1:8000/#home" > qa/home-rendered.html
+          grep -q 'bp-home-hero' qa/home-rendered.html
+          grep -q 'Full update log' qa/home-rendered.html
+          grep -q '2026 MOCK EXAM SERIES' qa/home-rendered.html
+          grep -q 'Five serious learning pathways' qa/home-rendered.html
+          grep -q 'Ready to test it properly' qa/home-rendered.html
+          ! grep -q 'brainy-companion' qa/home-rendered.html
+      - name: Upload QA evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: milestone-a-browser-qa
+          path: qa/
+          if-no-files-found: error
+          retention-days: 7
