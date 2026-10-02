@@ -1,6 +1,6 @@
 # Milestone A QA — Revamp Foundation + Home
 
-Status: **BUILDING / STATIC QA**  
+Status: **USER REVIEW**  
 Branch: `revamp/milestone-a`  
 Draft PR: #1  
 Production: **not merged**
@@ -12,7 +12,7 @@ This checklist is intentionally strict. Milestone A is the visual/technical foun
 - [x] Revamp work isolated on a dedicated branch.
 - [x] Production `main` left unchanged during review.
 - [x] Canonical design tokens created in `src/styles/revamp/tokens.css`.
-- [x] Revamp CSS split by responsibility: base, shell, Home, exam-season, overlays.
+- [x] Revamp CSS split by responsibility: base, shell, Home, exam-season, artwork and overlays.
 - [x] Old page CSS remains only as staged-migration compatibility for routes not yet rebuilt.
 - [x] New revamp files load after legacy files and are authoritative for migrated surfaces.
 - [x] Old global Brainy scatter/companion and duplicate Home patch systems are no longer loaded.
@@ -56,6 +56,7 @@ This checklist is intentionally strict. Milestone A is the visual/technical foun
 - [x] Home displays only the latest three release notes.
 - [x] Full update history is available in a dedicated accessible overlay.
 - [x] Community links remain available without dominating the page.
+- [x] Secondary Home actions have readable contrast on the dark surface.
 
 ## 5. 2026 mock-exam season
 
@@ -66,20 +67,23 @@ This checklist is intentionally strict. Milestone A is the visual/technical foun
 - [x] Tablet layout collapses to two columns.
 - [x] Mobile layout collapses to one column.
 
-## 6. Responsive static review
+## 6. Responsive browser review
 
-CSS breakpoints reviewed for:
+Automated Chromium screenshots are generated on every branch/PR revision. The current Milestone A build has been rendered successfully at:
 
-- [x] Large desktop / ultrawide.
-- [x] Standard desktop.
-- [x] <=1180 px layout compression.
-- [x] <=900 px tablet layout.
-- [x] <=760 px mobile shell / bottom dock.
-- [x] <=650 px Home single-column composition.
-- [x] <=420 px narrow-phone Quick Access.
+- [x] 1920×1080 desktop.
+- [x] 1440×900 laptop.
+- [x] 1024×768 tablet/compact desktop.
+- [x] 768×1024 tablet portrait.
+- [x] 390×844 phone.
+- [x] 360×800 narrow phone.
+- [x] 1440×5200 tall capture for below-the-fold Home review.
 - [x] Hero artwork uses `cover` and explicit focal positions rather than fixed-pixel placement.
 - [x] Hero subject cards move from 3-column -> 2-row -> stacked.
 - [x] Daily Brainpower becomes single-column on small displays.
+- [x] Local compressed artwork preserves the approved visual treatment in browser captures.
+
+Browser QA workflow: `.github/workflows/revamp-browser-qa.yml`.
 
 ## 7. Accessibility static review
 
@@ -106,52 +110,33 @@ CSS breakpoints reviewed for:
 - [x] KaTeX / math.js / JSZip dependencies remain loaded.
 - [x] Current Arcade remains playable through a temporary compatibility bridge until its dedicated milestone.
 
-## 9. Known release blockers
+## 9. Production artwork
 
-### BLOCKER A — generated artwork must become production-owned assets
+- [x] Approved generation masters copied into Brainpower-controlled repository assets.
+- [x] Hero stored at `public/art/home/hero-study-room.webp`.
+- [x] Methods stored at `public/art/home/methods-gateway.webp`.
+- [x] Specialist stored at `public/art/home/specialist-gateway.webp`.
+- [x] Physics stored at `public/art/home/physics-gateway.webp`.
+- [x] Assets compressed to WebP.
+- [x] Current repository sizes are approximately 70 KB for the hero and 34–40 KB for each subject card.
+- [x] Revamp artwork layer references the local files and retains solid-colour fallbacks.
 
-The current Home branch still references the approved generated images through signed hosted URLs. Those URLs are appropriate for design review but are **not acceptable production dependencies**. Before merging Milestone A into `main`, the four approved images must be copied into a permanent Brainpower-controlled asset location (preferably `public/art/home/`), compressed to web-friendly formats, and referenced locally.
+The older signed generation URLs still exist in the staged `home.css` source underneath the artwork ownership layer, but are overridden by `art.css` and are not the production dependency. They should be removed entirely when the Home stylesheet is consolidated during legacy CSS retirement.
 
-Target structure:
+## 10. Automated integrity checks
 
-```text
-public/art/home/
-  hero-study-room.webp
-  methods-gateway.webp
-  specialist-gateway.webp
-  physics-gateway.webp
-```
+- [x] Zero-dependency static smoke script added at `scripts/revamp-smoke.mjs`.
+- [x] JavaScript syntax checks run in GitHub Actions.
+- [x] Required revamp files are checked for existence.
+- [x] Core Home markers and mobile-shell styles are checked.
+- [x] Browser QA renders the real site in headless Chromium.
+- [x] Rendered DOM is checked for Home hero, mock series, course section, Test Centre portal and absence of the retired Brainy companion.
+- [x] Browser screenshots are uploaded as short-lived QA artifacts on each run.
 
-Desired production treatment:
+## 11. User-review gate
 
-- desktop hero: WebP/AVIF where browser-safe, quality visually checked;
-- subject gateways: WebP/AVIF;
-- sensible dimensions rather than full generation-master dimensions everywhere;
-- no critical text baked into the images;
-- CSS background fallback colours retained;
-- mobile crop checked before final merge.
+Milestone A has now reached **USER REVIEW**. The branch is technically mergeable and automated checks are passing, but PR #1 remains a draft and production `main` remains untouched.
 
-### BLOCKER B — real browser preview / screenshot QA
+Before approval, the user should judge the actual visual direction — especially the Home hero crop, subject gateway treatment, information density, mobile first screen and overall hierarchy. Any requested changes should stay inside this milestone until approved.
 
-The connected Vercel integration is not currently exposing a team/project, so this branch cannot yet be inspected through the intended Vercel preview workflow. Static code review is not a substitute for a real browser pass.
-
-Before production merge, inspect at minimum:
-
-- 1920×1080 desktop;
-- 1440×900 laptop;
-- ~1024 px tablet;
-- ~768 px tablet portrait;
-- ~390 px phone;
-- narrow ~360 px phone.
-
-Check actual generated-art cropping, text overlap, sticky nav behaviour, mobile dock safe-area behaviour, modal scrolling, Daily Brainpower question states, and every Home link.
-
-### BLOCKER C — no automated CI currently attached
-
-There are currently no branch workflow checks attached to this static site. For this milestone, review therefore relies on code/static QA plus manual browser QA. A lightweight later CI pass should at least validate syntax and detect broken local references.
-
-## 10. User-review gate
-
-Milestone A should move from **BUILDING / QA** to **USER REVIEW** only after Blocker A and a real browser QA pass are complete enough that the user can judge the intended final appearance.
-
-It should move from **USER REVIEW** to **APPROVED** only after the user explicitly approves it. Do not merge PR #1 simply because it is technically mergeable.
+Move from **USER REVIEW** to **APPROVED** only after explicit user approval. Do not merge PR #1 automatically.
