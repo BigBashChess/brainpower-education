@@ -87,14 +87,14 @@ await checkPractice({width:1440,height:900},'practice-full', '#practice?course=s
   else {
     if(q.type==='choice'){
       const wrong=q.choices.find(x=>x!==q.answer)??q.choices[0];
-      await page.click(`[data-choice="${CSS.escape(wrong)}"]`);
+      await page.evaluate(value=>{[...document.querySelectorAll('[data-choice]')].find(el=>el.dataset.choice===value)?.click()},wrong);
     }else{
       await page.fill('[data-math-input]','__definitely_wrong__');await page.click('.check-answer');
     }
     await page.waitForSelector('[data-session-retry]');
     await page.click('[data-session-retry]');
     await page.waitForSelector('.bp-session-retry-note');
-    if(q.type==='choice')await page.click(`[data-choice="${CSS.escape(q.answer)}"]`);
+    if(q.type==='choice')await page.evaluate(value=>{[...document.querySelectorAll('[data-choice]')].find(el=>el.dataset.choice===value)?.click()},q.answer);
     else {const ans=q.answer??q.answers?.[0];await page.fill('[data-math-input]',String(ans));await page.click('.check-answer')}
     await page.waitForSelector('[data-session-next]');
     await page.click('[data-session-next]');
