@@ -1,0 +1,47 @@
+name: B3 lesson browser QA
+
+on:
+  push:
+    branches: [revamp/milestone-b3-lessons]
+    paths:
+      - 'src/revamp/lesson.js'
+      - 'src/styles/revamp/lesson.css'
+      - 'src/pages.js'
+      - 'src/components.js'
+      - 'src/data/**'
+      - 'src/progress/**'
+      - 'index.html'
+      - 'scripts/b3-lesson-qa.mjs'
+      - '.github/workflows/b3-lesson-browser-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start static server
+        run: |
+          python3 -m http.server 8000 >/tmp/brainpower-server.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:8000/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/brainpower-server.log
+          exit 1
+      - name: Run lesson browser QA
+        run: node scripts/b3-lesson-qa.mjs
+      - name: Upload review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: milestone-b3-lesson-browser-qa
+          path: qa-b3-lessons/
+          if-no-files-found: warn
+          retention-days: 14
