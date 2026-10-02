@@ -4,7 +4,7 @@ import {load} from '../progress/store.js';
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 const lessonRoute=()=>{const raw=(location.hash.slice(1)||'').split('?')[0].split('/').filter(Boolean);return raw[0]==='lesson'?raw[1]||'':null};
 
 const HERO_ART={
@@ -58,7 +58,6 @@ function buildOutline(content){
 }
 
 function renderRibbon(lesson,course,index,total,progress){
-  const done=progress.completedLessons.includes(lesson.id);
   const qDone=lesson.questions.filter(id=>progress.correctQuestions.includes(id)).length;
   const pct=lesson.questions.length?Math.round(qDone/lesson.questions.length*100):100;
   return `<div class="bp-lesson-ribbon" data-lesson-ribbon>
@@ -74,7 +73,9 @@ function renderRibbon(lesson,course,index,total,progress){
 function decorateHero(head,lesson,course,topicTitle,index,total){
   if(!head)return;
   head.classList.add('bp-lesson-hero');
-  head.style.setProperty('--lesson-art',`url("${HERO_ART[course.id]||''}")`);
+  const art=HERO_ART[course.id];
+  const artUrl=art?new URL(art,document.baseURI).href:'';
+  head.style.setProperty('--lesson-art',`url("${artUrl}")`);
   head.insertAdjacentHTML('afterbegin','<div class="bp-lesson-hero__art" aria-hidden="true"></div><div class="bp-lesson-hero__shade" aria-hidden="true"></div>');
   const copy=$('.page-head-inner>div',head);
   if(copy){
