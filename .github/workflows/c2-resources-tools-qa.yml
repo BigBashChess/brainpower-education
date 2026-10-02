@@ -1,0 +1,46 @@
+name: C2 Resources and Tools browser QA
+
+on:
+  push:
+    branches: [revamp/milestone-c2-resources-tools]
+    paths:
+      - 'src/revamp/resources-tools.js'
+      - 'src/styles/revamp/resources-tools.css'
+      - 'public/art/resources/**'
+      - 'public/art/tools/**'
+      - 'src/revamp/runtime.js'
+      - 'src/pages.js'
+      - 'src/main.js'
+      - 'scripts/c2-resources-tools-qa.mjs'
+      - '.github/workflows/c2-resources-tools-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start static server
+        run: |
+          python3 -m http.server 8000 >/tmp/brainpower-server.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:8000/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/brainpower-server.log
+          exit 1
+      - name: Run C2 browser QA
+        run: node scripts/c2-resources-tools-qa.mjs
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: milestone-c2-resources-tools-qa
+          path: qa-c2-resources-tools/
+          retention-days: 14
