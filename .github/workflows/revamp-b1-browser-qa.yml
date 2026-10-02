@@ -1,0 +1,81 @@
+name: Milestone B1 browser QA
+
+on:
+  push:
+    branches: [revamp/milestone-b1-learn]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/revamp/learn.js'
+      - 'src/styles/revamp/learn.css'
+      - 'public/art/learn/**'
+      - 'index.html'
+
+permissions:
+  contents: read
+
+jobs:
+  learn-screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start static site
+        run: |
+          python3 -m http.server 8000 > /tmp/brainpower-http.log 2>&1 &
+          for i in {1..20}; do
+            curl -fsS http://127.0.0.1:8000/ >/dev/null && exit 0
+            sleep .25
+          done
+          cat /tmp/brainpower-http.log
+          exit 1
+      - name: Locate Chrome
+        id: chrome
+        run: |
+          CHROME="$(command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$CHROME" || { echo 'Chrome/Chromium not found on runner'; exit 1; }
+          echo "path=$CHROME" >> "$GITHUB_OUTPUT"
+          "$CHROME" --version
+      - name: Capture Learn at target viewports
+        env:
+          CHROME: ${{ steps.chrome.outputs.path }}
+        run: |
+          mkdir -p qa-b1/screenshots
+          capture () {
+            name="$1"; width="$2"; height="$3"
+            "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars \
+              --virtual-time-budget=4500 --window-size="$width,$height" \
+              --screenshot="qa-b1/screenshots/$name.png" \
+              "http://127.0.0.1:8000/#learn"
+          }
+          capture learn-1920x1080 1920 1080
+          capture learn-1440x900 1440 900
+          capture learn-1024x768 1024 768
+          capture learn-768x1024 768 1024
+          capture learn-390x844 390 844
+          capture learn-360x800 360 800
+          capture learn-1440-full 1440 5200
+      - name: Verify rendered Learn DOM
+        env:
+          CHROME: ${{ steps.chrome.outputs.path }}
+        run: |
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --virtual-time-budget=4500 \
+            --dump-dom "http://127.0.0.1:8000/#learn" > qa-b1/learn-rendered.html
+          grep -q 'bp-learn-hero' qa-b1/learn-rendered.html
+          grep -q 'bp-learn-pathways' qa-b1/learn-rendered.html
+          grep -q 'Mathematical Methods Units 1 &amp; 2' qa-b1/learn-rendered.html
+          grep -q 'Specialist Mathematics Units 3 &amp; 4' qa-b1/learn-rendered.html
+          grep -q 'Physics Units 1 &amp; 2' qa-b1/learn-rendered.html
+          grep -q 'THE BRAINPOWER LOOP' qa-b1/learn-rendered.html
+      - name: Verify production Learn artwork
+        run: |
+          test -s public/art/learn/learn-hero.webp
+          file public/art/learn/learn-hero.webp
+          du -h public/art/learn/learn-hero.webp
+      - name: Upload B1 QA evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: milestone-b1-learn-qa
+          path: qa-b1/
+          if-no-files-found: error
+          retention-days: 7
