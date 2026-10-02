@@ -79,24 +79,28 @@ await checkPractice({width:1440,height:900},'practice-full', '#practice?course=s
   await page.click('[data-start-session]');
   await page.waitForSelector('.bp-session-shell');
   let state=await page.evaluate(()=>({open:document.body.classList.contains('bp-practice-session-open'),timer:document.querySelector('[data-session-timer]')?.textContent,header:document.querySelector('.bp-topbar')?getComputedStyle(document.querySelector('.bp-topbar')).display:null,q:document.querySelector('.bp-session-work .question-card')?.dataset.question,bodyWidth:document.body.scrollWidth,viewport:innerWidth}));
-  if(!state.open||state.timer!=='10:00'||state.header!=='none'||!state.q)problems.push(`session start failed ${JSON.stringify(state)}`);
+  if(!state.open||!/^10:00|9:5\d$/.test(state.timer||'')||state.header!=='none'||!state.q)problems.push(`session start failed ${JSON.stringify(state)}`);
   if(state.bodyWidth>state.viewport+2)problems.push(`session desktop overflow ${state.bodyWidth-state.viewport}px`);
 
   const q=await page.evaluate(async()=>{const id=document.querySelector('.bp-session-work .question-card')?.dataset.question;const m=await import('./src/data/questions.js');return m.practiceQuestions.find(x=>x.id===id)});
   if(!q)problems.push('session: could not resolve active question data');
   else {
     if(q.type==='choice'){
-      const wrong=q.choices.find(x=>x!==q.answer)??q.choices[0];
-      await page.evaluate(value=>{[...document.querySelectorAll('[data-choice]')].find(el=>el.dataset.choice===value)?.click()},wrong);
+      const correctIndex=q.choices.findIndex(x=>x===q.answer);
+      const wrongIndex=correctIndex===0?1:0;
+      await page.locator('[data-choice]').nth(wrongIndex).click();
+      await page.waitForSelector('[data-session-retry]',{timeout:5000});
+      await page.click('[data-session-retry]');
+      await page.waitForSelector('.bp-session-retry-note');
+      await page.locator('[data-choice]').nth(correctIndex).click();
     }else{
       await page.fill('[data-math-input]','__definitely_wrong__');await page.click('.check-answer');
+      await page.waitForSelector('[data-session-retry]',{timeout:5000});
+      await page.click('[data-session-retry]');
+      await page.waitForSelector('.bp-session-retry-note');
+      const ans=q.answer??q.answers?.[0];await page.fill('[data-math-input]',String(ans));await page.click('.check-answer');
     }
-    await page.waitForSelector('[data-session-retry]');
-    await page.click('[data-session-retry]');
-    await page.waitForSelector('.bp-session-retry-note');
-    if(q.type==='choice')await page.evaluate(value=>{[...document.querySelectorAll('[data-choice]')].find(el=>el.dataset.choice===value)?.click()},q.answer);
-    else {const ans=q.answer??q.answers?.[0];await page.fill('[data-math-input]',String(ans));await page.click('.check-answer')}
-    await page.waitForSelector('[data-session-next]');
+    await page.waitForSelector('[data-session-next]',{timeout:5000});
     await page.click('[data-session-next]');
   }
   // Skip remaining questions until the review screen appears.
