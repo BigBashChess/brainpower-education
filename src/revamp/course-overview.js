@@ -10,14 +10,13 @@ const $=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const courseRoute=()=>{const raw=(location.hash.slice(1)||'').split('?')[0].split('/').filter(Boolean);return raw[0]==='course'?raw[1]||'':null};
 
-// Review assets generated specifically for B2. Before production merge these are replaced
-// with repository-owned compressed files under public/art/courses/.
+// Repository-owned, compressed production hero artwork.
 const HERO_ART={
-  'methods-12':'https://dnznrvs05pmza.cloudfront.net/gemini/gemini-3-pro-image/images/d58e363c-fe63-4f10-934c-76edd160c47f/910b04ce-7671-4461-8669-4adfd0e826d4/A_single_standalone_ultra_wide_cinematic_hero_illustration_f.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMmUyMjY0MzY1YTc5MTY0ZSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTAyMDIxNH0.5KyGiYwTSBNAZzQ6PdXtQVmhSOfAsS2jWZGIfQn9HiM',
-  'methods-34':'https://dnznrvs05pmza.cloudfront.net/gemini/gemini-3-pro-image/images/485ad00e-0d91-4b48-99ba-d25858436403/96cbdb36-b1a8-4d8a-96c5-e38a24706bf2/A_single_standalone_ultra_wide_cinematic_hero_illustration_f.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiN2ZlYWUwNGYxZmY0NTliNyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTA4MTY3OX0.E3s3n9J4d-8eZ3L6Q2e7GvLAdPtQxVpJtyrMQuobVFI',
-  'specialist-12':'https://dnznrvs05pmza.cloudfront.net/gemini/gemini-3-pro-image/images/439e5c39-920d-4029-9b4a-ac4a61f48412/df566122-4f50-4c4a-8557-f9ea9ce1fdea/A_single_standalone_ultra_wide_cinematic_hero_illustration_f.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiODM2ODU3MTkzNGY5MmU3OSIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTA1NjUzN30.ne41z0vsTyNLKCiW9nNYrmIF2JqrFdhb3hNb36BLrOM',
-  'specialist-34':'https://dnznrvs05pmza.cloudfront.net/gemini/gemini-3-pro-image/images/72b87e83-0508-4084-b483-96e36fb9be56/5dc91cd1-37b5-4f09-9bd9-d8c4e2bb02f5/A_single_standalone_ultra_wide_cinematic_hero_illustration_f.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiOTI0MTU4NWQ5OTVmN2ViYyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTA2Nzk5N30.75xggjnYq4Mf0VsUrjK8WJ6kaVYEnYGFt0jaolBmvBo',
-  'physics-12':'https://dnznrvs05pmza.cloudfront.net/gemini/gemini-3-pro-image/images/153aae3b-427a-42cc-b126-f5341f1c3184/02a0ac8d-bcab-4187-ba6b-f629e7b4612b/A_single_standalone_ultra_wide_cinematic_hero_illustration_f.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjAxYzg3NjljOGQ0ZWYwMiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTA3MzUxM30.4OCoyXfz9oZ0wYtHDCQodpM0qryrBY_MUfcgNDilKq4'
+  'methods-12':'public/art/courses/methods-12-hero.webp',
+  'methods-34':'public/art/courses/methods-34-hero.webp',
+  'specialist-12':'public/art/courses/specialist-12-hero.webp',
+  'specialist-34':'public/art/courses/specialist-34-hero.webp',
+  'physics-12':'public/art/courses/physics-12-hero.webp'
 };
 
 const COURSE_TONE={

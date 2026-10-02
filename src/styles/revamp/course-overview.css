@@ -20,6 +20,8 @@ body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--
 .bp-course-hero__copy>p{max-width:710px;margin:0;color:#c7d8e4;font-size:clamp(17px,1.35vw,21px);line-height:1.58}
 .bp-course-hero__actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
 .bp-course-hero__actions .btn{min-height:52px}
+.bp-course-hero__actions .btn.secondary{border:1px solid rgba(var(--course-accent-rgb),.3);background:rgba(5,18,29,.64);color:#e8f4fb;backdrop-filter:blur(12px)}
+.bp-course-hero__actions .btn.secondary:hover{border-color:rgba(var(--course-accent-rgb),.58);background:rgba(var(--course-accent-rgb),.11);color:#fff;transform:translateY(-2px)}
 .bp-course-hero__micro{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:24px;color:#8fa8ba;font-size:12px;font-weight:750}
 .bp-course-hero__micro span{display:flex;align-items:center;gap:8px}
 .bp-course-hero__micro span::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--course-accent);box-shadow:0 0 12px rgba(var(--course-accent-rgb),.48)}
@@ -189,4 +191,3 @@ body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--
 }
 @media(max-width:390px){.bp-course-hero__inner{width:calc(100% - 24px)}.bp-course-overview-strip,.bp-course-layout,.bp-course-support{width:calc(100% - 20px)}.bp-course-progress-card{grid-template-columns:38px 78px minmax(0,1fr);padding:13px}.bp-course-progress-ring{width:72px;height:72px}.bp-course-progress-ring strong{font-size:17px}.bp-course-progress-ring span{top:44px}.bp-course-lesson__copy i{display:none}}
 @media(prefers-reduced-motion:reduce){.bp-course-hero__art,.bp-chapter,.bp-course-lesson,.bp-course-assessment,.bp-course-resource{transition:none!important;transform:none!important}}
-@supports(content-visibility:auto){.bp-course-support{content-visibility:auto;contain-intrinsic-size:auto 500px}}
