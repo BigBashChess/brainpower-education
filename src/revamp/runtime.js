@@ -1,13 +1,13 @@
 import {courses,courseById} from '../data/courses.js';
 import {lessons,lessonsForCourse} from '../data/lessons.js';
-import {WHATS_NEW,SITE} from '../data/site.js';
+import {WHATS_NEW} from '../data/site.js';
 import {load} from '../progress/store.js';
 import {courseMastery} from '../utils.js';
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const baseRoute=()=>((location.hash.slice(1)||'home').split(/[/?]/)[0]||'home');
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 
 function nextLesson(progress){return lessons.find(l=>!progress.completedLessons.includes(l.id))||lessons[0]}
 function courseProgress(course,progress){
@@ -20,7 +20,7 @@ function sectionByEyebrow(text){return $$('.section').find(s=>$('.eyebrow',s)?.t
 function sectionHead(eyebrow,title,copy,right=''){return `<div class="bp-home-section__head"><div><small>${eyebrow}</small><h2>${title}</h2><p>${copy}</p></div>${right}</div>`}
 
 function buildHero(progress){
-  const next=nextLesson(progress),nextCourse=courseById(next?.course);
+  const next=nextLesson(progress);
   return `<div class="bp-home-hero__art" aria-hidden="true"></div><div class="bp-home-hero__inner">
     <div class="bp-home-hero__copy">
       <div class="bp-home-kicker">Welcome to</div>
@@ -53,7 +53,7 @@ function buildDashboard(progress){
 function buildCourses(progress){return `${sectionHead('COURSES','Five serious learning pathways','Start from the beginning, resume an active course or jump straight to a topic.',`<a class="btn ghost" href="#learn">Open Learn →</a>`)}<div class="bp-home-courses">${courses.map(c=>{const cp=courseProgress(c,progress);const icon=c.accent==='specialist'?'Σ':c.accent==='physics'?'λ':'ƒ';return `<a class="bp-home-course ${c.accent}" href="#course/${c.id}"><span class="bp-home-course__icon">${icon}</span><h3>${esc(c.title)}</h3><p>${esc(c.desc)}</p><div class="bp-home-course__meta"><span><b>${cp.done}/${cp.rows.length}</b><i>lessons</i></span><div class="bp-home-course__bar"><i style="width:${cp.pct}%"></i></div><span><b>${cp.pct}%</b><i>mastery</i></span></div></a>`}).join('')}</div>`}
 
 function buildTestPortal(){return `<div class="bp-home-test-portal"><div><small>TEST CENTRE</small><h2>Ready to test it properly?</h2><p>Open the complete Brainpower assessment library, including mock examinations, topic tests, marking schemes and Exam Mode where supported.</p></div><a class="btn primary large" href="#tests">Explore the Test Centre →</a></div>`}
-function buildNews(){return `${sectionHead("WHAT'S NEW",'Recent Brainpower releases','Only the latest meaningful platform changes live on Home.',`<a class="btn ghost" href="#about">About Brainpower →</a>`)}<div class="bp-home-news">${WHATS_NEW.slice(0,3).map(n=>`<article><small>${esc(n.date)}</small><h3>${esc(n.title)}</h3><p>${esc(n.text)}</p></article>`).join('')}</div>`}
+function buildNews(){return `${sectionHead("WHAT'S NEW",'Recent Brainpower releases','Only the latest meaningful platform changes live on Home.',`<button class="btn ghost" type="button" data-update-log-open>Full update log</button>`)}<div class="bp-home-news">${WHATS_NEW.slice(0,3).map(n=>`<article><small>${esc(n.date)}</small><h3>${esc(n.title)}</h3><p>${esc(n.text)}</p></article>`).join('')}</div>`}
 
 function applyHome(){
   const main=$('main'); if(!main)return;
@@ -87,8 +87,7 @@ function applyHome(){
 
 function bindParallax(hero){
   if(hero.dataset.parallaxBound)return;hero.dataset.parallaxBound='1';
-  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduced)return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   hero.addEventListener('pointermove',e=>{const r=hero.getBoundingClientRect();hero.style.setProperty('--home-x',((e.clientX-r.left)/r.width-.5).toFixed(3));hero.style.setProperty('--home-y',((e.clientY-r.top)/r.height-.5).toFixed(3))});
   hero.addEventListener('pointerleave',()=>{hero.style.setProperty('--home-x','0');hero.style.setProperty('--home-y','0')});
 }
