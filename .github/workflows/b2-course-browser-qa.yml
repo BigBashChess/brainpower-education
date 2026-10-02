@@ -5,6 +5,11 @@ on:
     branches: [revamp/milestone-b2-courses]
     paths:
       - '.github/workflows/b2-course-browser-qa.yml'
+      - 'scripts/b2-course-qa.mjs'
+      - 'src/revamp/course-overview.js'
+      - 'src/styles/revamp/course-overview.css'
+      - 'public/art/courses/**'
+      - 'index.html'
 
 permissions:
   contents: read
