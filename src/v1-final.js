@@ -1,41 +1,8 @@
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
-
-/* Upgrade the plain fallback immediately, before the app finishes rendering. */
-function enhanceBoot(){
-  const boot=$('.boot');if(!boot||boot.dataset.enhanced)return;
-  boot.dataset.enhanced='1';boot.classList.add('bp-boot');
-  boot.innerHTML=`<div class="bp-boot-inner"><div class="bp-boot-mark" aria-hidden="true">B</div><div class="bp-boot-title">Brainpower</div><div class="bp-boot-sub">Education</div><div class="bp-boot-track"><div class="bp-boot-bar"></div></div><div class="bp-boot-tip">Building your learning space…</div></div>`;
-  const tips=['Building your learning space…','Warming up the neurons…','Loading lessons and practice…','Preparing maximum brainpower…'];let i=0;
-  boot._tipTimer=setInterval(()=>{const t=$('.bp-boot-tip',boot);if(t)t.textContent=tips[++i%tips.length]},720);
-}
-enhanceBoot();
-
-function cleanTestPreviews(){
-  $$('.pdf-cover-wrap').forEach(w=>{w.classList.add('bp-clean-cover');const f=$('iframe',w);if(f){f.scrolling='no';f.setAttribute('scrolling','no')}});
-}
-/* Home should advertise the Test Centre, not duplicate the whole assessment catalogue. */
-function simplifyHomeTests(){
-  const route=(location.hash.slice(1)||'home').split('/')[0];if(route!=='home')return;
-  $$('.section').forEach(section=>{
-    const eyebrow=$('.section-title .eyebrow',section);
-    if(!eyebrow||eyebrow.textContent.trim().toUpperCase()!=='TEST CENTRE'||section.dataset.bpSimplified)return;
-    section.dataset.bpSimplified='1';
-    [...section.children].forEach(child=>{if(!child.classList.contains('section-title'))child.remove()});
-    const title=$('.section-title',section);if(!title)return;
-    let link=$('a[href="#tests"]',title);
-    if(!link){link=document.createElement('a');link.href='#tests';link.className='btn primary';title.appendChild(link)}
-    link.className='btn primary';link.textContent='Browse all tests →';
-  });
-}
-function brainy(){
-  const b=$('#brainy-companion'),img=b?.querySelector('img');if(!b||!img)return;
-  img.src='public/brand/brainy.svg';img.dataset.moodSrc='public/brand/brainy.svg';b.classList.add('brainy-v1');
-  const route=(location.hash.slice(1)||'home').split('/')[0];b.dataset.scene=location.hash.includes('physics-12')?'physics':route;
-}
-function reactToCorrect(){const b=$('#brainy-companion');if(!b)return;b.classList.remove('brainy-win');void b.offsetWidth;b.classList.add('brainy-win');setTimeout(()=>b.classList.remove('brainy-win'),1500)}
-let seen=new WeakSet();
-function watchCorrect(){$$('.feedback.good:not([hidden])').forEach(x=>{if(seen.has(x))return;seen.add(x);reactToCorrect()})}
-function run(){cleanTestPreviews();simplifyHomeTests();brainy();watchCorrect()}
-const app=$('#app');
-if(app)new MutationObserver(()=>queueMicrotask(run)).observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});
-addEventListener('hashchange',()=>setTimeout(run,20));setTimeout(run,30);
+function enhanceBoot(){const boot=$('.boot');if(!boot||boot.dataset.enhanced)return;boot.dataset.enhanced='1';boot.classList.add('bp-boot');boot.innerHTML=`<div class="bp-boot-inner"><div class="bp-boot-mark">B</div><div class="bp-boot-title">Brainpower</div><div class="bp-boot-sub">Education</div><div class="bp-boot-track"><div class="bp-boot-bar"></div></div><div class="bp-boot-tip">Building your learning space…</div></div>`;const tips=['Building your learning space…','Warming up the neurons…','Loading lessons and practice…','Preparing maximum brainpower…'];let i=0;boot._tipTimer=setInterval(()=>{const t=$('.bp-boot-tip',boot);if(t)t.textContent=tips[++i%tips.length]},720)}enhanceBoot();
+function cleanTestPreviews(){$$('.pdf-cover-wrap').forEach(w=>{w.classList.add('bp-clean-cover');const f=$('iframe',w);if(f){f.scrolling='no';f.setAttribute('scrolling','no')}})}
+function simplifyHomeTests(){if((location.hash.slice(1)||'home').split('/')[0]!=='home')return;$$('.section').forEach(section=>{const eyebrow=$('.section-title .eyebrow',section);if(!eyebrow||eyebrow.textContent.trim().toUpperCase()!=='TEST CENTRE'||section.dataset.bpSimplified)return;section.dataset.bpSimplified='1';[...section.children].forEach(child=>{if(!child.classList.contains('section-title'))child.remove()});const title=$('.section-title',section);if(!title)return;let link=$('a[href="#tests"]',title);if(!link){link=document.createElement('a');link.href='#tests';title.appendChild(link)}link.className='btn primary';link.textContent='Browse all tests →'})}
+function brainy(){const b=$('#brainy-companion'),img=b?.querySelector('img');if(!b||!img)return;img.src='public/brand/brainy.svg';img.dataset.moodSrc='public/brand/brainy.svg';b.classList.add('brainy-v1');const route=(location.hash.slice(1)||'home').split('/')[0];b.dataset.scene=location.hash.includes('physics-12')?'physics':route}
+function immersiveHome(){if((location.hash.slice(1)||'home')!=='home')return;const hero=$('.hero');if(!hero||hero.dataset.immersive)return;hero.dataset.immersive='1';document.body.classList.add('bp-home');const copy=$('.hero-copy',hero),visual=$('.hero-visual',hero);if(copy){const eye=$('.eyebrow',copy);if(eye)eye.textContent='VCE • LEARN • PRACTISE • MASTER';const h=$('h1',copy);if(h)h.innerHTML='Build your <em>mathematical advantage.</em>';const p=$('p',copy);if(p)p.textContent='High-quality VCE Mathematics and Physics lessons, practice, assessments and resources — connected in one focused learning space.';const actions=$('.hero-actions',copy);if(actions)actions.insertAdjacentHTML('afterend','<div class="bp-trust"><span>✦ Complete VCE coverage</span><span>★ Exam-style questions</span><span>▥ Detailed solutions</span><span>🏆 Progress tracking</span></div>')}if(visual)visual.insertAdjacentHTML('afterbegin','<div class="bp-hero-orbit o1">∫</div><div class="bp-hero-orbit o2">π</div><div class="bp-hero-orbit o3">Σ</div><div class="bp-hero-glow"></div>');const stats=$('.quick-stats');if(stats){stats.classList.add('bp-quick-access');stats.innerHTML='<a href="#learn"><b>▶</b><span><strong>Interactive Lessons</strong><small>Explanations, examples and mastery</small></span>→</a><a href="#practice"><b>✎</b><span><strong>Practice Questions</strong><small>Topic and mixed questions</small></span>→</a><a href="#tests"><b>▤</b><span><strong>Test Centre</strong><small>Full-length and topic tests</small></span>→</a><a href="#progress"><b>🏆</b><span><strong>Progress</strong><small>Track improvement and mastery</small></span>→</a>'}const firstSection=stats?.nextElementSibling;if(firstSection?.classList.contains('section'))firstSection.classList.add('bp-course-showcase')}
+function reactToCorrect(){const b=$('#brainy-companion');if(!b)return;b.classList.remove('brainy-win');void b.offsetWidth;b.classList.add('brainy-win');setTimeout(()=>b.classList.remove('brainy-win'),1500)}let seen=new WeakSet();function watchCorrect(){$$('.feedback.good:not([hidden])').forEach(x=>{if(seen.has(x))return;seen.add(x);reactToCorrect()})}
+function run(){cleanTestPreviews();simplifyHomeTests();brainy();immersiveHome();watchCorrect()}const app=$('#app');if(app)new MutationObserver(()=>queueMicrotask(run)).observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});addEventListener('hashchange',()=>{document.body.classList.remove('bp-home');setTimeout(run,20)});setTimeout(run,30);
