@@ -46,7 +46,6 @@ await checkPractice({width:1024,height:768},'practice-tablet');
 await checkPractice({width:390,height:844},'practice-mobile');
 await checkPractice({width:1440,height:900},'practice-full', '#practice?course=specialist-34');
 
-// Query presets must flow into the new builder.
 {
   const {page,errors}=await pageWith({width:1440,height:900});
   await page.goto(base+'#practice?course=specialist-34',{waitUntil:'networkidle'});
@@ -57,7 +56,6 @@ await checkPractice({width:1440,height:900},'practice-full', '#practice?course=s
   await page.close();
 }
 
-// Bank tab must preserve and expose the existing bank/filter engine.
 {
   const {page,errors}=await pageWith({width:1440,height:900});
   await page.goto(base+'#practice',{waitUntil:'networkidle'});await page.waitForSelector('[data-practice-tab="bank"]');await page.waitForTimeout(400);
@@ -70,7 +68,6 @@ await checkPractice({width:1440,height:900},'practice-full', '#practice?course=s
   await page.close();
 }
 
-// Full session flow: timed start, wrong first attempt, one retry, then skip to review.
 {
   const {page,errors}=await pageWith({width:1440,height:900});
   await page.goto(base+'#practice',{waitUntil:'networkidle'});await page.waitForSelector('[data-start-session]');await page.waitForTimeout(400);
@@ -78,7 +75,7 @@ await checkPractice({width:1440,height:900},'practice-full', '#practice?course=s
   await page.selectOption('#bp-session-time','10');
   await page.click('[data-start-session]');
   await page.waitForSelector('.bp-session-shell');
-  let state=await page.evaluate(()=>({open:document.body.classList.contains('bp-practice-session-open'),timer:document.querySelector('[data-session-timer]')?.textContent,header:document.querySelector('.bp-topbar')?getComputedStyle(document.querySelector('.bp-topbar')).display:null,q:document.querySelector('.bp-session-work .question-card')?.dataset.question,bodyWidth:document.body.scrollWidth,viewport:innerWidth}));
+  const state=await page.evaluate(()=>({open:document.body.classList.contains('bp-practice-session-open'),timer:document.querySelector('[data-session-timer]')?.textContent,header:document.querySelector('.bp-topbar')?getComputedStyle(document.querySelector('.bp-topbar')).display:null,q:document.querySelector('.bp-session-work .question-card')?.dataset.question,bodyWidth:document.body.scrollWidth,viewport:innerWidth}));
   if(!state.open||!/^10:00|9:5\d$/.test(state.timer||'')||state.header!=='none'||!state.q)problems.push(`session start failed ${JSON.stringify(state)}`);
   if(state.bodyWidth>state.viewport+2)problems.push(`session desktop overflow ${state.bodyWidth-state.viewport}px`);
 
@@ -86,24 +83,24 @@ await checkPractice({width:1440,height:900},'practice-full', '#practice?course=s
   if(!q)problems.push('session: could not resolve active question data');
   else {
     if(q.type==='choice'){
+      const choices=page.locator('.bp-session-work [data-choice]');
       const correctIndex=q.choices.findIndex(x=>x===q.answer);
       const wrongIndex=correctIndex===0?1:0;
-      await page.locator('[data-choice]').nth(wrongIndex).click();
-      await page.waitForSelector('[data-session-retry]',{timeout:5000});
-      await page.click('[data-session-retry]');
-      await page.waitForSelector('.bp-session-retry-note');
-      await page.locator('[data-choice]').nth(correctIndex).click();
+      await choices.nth(wrongIndex).click();
+      await page.waitForSelector('.bp-session-work [data-session-retry]',{timeout:5000});
+      await page.click('.bp-session-work [data-session-retry]');
+      await page.waitForSelector('.bp-session-work .bp-session-retry-note');
+      await page.locator('.bp-session-work [data-choice]').nth(correctIndex).click();
     }else{
-      await page.fill('[data-math-input]','__definitely_wrong__');await page.click('.check-answer');
-      await page.waitForSelector('[data-session-retry]',{timeout:5000});
-      await page.click('[data-session-retry]');
-      await page.waitForSelector('.bp-session-retry-note');
-      const ans=q.answer??q.answers?.[0];await page.fill('[data-math-input]',String(ans));await page.click('.check-answer');
+      await page.fill('.bp-session-work [data-math-input]','__definitely_wrong__');await page.click('.bp-session-work .check-answer');
+      await page.waitForSelector('.bp-session-work [data-session-retry]',{timeout:5000});
+      await page.click('.bp-session-work [data-session-retry]');
+      await page.waitForSelector('.bp-session-work .bp-session-retry-note');
+      const ans=q.answer??q.answers?.[0];await page.fill('.bp-session-work [data-math-input]',String(ans));await page.click('.bp-session-work .check-answer');
     }
-    await page.waitForSelector('[data-session-next]',{timeout:5000});
-    await page.click('[data-session-next]');
+    await page.waitForSelector('.bp-session-work [data-session-next]',{timeout:5000});
+    await page.click('.bp-session-work [data-session-next]');
   }
-  // Skip remaining questions until the review screen appears.
   for(let i=0;i<6;i++){
     if(await page.locator('.bp-session-review').count())break;
     const skip=page.locator('[data-session-skip]');if(await skip.count())await skip.click();
@@ -117,7 +114,6 @@ await checkPractice({width:1440,height:900},'practice-full', '#practice?course=s
   await page.close();
 }
 
-// Mobile session should remain usable with no horizontal overflow.
 {
   const {page,errors}=await pageWith({width:390,height:844});
   await page.goto(base+'#practice',{waitUntil:'networkidle'});await page.waitForSelector('[data-preset-session="quick"]');await page.waitForTimeout(400);await page.click('[data-preset-session="quick"]');await page.waitForSelector('.bp-session-shell');
