@@ -1,7 +1,7 @@
 import {WHATS_NEW} from '../data/site.js';
 
 const $=(s,r=document)=>r.querySelector(s);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 let modal=null,lastFocus=null,keyHandler=null;
 
 function closeLog(){
@@ -42,7 +42,7 @@ function openLog(trigger){
 }
 
 function bind(){
-  document.querySelectorAll('[data-update-log-open]').forEach(btn=>{
+  document.querySelectorAll('[data-update-log-open],[data-open-update-log]').forEach(btn=>{
     if(btn.dataset.updateLogBound)return;
     btn.dataset.updateLogBound='1';
     btn.addEventListener('click',()=>openLog(btn));
