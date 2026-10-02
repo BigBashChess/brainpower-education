@@ -4,7 +4,8 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [revamp/milestone-a]
+    branches:
+      - 'revamp/**'
 
 permissions:
   contents: read
@@ -18,5 +19,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check Milestone A static integrity
+      - name: Check revamp static integrity
         run: node scripts/revamp-smoke.mjs
