@@ -45,39 +45,44 @@ function setHero(main,kind){
   inner.insertAdjacentHTML('beforeend',`<div class="bp-utility-hero__brainy" aria-hidden="true"><img src="public/brand/${kind==='resources'?'brainy-study.svg':'brainy-thinking.svg'}" alt=""></div>`);
 }
 
+function decorateResourceCards(main){
+  const list=$('#vault-list',main);if(!list)return;
+  list.classList.add('bp-archive__grid');
+  $$('.resource-card',list).forEach((card,i)=>{
+    card.classList.add('bp-archive-card');
+    if(card.dataset.bpArchiveDecorated==='1')return;
+    card.dataset.bpArchiveDecorated='1';
+    const id=card.dataset.resource;
+    const r=resources.find(x=>x.id===id);
+    if(!r)return;
+    card.dataset.type=r.type;
+    card.dataset.course=r.course;
+    const img=$('img',card); if(img){img.loading='lazy';img.decoding='async'}
+    const body=card.lastElementChild;
+    body?.insertAdjacentHTML('afterbegin',`<div class="bp-archive-card__index">${String(i+1).padStart(2,'0')}</div>`);
+    $('.meta',card)?.insertAdjacentHTML('beforebegin',`<div class="bp-archive-card__course">${esc(COURSE_NAME(r.course))}</div>`);
+  });
+}
+
 function enhanceResources(main){
   main.className='bp-resources-page';
   setHero(main,'resources');
   const section=$('.vault-section',main); if(!section)return;
   section.classList.add('bp-archive');
-  const top=$('.vault-topline',section), filters=$('.filter-panel',section), list=$('#vault-list',section), note=$('.vault-note',section);
+  const top=$('.vault-topline',section), filters=$('.filter-panel',section), note=$('.vault-note',section);
   if(top){
     top.classList.add('bp-archive__top');
-    top.querySelector('h2')?.insertAdjacentHTML('afterend','<p class="bp-archive__intro">Search by title or topic, then narrow by format and course. Saved items stay on this device.</p>');
+    if(!$('.bp-archive__intro',top))top.querySelector('h2')?.insertAdjacentHTML('afterend','<p class="bp-archive__intro">Search by title or topic, then narrow by format and course. Saved items stay on this device.</p>');
   }
   filters?.classList.add('bp-archive__filters');
-  list?.classList.add('bp-archive__grid');
   note?.classList.add('bp-archive__note');
-
-  $$('.resource-card',list).forEach((card,i)=>{
-    card.classList.add('bp-archive-card');
-    const id=card.dataset.resource;
-    const r=resources.find(x=>x.id===id);
-    if(r){
-      card.dataset.type=r.type;
-      card.dataset.course=r.course;
-      const img=$('img',card); if(img){img.loading='lazy';img.decoding='async'}
-      const body=card.lastElementChild;
-      body?.insertAdjacentHTML('afterbegin',`<div class="bp-archive-card__index">${String(i+1).padStart(2,'0')}</div>`);
-      $('.meta',card)?.insertAdjacentHTML('beforebegin',`<div class="bp-archive-card__course">${esc(COURSE_NAME(r.course))}</div>`);
-    }
-  });
+  decorateResourceCards(main);
 
   const chipHost=$('.vault-type-chips',section);
   if(chipHost&&!$('[data-bp-saved]',chipHost)){
     chipHost.insertAdjacentHTML('beforeend','<button class="vault-chip bp-saved-chip" type="button" data-bp-saved>★ Saved</button>');
     $('[data-bp-saved]',chipHost).addEventListener('click',()=>{
-      const p=load(),saved=new Set(p.bookmarks||[]);
+      const p=load(),saved=new Set(p.bookmarks||[]),list=$('#vault-list',main);
       const cards=$$('.resource-card',list);
       cards.forEach(c=>c.hidden=!saved.has(c.dataset.resource));
       const count=$('#vault-count',section);if(count)count.textContent=cards.filter(c=>!c.hidden).length;
@@ -104,16 +109,19 @@ function enhanceTools(main){
   ];
   $$('.tool-card',grid).forEach((card,i)=>{
     card.classList.add('bp-lab-card');
+    if(card.dataset.bpLabDecorated==='1')return;
+    card.dataset.bpLabDecorated='1';
     card.insertAdjacentHTML('afterbegin',`<div class="bp-lab-card__top"><span>${String(i+1).padStart(2,'0')}</span><small>${esc(names[i]||'Study tool')}</small></div>`);
     const p=$('p',card);if(p)p.textContent=descriptions[i]||p.textContent;
   });
-  section.insertAdjacentHTML('afterbegin',`<div class="bp-lab__rail"><div><span>LAB MODE</span><b>Pick a utility and keep moving.</b></div><div class="bp-lab__rail-links"><a href="#practice">Question bank</a><a href="#tests">Assessments</a><a href="#resources">Archive</a></div></div>`);
+  if(!$('.bp-lab__rail',section))section.insertAdjacentHTML('afterbegin',`<div class="bp-lab__rail"><div><span>LAB MODE</span><b>Pick a utility and keep moving.</b></div><div class="bp-lab__rail-links"><a href="#practice">Question bank</a><a href="#tests">Assessments</a><a href="#resources">Archive</a></div></div>`);
 }
 
 function apply(){
   const r=route();
   if(!['resources','tools'].includes(r))return;
-  const main=$('main');if(!main||main.dataset.bpUtility===r)return;
+  const main=$('main');if(!main)return;
+  if(main.dataset.bpUtility===r){if(r==='resources')decorateResourceCards(main);return}
   main.dataset.bpUtility=r;
   if(r==='resources')enhanceResources(main);else enhanceTools(main);
 }
