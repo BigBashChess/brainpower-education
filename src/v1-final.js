@@ -13,6 +13,20 @@ enhanceBoot();
 function cleanTestPreviews(){
   $$('.pdf-cover-wrap').forEach(w=>{w.classList.add('bp-clean-cover');const f=$('iframe',w);if(f){f.scrolling='no';f.setAttribute('scrolling','no')}});
 }
+/* Home should advertise the Test Centre, not duplicate the whole assessment catalogue. */
+function simplifyHomeTests(){
+  const route=(location.hash.slice(1)||'home').split('/')[0];if(route!=='home')return;
+  $$('.section').forEach(section=>{
+    const eyebrow=$('.section-title .eyebrow',section);
+    if(!eyebrow||eyebrow.textContent.trim().toUpperCase()!=='TEST CENTRE'||section.dataset.bpSimplified)return;
+    section.dataset.bpSimplified='1';
+    [...section.children].forEach(child=>{if(!child.classList.contains('section-title'))child.remove()});
+    const title=$('.section-title',section);if(!title)return;
+    let link=$('a[href="#tests"]',title);
+    if(!link){link=document.createElement('a');link.href='#tests';link.className='btn primary';title.appendChild(link)}
+    link.className='btn primary';link.textContent='Browse all tests →';
+  });
+}
 function brainy(){
   const b=$('#brainy-companion'),img=b?.querySelector('img');if(!b||!img)return;
   img.src='public/brand/brainy.svg';img.dataset.moodSrc='public/brand/brainy.svg';b.classList.add('brainy-v1');
@@ -21,7 +35,7 @@ function brainy(){
 function reactToCorrect(){const b=$('#brainy-companion');if(!b)return;b.classList.remove('brainy-win');void b.offsetWidth;b.classList.add('brainy-win');setTimeout(()=>b.classList.remove('brainy-win'),1500)}
 let seen=new WeakSet();
 function watchCorrect(){$$('.feedback.good:not([hidden])').forEach(x=>{if(seen.has(x))return;seen.add(x);reactToCorrect()})}
-function run(){cleanTestPreviews();brainy();watchCorrect()}
+function run(){cleanTestPreviews();simplifyHomeTests();brainy();watchCorrect()}
 const app=$('#app');
 if(app)new MutationObserver(()=>queueMicrotask(run)).observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});
 addEventListener('hashchange',()=>setTimeout(run,20));setTimeout(run,30);
