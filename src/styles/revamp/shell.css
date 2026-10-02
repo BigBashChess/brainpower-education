@@ -40,8 +40,9 @@
 
 @media(min-width:1180px){.bp-shell-action--search span{display:inline}}
 @media(max-width:1080px){
-  .bp-nav{justify-content:flex-start;overflow:hidden;mask-image:linear-gradient(90deg,#000 88%,transparent)}
-  .bp-nav a:nth-last-child(-n+2){display:none}
+  .bp-nav{justify-content:flex-start;overflow:hidden;mask-image:linear-gradient(90deg,#000 90%,transparent)}
+  .bp-nav a:nth-child(6),.bp-nav a:nth-child(7),.bp-nav a:nth-child(9){display:none}
+  .bp-menu-button{display:inline-flex}
 }
 @media(max-width:760px){
   :root{--bp-header-height:62px}
