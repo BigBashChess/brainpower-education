@@ -7,7 +7,7 @@ import {courseMastery} from '../utils.js';
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const baseRoute=()=>((location.hash.slice(1)||'home').split(/[/?]/)[0]||'home');
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 function nextLesson(progress){return lessons.find(l=>!progress.completedLessons.includes(l.id))||lessons[0]}
 function courseProgress(course,progress){
