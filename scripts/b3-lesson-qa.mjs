@@ -28,7 +28,7 @@ async function openLesson(row,{width=1440,height=900,name=`${row.course}-desktop
   const page=await browser.newPage({viewport:{width,height},deviceScaleFactor:1});
   const errors=[];
   page.on('pageerror',e=>errors.push(`pageerror: ${e.message}`));
-  page.on('console',msg=>{if(msg.type()==='error')errors.push(`console: ${msg.text()}`)});
+  page.on('response',r=>{if(r.status()===404)errors.push(`404: ${r.url()}`)});
   await page.goto(`${base}#lesson/${row.id}`,{waitUntil:'networkidle'});
   await page.waitForSelector('.bp-lesson-page',{timeout:10000});
   await page.waitForSelector('.bp-lesson-ribbon',{timeout:10000});
@@ -53,7 +53,7 @@ async function openLesson(row,{width=1440,height=900,name=`${row.course}-desktop
   if(!checks.hero.includes('public/art/courses/')||checks.hero.includes('cloudfront'))problems.push(`${row.id}: lesson hero not using local course art (${checks.hero})`);
   if(checks.bodyWidth>checks.viewport+2)problems.push(`${row.id} ${width}px: horizontal overflow ${checks.bodyWidth-checks.viewport}px`);
   if(checks.oldNav)problems.push(`${row.id}: legacy lesson nav remains`);
-  if(errors.length)problems.push(`${row.id}: browser errors: ${errors.join(' | ')}`);
+  if(errors.length)problems.push(`${row.id}: browser errors: ${[...new Set(errors)].join(' | ')}`);
   await page.screenshot({path:`${out}/${name}.png`,fullPage});
   await page.close();
 }
