@@ -1,0 +1,6 @@
+/* B2 production artwork bindings. These deliberately override temporary review URLs in course-overview.js. */
+body[data-course-id="methods-12"] .bp-course-hero__art{background-image:url('../../../public/art/courses/methods-12-hero.webp')!important}
+body[data-course-id="methods-34"] .bp-course-hero__art{background-image:url('../../../public/art/courses/methods-34-hero.webp')!important}
+body[data-course-id="specialist-12"] .bp-course-hero__art{background-image:url('../../../public/art/courses/specialist-12-hero.webp')!important}
+body[data-course-id="specialist-34"] .bp-course-hero__art{background-image:url('../../../public/art/courses/specialist-34-hero.webp')!important}
+body[data-course-id="physics-12"] .bp-course-hero__art{background-image:url('../../../public/art/courses/physics-12-hero.webp')!important}
