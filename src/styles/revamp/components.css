@@ -360,3 +360,6 @@ code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.92em}
 .worked-example-card{padding:15px}
 .deep-key-grid>div{grid-template-columns:32px 1fr}
 .lesson-progressline.deep span:last-child{grid-column:1/-1}}
+
+.question-save-status { color: var(--muted); font-size: .85rem; margin: .5rem 0 1rem; }
+.question-retry { margin-top: .8rem; }

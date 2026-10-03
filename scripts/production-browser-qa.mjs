@@ -8,8 +8,13 @@ const page=await browser.newPage({viewport:{width:1440,height:900}});
 page.on('pageerror',e=>problems.push(e.message));
 page.on('response',r=>{if(r.status()===404&&r.url().startsWith(base))problems.push('404: '+r.url())});
 async function open(hash){await page.goto(base+hash,{waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>document.querySelector('main')&&!document.body.dataset.bpRoutePending&&!document.querySelector('.bp-route-loader.is-active'),{timeout:30000});await page.waitForTimeout(600)}
+let deployed=false;
+for(let attempt=0;attempt<30;attempt++){
+ await page.goto(base+`?release=${encodeURIComponent(process.env.DEPLOYED_SHA||SITE.version)}&attempt=${attempt}#home`,{waitUntil:'domcontentloaded',timeout:60000});
+ try{await page.locator('footer').getByText('v'+SITE.version,{exact:false}).waitFor({timeout:5000});deployed=true;break}catch{await page.waitForTimeout(5000)}
+}
+if(!deployed)throw new Error('Expected release did not become available on Pages.');
 await open('#home');
-await page.locator('footer').getByText('v'+SITE.version,{exact:false}).waitFor({timeout:30000});
 if(await page.locator('[data-learning-state="fresh"]').count()!==1)problems.push('Fresh Home has no truthful first step.');
 const before=await page.evaluate(()=>({height:document.documentElement.scrollHeight,width:document.querySelector('main').getBoundingClientRect().width}));
 await page.evaluate(()=>window.scrollTo({top:450,behavior:'instant'}));
