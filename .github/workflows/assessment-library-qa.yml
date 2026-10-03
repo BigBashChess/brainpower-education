@@ -1,0 +1,52 @@
+name: Assessment library QA
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/data/tests.js'
+      - 'src/data/test-metadata-audit.js'
+      - 'public/resources/**'
+      - 'public/thumbnails/**'
+      - 'scripts/assessment-addition-qa.mjs'
+      - '.github/workflows/assessment-library-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  assessment-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Audit static data and versions
+        run: |
+          node scripts/revamp-smoke.mjs
+          node scripts/e-static-audit.mjs
+      - name: Install Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start static server
+        run: |
+          python3 -m http.server 8000 >/tmp/brainpower-server.log 2>&1 &
+          for i in {1..30}; do curl -fsS http://127.0.0.1:8000/ >/dev/null && exit 0; sleep 1; done
+          cat /tmp/brainpower-server.log
+          exit 1
+      - name: Verify the added paper and download
+        run: node scripts/assessment-addition-qa.mjs
+      - name: Check existing assessment flows
+        run: node scripts/c1-assessment-qa.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: assessment-library-evidence
+          path: |
+            qa-assessment-addition/
+            qa-c1-assessment/
+          retention-days: 14
