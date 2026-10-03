@@ -12,7 +12,7 @@ async function open(hash){await page.goto(base+hash,{waitUntil:'domcontentloaded
 let deployed=false;
 for(let attempt=0;attempt<30;attempt++){
  await page.goto(base+`?release=${encodeURIComponent(process.env.DEPLOYED_SHA||SITE.version)}&attempt=${attempt}#home`,{waitUntil:'domcontentloaded',timeout:60000});
- try{await page.locator('footer').getByText('v'+SITE.version,{exact:false}).waitFor({timeout:5000});deployed=true;break}catch{await page.waitForTimeout(5000)}
+ try{await page.locator('footer').getByText('v'+SITE.version,{exact:false}).waitFor({timeout:5000});await page.waitForFunction(()=>{const preview=document.querySelector('.bp-home-daily [data-math-preview]');return preview&&getComputedStyle(preview).color==='rgb(23, 54, 74)'},{timeout:5000});deployed=true;break}catch{await page.waitForTimeout(5000)}
 }
 if(!deployed)throw new Error('Expected release did not become available on Pages.');
 await open('#home');
