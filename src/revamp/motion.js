@@ -32,7 +32,7 @@ function prepareReveals(){
   revealObserver?.disconnect();
   revealObserver=null;
   const base=route();
-  // Focus modes stay still: lesson, active practice and exam content should not scroll-animate.
+  // Focus modes stay still: lesson and exam content should not scroll-animate.
   if(reduced()||['lesson','exam'].includes(base)){
     $$('.bp-motion-reveal').forEach(el=>el.classList.add('is-visible'));
     return;
@@ -73,10 +73,13 @@ function observeFeedback(){
   feedbackObserver=new MutationObserver(records=>records.forEach(record=>{
     const target=record.target.nodeType===1?record.target:record.target.parentElement;
     animateFeedback(target?.closest?.('.question-card,.bp-practice-page,.bp-lesson-page')||document);
-    markPurposefulBrainy(target?.closest?.('main')||document);
+    if(record.type==='childList')markPurposefulBrainy(target?.closest?.('main')||document);
   }));
   const app=$('#app');
-  if(app)feedbackObserver.observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','class']});
+  // Do not observe generic class mutations here. The motion layer itself changes classes for
+  // page entrances, reveals and feedback; watching those classes would recursively schedule
+  // more motion forever. Feedback visibility already exposes the semantic `hidden` mutation.
+  if(app)feedbackObserver.observe(app,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden']});
 }
 
 function apply(){
