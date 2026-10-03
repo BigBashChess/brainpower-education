@@ -35,8 +35,8 @@ let state=await page.evaluate(()=>({
 if(!state.css||!state.api||state.reveal<1||state.companion||state.route!=='home')problems.push(`home-motion: motion system incomplete ${JSON.stringify(state)}`);
 await page.screenshot({path:`${out}/home-motion.png`});await overflow(ctx);errors(ctx);
 
-// Test the branded loader directly, then trigger the real hash route in a short synchronous
-// evaluation. Do not keep an async evaluate promise alive while the SPA replaces #app.
+// Assert the branded transition itself deterministically. Route rendering is asserted independently
+// on fresh About/Exam pages below so the QA does not race the SPA's transient hash transition.
 await page.evaluate(()=>window.BrainpowerPageTransition?.show?.());
 await page.waitForSelector('.bp-route-loader.is-active',{state:'attached'});
 state=await page.evaluate(()=>{
@@ -50,18 +50,18 @@ state=await page.evaluate(()=>{
 if(!state.seen||state.src!=='public/brand/brainy.svg'||state.hidden!=='false')problems.push(`home-motion: route loader lacks purposeful canonical Brainy ${JSON.stringify(state)}`);
 await page.waitForTimeout(700);
 if(await page.locator('.bp-route-loader.is-active').count())problems.push('home-motion: loader stayed active after transition window');
-await page.evaluate(()=>{location.hash='#about'});
-await page.waitForSelector('.bp-about-page');
 await page.close();
 
 ctx=await pageAt('about-brainy',1024,768);page=ctx.page;
 await open(ctx,'#about');
+await page.waitForSelector('.bp-about-page',{state:'attached'});
 state=await page.evaluate(()=>({
   purposeful:document.querySelector('.bp-about-brainy__mascot')?.classList.contains('bp-brainy-purposeful'),
   src:document.querySelector('.bp-about-brainy__mascot img')?.getAttribute('src'),
-  visible:[...document.querySelectorAll('.bp-motion-reveal')].some(el=>el.classList.contains('is-visible'))
+  visible:[...document.querySelectorAll('.bp-motion-reveal')].some(el=>el.classList.contains('is-visible')),
+  route:document.body.dataset.route
 }));
-if(!state.purposeful||state.src!=='public/brand/brainy.svg'||!state.visible)problems.push(`about-brainy: purposeful state missing ${JSON.stringify(state)}`);
+if(!state.purposeful||state.src!=='public/brand/brainy.svg'||!state.visible||state.route!=='about')problems.push(`about-brainy: purposeful state missing ${JSON.stringify(state)}`);
 await page.screenshot({path:`${out}/about-brainy.png`,fullPage:true});await overflow(ctx);errors(ctx);await page.close();
 
 // Exam Mode must stay still: no scroll-reveal choreography and no decorative mascot injection.
