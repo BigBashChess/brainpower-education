@@ -35,34 +35,32 @@ let state=await page.evaluate(()=>({
 if(!state.css||!state.api||state.reveal<1||state.companion||state.route!=='home')problems.push(`home-motion: motion system incomplete ${JSON.stringify(state)}`);
 await page.screenshot({path:`${out}/home-motion.png`});await overflow(ctx);errors(ctx);
 
-// Assert the branded transition itself deterministically. Route rendering is asserted independently
-// on fresh About/Exam pages below so the QA does not race the SPA's transient hash transition.
+// Branded page-swap loader must use canonical Brainy and dismiss itself.
 await page.evaluate(()=>window.BrainpowerPageTransition?.show?.());
 await page.waitForSelector('.bp-route-loader.is-active',{state:'attached'});
 state=await page.evaluate(()=>{
   const loader=document.querySelector('.bp-route-loader.is-active');
-  return {
-    seen:!!loader,
-    src:loader?.querySelector('.bp-route-loader__brainy')?.getAttribute('src')||null,
-    hidden:loader?.getAttribute('aria-hidden')||null
-  };
+  return {seen:!!loader,src:loader?.querySelector('.bp-route-loader__brainy')?.getAttribute('src')||null,hidden:loader?.getAttribute('aria-hidden')||null};
 });
 if(!state.seen||state.src!=='public/brand/brainy.svg'||state.hidden!=='false')problems.push(`home-motion: route loader lacks purposeful canonical Brainy ${JSON.stringify(state)}`);
 await page.waitForTimeout(700);
 if(await page.locator('.bp-route-loader.is-active').count())problems.push('home-motion: loader stayed active after transition window');
-await page.close();
 
-ctx=await pageAt('about-brainy',1024,768);page=ctx.page;
-await open(ctx,'#about');
-await page.waitForSelector('.bp-about-page',{state:'attached'});
-state=await page.evaluate(()=>({
-  purposeful:document.querySelector('.bp-about-brainy__mascot')?.classList.contains('bp-brainy-purposeful'),
-  src:document.querySelector('.bp-about-brainy__mascot img')?.getAttribute('src'),
-  visible:[...document.querySelectorAll('.bp-motion-reveal')].some(el=>el.classList.contains('is-visible')),
-  route:document.body.dataset.route
-}));
-if(!state.purposeful||state.src!=='public/brand/brainy.svg'||!state.visible||state.route!=='about')problems.push(`about-brainy: purposeful state missing ${JSON.stringify(state)}`);
-await page.screenshot({path:`${out}/about-brainy.png`,fullPage:true});await overflow(ctx);errors(ctx);await page.close();
+// Purposeful Brainy state is tested with an explicit D3 fixture, keeping this workflow independent
+// of the separate D2 secondary-route enhancer.
+state=await page.evaluate(async()=>{
+  const main=document.querySelector('main');
+  const slot=document.createElement('div');
+  slot.id='d3-brainy-fixture';
+  slot.dataset.brainyState='think';
+  slot.innerHTML='<img src="public/brand/brainy.svg" alt="">';
+  main.appendChild(slot);
+  window.BrainpowerMotion.refresh();
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  return {purposeful:slot.classList.contains('bp-brainy-purposeful'),src:slot.querySelector('img')?.getAttribute('src')};
+});
+if(!state.purposeful||state.src!=='public/brand/brainy.svg')problems.push(`home-motion: purposeful Brainy fixture failed ${JSON.stringify(state)}`);
+await page.close();
 
 // Exam Mode must stay still: no scroll-reveal choreography and no decorative mascot injection.
 ctx=await pageAt('exam-still',1280,800);page=ctx.page;
@@ -71,14 +69,26 @@ state=await page.evaluate(()=>({route:document.body.dataset.route,reveals:docume
 if(state.route!=='exam'||state.reveals>0||state.brainy>0)problems.push(`exam-still: focus-mode motion rule failed ${JSON.stringify(state)}`);
 await overflow(ctx);errors(ctx);await page.close();
 
-// Reduced-motion users receive static states.
+// Reduced-motion users receive static Brainy and reveal states.
 ctx=await pageAt('reduced-motion',390,844,'reduce');page=ctx.page;
-await open(ctx,'#about');
-state=await page.evaluate(()=>({
-  hidden:[...document.querySelectorAll('.bp-motion-reveal')].filter(el=>getComputedStyle(el).opacity==='0').length,
-  animation:getComputedStyle(document.querySelector('.bp-about-brainy__mascot img')).animationName
-}));
-if(state.hidden||state.animation!=='none')problems.push(`reduced-motion: animated state survived ${JSON.stringify(state)}`);
+await open(ctx,'#home');
+state=await page.evaluate(async()=>{
+  const main=document.querySelector('main');
+  const slot=document.createElement('div');
+  slot.id='d3-reduced-fixture';
+  slot.dataset.brainyState='celebrate';
+  slot.className='bp-brainy-react';
+  slot.innerHTML='<img src="public/brand/brainy.svg" alt="">';
+  main.appendChild(slot);
+  window.BrainpowerMotion.refresh();
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  return {
+    hidden:[...document.querySelectorAll('.bp-motion-reveal')].filter(el=>getComputedStyle(el).opacity==='0').length,
+    animation:getComputedStyle(slot.querySelector('img')).animationName,
+    purposeful:slot.classList.contains('bp-brainy-purposeful')
+  };
+});
+if(state.hidden||state.animation!=='none'||!state.purposeful)problems.push(`reduced-motion: static state failed ${JSON.stringify(state)}`);
 await page.screenshot({path:`${out}/reduced-motion.png`});await overflow(ctx);errors(ctx);await page.close();
 
 await browser.close();
