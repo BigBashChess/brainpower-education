@@ -1,5 +1,5 @@
 /* Brainpower revamp foundation. Loaded after legacy CSS during staged migration. */
-html{scroll-padding-top:calc(var(--bp-header-height) + 18px)}
+html{scroll-padding-top:calc(var(--bp-header-height) + 18px);scrollbar-gutter:stable}
 body.bp-revamp{font-family:var(--bp-font);text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
 body.bp-revamp::selection{background:rgba(51,136,255,.28)}
 body.bp-revamp :where(a,button,input,select,textarea,[tabindex]):focus-visible{outline:3px solid var(--bp-blue-bright);outline-offset:3px}

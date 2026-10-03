@@ -35,13 +35,33 @@ let state=await page.evaluate(()=>({
 if(!state.css||!state.api||state.reveal<1||state.companion||state.route!=='home')problems.push(`home-motion: motion system incomplete ${JSON.stringify(state)}`);
 await page.screenshot({path:`${out}/home-motion.png`});await overflow(ctx);errors(ctx);
 
+// Real countdown ticks must update without restarting the entire page entrance.
+await page.waitForTimeout(900);
+await page.evaluate(()=>window.scrollTo({top:450,behavior:'instant'}));
+state=await page.evaluate(async()=>{
+  const main=document.querySelector('main'),clock=document.querySelector('[data-mock-countdown]');
+  const before=clock?.textContent,scroll=scrollY;
+  let entrances=0,moved=false;
+  const onStart=e=>{if(e.target===main)entrances++};
+  main.addEventListener('animationstart',onStart);
+  for(let i=0;i<90;i++){
+    await new Promise(r=>setTimeout(r,35));
+    if(getComputedStyle(main).transform!=='none'||Math.abs(scrollY-scroll)>1)moved=true;
+  }
+  main.removeEventListener('animationstart',onStart);
+  return {ticked:clock?.textContent!==before,entrances,moved};
+});
+if(!state.ticked||state.entrances||state.moved)problems.push(`home-motion: countdown moved the settled page ${JSON.stringify(state)}`);
+
+const widthBefore=await page.evaluate(()=>document.querySelector('main').getBoundingClientRect().width);
 await page.evaluate(()=>window.BrainpowerPageTransition?.show?.());
 await page.waitForSelector('.bp-route-loader.is-active',{state:'attached'});
 state=await page.evaluate(()=>{
   const loader=document.querySelector('.bp-route-loader.is-active');
-  return {seen:!!loader,src:loader?.querySelector('.bp-route-loader__brainy')?.getAttribute('src')||null,hidden:loader?.getAttribute('aria-hidden')||null};
+  return {seen:!!loader,src:loader?.querySelector('.bp-route-loader__brainy')?.getAttribute('src')||null,hidden:loader?.getAttribute('aria-hidden')||null,width:document.querySelector('main').getBoundingClientRect().width};
 });
 if(!state.seen||state.src!=='public/brand/brainy.svg'||state.hidden!=='false')problems.push(`home-motion: route loader lacks purposeful canonical Brainy ${JSON.stringify(state)}`);
+if(Math.abs(state.width-widthBefore)>1)problems.push(`home-motion: loading overlay changed page width by ${state.width-widthBefore}px`);
 await page.waitForTimeout(700);
 if(await page.locator('.bp-route-loader.is-active').count())problems.push('home-motion: loader stayed active after transition window');
 
@@ -58,6 +78,28 @@ await page.waitForTimeout(80);
 state=await page.evaluate(()=>{const slot=document.querySelector('#d3-brainy-fixture');return {purposeful:slot?.classList.contains('bp-brainy-purposeful'),src:slot?.querySelector('img')?.getAttribute('src')}});
 if(!state.purposeful||state.src!=='public/brand/brainy.svg')problems.push(`home-motion: purposeful Brainy fixture failed ${JSON.stringify(state)}`);
 await page.close();
+
+// Gameplay timers update too; focus and regular ticks must leave the settled page still.
+ctx=await pageAt('arcade-still',390,844);page=ctx.page;
+await open(ctx,'#arcade');await page.waitForTimeout(700);
+await page.locator('#bp-dash-start').click();
+await page.waitForTimeout(650);
+state=await page.evaluate(async()=>{
+  const main=document.querySelector('main'),clock=document.querySelector('#bp-dash-time');
+  const before=clock.textContent,scroll=scrollY;
+  let entrances=0,moved=false;
+  const onStart=e=>{if(e.target===main)entrances++};
+  main.addEventListener('animationstart',onStart);
+  for(let i=0;i<65;i++){
+    await new Promise(r=>setTimeout(r,35));
+    if(getComputedStyle(main).transform!=='none'||Math.abs(scrollY-scroll)>1)moved=true;
+  }
+  main.removeEventListener('animationstart',onStart);
+  return {ticked:clock.textContent!==before,entrances,moved};
+});
+if(!state.ticked||state.entrances||state.moved)problems.push(`arcade-still: game timer moved the settled page ${JSON.stringify(state)}`);
+await page.locator('#bp-dash-pause').click();
+await page.screenshot({path:`${out}/arcade-still.png`});await overflow(ctx);errors(ctx);await page.close();
 
 ctx=await pageAt('exam-still',1280,800);page=ctx.page;
 await open(ctx,'#exam');

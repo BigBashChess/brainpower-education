@@ -1,5 +1,6 @@
 import {existsSync,readFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
+import {SITE,WHATS_NEW} from '../src/data/site.js';
 
 const required=[
   'index.html','src/main.js','src/components.js','src/data/site.js',
@@ -60,8 +61,12 @@ const checks=[
 for(const [file,needle,label] of checks)if(!readFileSync(file,'utf8').includes(needle))failures.push(`Missing ${label} marker in ${file}`);
 
 const site=readFileSync('src/data/site.js','utf8');
-if(!site.includes("version: '1.0.0'"))failures.push('v1.0.0 release version is not set.');
-if(!site.includes('Brainpower Learning World'))failures.push('v1.0.0 release note is missing.');
+const pkg=JSON.parse(readFileSync('package.json','utf8'));
+if(!/^[1-9]\d*\.\d+\.\d+$/.test(SITE.version))failures.push('A stable v1+ release version is required.');
+if(pkg.version!==SITE.version)failures.push(`Package version ${pkg.version} differs from SITE.version ${SITE.version}.`);
+if(!WHATS_NEW[0]?.title.startsWith(`${SITE.version}:`))failures.push('Newest update-log entry does not describe the current release.');
+if(!readFileSync('README.md','utf8').startsWith(`# Brainpower Education — v${SITE.version}\n`))failures.push('README release heading differs from SITE.version.');
+if(!site.includes('Brainpower Learning World'))failures.push('Brainpower Learning World launch note is missing.');
 const components=readFileSync('src/components.js','utf8');
 if(!components.includes('v${SITE.version}'))failures.push('Global footer does not surface SITE.version.');
 const art=readFileSync('src/styles/revamp/art.css','utf8');
@@ -69,4 +74,4 @@ for(const file of ['hero-study-room.webp','methods-gateway.webp','specialist-gat
 if(/brainy-scatter|brainy-companion/.test(readFileSync('src/styles/revamp/home.css','utf8')))failures.push('Legacy scattered Brainy styling leaked into Home.');
 
 if(failures.length){console.error('\nRevamp smoke check failed:\n- '+failures.join('\n- '));process.exit(1)}
-console.log(`Revamp v1.0 smoke passed (${required.length} required files; ${scripts.length} route modules syntax-checked).`);
+console.log(`Revamp v${SITE.version} smoke passed (${required.length} required files; ${scripts.length} route modules syntax-checked).`);

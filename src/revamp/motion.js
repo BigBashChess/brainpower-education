@@ -16,6 +16,7 @@ const purposefulBrainySelectors=[
 let revealObserver=null;
 let clearEnterTimer=null;
 let feedbackObserver=null;
+const enteredPages=new WeakSet();
 
 function markPurposefulBrainy(root=document){
   purposefulBrainySelectors.forEach(sel=>$$(`${sel}`,root).forEach(slot=>{
@@ -51,7 +52,9 @@ function prepareReveals(){
 
 function enterPage(){
   const main=$('main');
-  if(!main||route()==='exam'||reduced())return;
+  if(!main||enteredPages.has(main)||route()==='exam'||reduced())return;
+  // Countdowns, scores and feedback mutate the existing page. Only a new route mount enters.
+  enteredPages.add(main);
   main.classList.remove('bp-motion-enter');
   void main.offsetWidth;
   main.classList.add('bp-motion-enter');

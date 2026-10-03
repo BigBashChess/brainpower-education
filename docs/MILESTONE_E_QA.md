@@ -1,8 +1,10 @@
 # Milestone E QA — v1.0 Quality Gate
 
-Status: **RELEASE CANDIDATE — merge only with green final-quality workflow**  
-Branch: `revamp/milestone-e-final-qa`  
-Target release: **Brainpower Education v1.0.0 — Brainpower Learning World**
+Status: **RELEASED — Milestone E merged in PR #11**
+
+Launch branch: `revamp/milestone-e-final-qa`
+
+Launch release: **Brainpower Education v1.0.0 — Brainpower Learning World**
 
 Milestone E is the final regression, accessibility, asset-integrity and release gate for the A–D full-site revamp.
 
@@ -25,7 +27,7 @@ A fully green reference run before the release-label commit was GitHub Actions r
 - 27 catalogue PDF/thumbnail/resource paths checked
 - **PASS — 0 browser problems**
 
-The branch workflow reruns this same gate after every release-candidate change and must remain green before merge.
+The branch workflow reruns this same gate for release changes and must remain green before merge.
 
 ## Assertions
 
@@ -78,4 +80,6 @@ Brainy remains the canonical open-book character throughout production: cream/op
 
 ## Release state
 
-`SITE.version` is set to `1.0.0`, the update log includes **1.0.0: Brainpower Learning World**, and the global footer surfaces the release version. The final branch-head quality workflow must pass after these release changes; only then should the pull request be squash-merged to `main` and the matching GitHub Pages deployment verified.
+The v1.0.0 launch shipped in PR #11. PR #12 corrected Arcade control contrast/hidden states; PR #13 added four-choice Derivative Dash. PR #13's final gate, Actions run **37089729826**, passed all 42 route/viewport checks plus the D1/D2/D3 browser suites. The matching Pages deployment, run **37090045992**, succeeded; live answer scoring and pause were verified.
+
+The v1.0.1 follow-up fixes page entrance replay on countdown/score mutations, retires the overlapping legacy entrance animation and reserves scrollbar space during overlays. Motion regression measures real Home countdown and mobile Dash timer updates for page movement, and checks layout width during loading. It also aligns the package, site, README and newest update-log entry. The smoke check now enforces release consistency instead of pinning every future release to 1.0.0. Full-site regression checks the visible footer version and update-log entry on desktop/mobile, including layout width, Escape and returned keyboard focus. Each release still requires green branch QA and verification of its matching Pages deployment.
