@@ -18,7 +18,7 @@ for(let index=0;index<questions.length;index++){
  const answer=async value=>{if(q.type==='choice')await card.locator('[data-choice]').filter({hasText:''}).evaluateAll((buttons,value)=>buttons.find(b=>b.dataset.choice===value)?.click(),value);else{await card.locator('[data-math-input]').fill(value);await card.locator('.check-answer').click()}};
  if(q.type!=='choice'){
   await card.locator('.check-answer').click();assert(!(await progress()).attemptedQuestions?.[q.id],`${q.id}: blank is not an attempt`);
-  await card.locator('[data-math-input]').fill('sqrt(3)/2');await open('#learn');await open();assert(await card.locator('[data-math-input]').inputValue()==='sqrt(3)/2',`${q.id}: draft survives route navigation`);
+  await card.locator('[data-math-input]').fill('sqrt(3)/2');assert(await card.locator('[data-math-preview]').evaluate(el=>getComputedStyle(el).color)==='rgb(23, 54, 74)',`${q.id}: formatted maths stays readable on white preview paper`);await open('#learn');await open();assert(await card.locator('[data-math-input]').inputValue()==='sqrt(3)/2',`${q.id}: draft survives route navigation`);
   await p.reload();await card.waitFor();assert(await card.locator('[data-math-input]').inputValue()==='sqrt(3)/2',`${q.id}: draft survives reload`);assert((await progress()).xp===0,`${q.id}: drafts grant no XP`);
  }
  const wrong=q.type==='choice'?q.choices.find(c=>c!==q.answer):'999999';await answer(wrong);assert((await progress()).questionActivity[q.id].correct===false,`${q.id}: incorrect result saved`);

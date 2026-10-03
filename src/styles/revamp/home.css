@@ -108,3 +108,5 @@ body.bp-revamp[data-route="home"] main{max-width:none;margin:0;background:var(--
 .bp-home-section__head .eyebrow{color:var(--bp-blue-bright)}
 
 .bp-home-daily .question-save-status{color:#a9c0d2}
+
+.bp-home-daily .math-preview{color:#17364a}

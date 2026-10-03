@@ -1,10 +1,10 @@
 # Milestone E QA — v1.0.0 acceptance
 
-Status: **V1.0.0 CANDIDATE — merge requires the complete current gate and production verification follows deployment**
+Status: **COMPLETE — v1.0.0 release gate, matching Pages deployment and production-browser verification passed**
 
-Acceptance branch: `revamp/daily-progress-v1`
+Release branch: `revamp/daily-progress-v1`; live proof follow-up: `revamp/v1-live-proof`
 
-Target release: **1.0.0 — completed full-site revamp**
+Public release: **1.0.0 — completed full-site revamp**
 
 Earlier v1.0.0/v1.0.1 completion labels were premature. The user reserves v1.0.0 for the finished revamp. PR #15 closes gaps in actual lesson resume states, PDF exam tracking, CSS retirement, route-code loading, keyboard semantics, reflow and performance. Its evidence supersedes the earlier completion claim.
 
@@ -111,3 +111,12 @@ The user requested saved Daily answers, a recent-question indicator, full functi
 Browser checks cover all 14 rotating Daily problems on a mobile viewport, missed/correct results, refresh/navigation, retries, XP, local-day dates, legacy progress, choice restoration and fresh sessions. On **afa73b3c7849caf02832b19b5d1716689d04b6ad**, Actions run **37120467262**, these Daily checks and all nine B/C/D functional suites passed. Its accessibility gate found the new status paragraph inherited light reader text on light lesson paper; the owning lesson stylesheet now scopes its contrast. The final release commit must pass every gate before merge.
 
 The production browser workflow runs on main pushes, waits for the expected deployed version, and checks live lesson resume, canonical Brainy, four-choice Dash, page motion, Daily answer restoration and mobile reflow. Final passing commit/run, deployment and production-browser evidence are recorded on PR #16 and in the master plan after completion.
+
+
+## Final release evidence
+
+PR #16 final head **1bd604dd1b79a18f91b1e6383ba3a51541a3dbcf** passed the complete gate in Actions run **37120870731**: static/smoke, 42 route/viewport states, every major route WCAG A/AA including contrast, 200% reflow, learning/Exam persistence, all 14 Daily problems and all nine B/C/D functional suites. Evidence artifact **11273450846** contains the reviewed screenshots and passing reports. Constrained Home CLS was **0.0000**, first paint/FCP **988ms**, longest task **291ms** at 4x CPU, 150ms latency and 200KB/s download.
+
+PR #16 merged as **3d8ad479db858a3bf92caa2a9b39f89a951318ff**. Matching Pages run **37121252643** and production Chromium run **37121252949** passed. The public footer was verified at v1.0.0, and a correct Daily answer survived refresh with “Solved today · Saved answer restored” and “XP already recorded”.
+
+The live visual review also caught a pale formatted answer on Home’s white preview paper. The owning Home stylesheet now sets the preview ink explicitly. Daily and production checks assert this readable computed color, because automated contrast checks do not reliably detect every rendered KaTeX glyph. This narrowly scoped live-proof follow-up retains v1.0.0 and reruns the complete gate before merge. Its final evidence is recorded on its PR and in the master plan.

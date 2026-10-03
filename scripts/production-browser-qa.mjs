@@ -12,7 +12,7 @@ async function open(hash){await page.goto(base+hash,{waitUntil:'domcontentloaded
 let deployed=false;
 for(let attempt=0;attempt<30;attempt++){
  await page.goto(base+`?release=${encodeURIComponent(process.env.DEPLOYED_SHA||SITE.version)}&attempt=${attempt}#home`,{waitUntil:'domcontentloaded',timeout:60000});
- try{await page.locator('footer').getByText('v'+SITE.version,{exact:false}).waitFor({timeout:5000});deployed=true;break}catch{await page.waitForTimeout(5000)}
+ try{await page.locator('footer').getByText('v'+SITE.version,{exact:false}).waitFor({timeout:5000});await page.waitForFunction(()=>{const preview=document.querySelector('.bp-home-daily [data-math-preview]');return preview&&getComputedStyle(preview).color==='rgb(23, 54, 74)'},null,{timeout:5000});deployed=true;break}catch{await page.waitForTimeout(5000)}
 }
 if(!deployed)throw new Error('Expected release did not become available on Pages.');
 await open('#home');
@@ -34,7 +34,7 @@ if(await page.locator('.bp-dash-choice').count()!==4)problems.push('Derivative D
 await page.locator('#bp-dash-pause').click();await page.screenshot({path:out+'/arcade.png'});
 await open('#home');
 const daily=page.locator('.question-card').first(),answer=await daily.locator('[data-math-input]').count();
-if(answer){await daily.locator('[data-math-input]').fill('999999');await daily.locator('.check-answer').click()}else await daily.locator('[data-choice]').first().click();
+if(answer){await daily.locator('[data-math-input]').fill('999999');if(await daily.locator('[data-math-preview]').evaluate(el=>getComputedStyle(el).color)!=='rgb(23, 54, 74)')problems.push('Live Daily formatted answer is too pale on its white paper.');await daily.locator('.check-answer').click()}else await daily.locator('[data-choice]').first().click();
 await page.reload({waitUntil:'domcontentloaded'});await page.waitForSelector('[data-question-retry]');
 if(!(await daily.locator('[data-question-status]').innerText()).includes('Saved answer restored'))problems.push('Live Daily answer did not restore.');
 await daily.screenshot({path:out+'/daily-saved.png'});
