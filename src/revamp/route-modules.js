@@ -14,3 +14,10 @@ async function ensureRoute(){
   }
 }
 addEventListener('hashchange',ensureRoute);ensureRoute();
+
+// The command shortcut belongs to the shell even before Search has been loaded.
+addEventListener('keydown',e=>{
+  if(e.key!=='/'||e.metaKey||e.ctrlKey||e.altKey||e.target.closest?.('input,textarea,select,[contenteditable="true"]')||(location.hash||'').startsWith('#exam/'))return;
+  e.preventDefault();location.hash='#search';
+  ensureRoute().then(()=>document.querySelector('#bp-command-input')?.focus({preventScroll:true}));
+});

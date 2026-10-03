@@ -4,6 +4,7 @@ import {practiceQuestions} from '../data/questions.js';
 import {tests} from '../data/tests.js';
 import {resources} from '../data/resources.js';
 import {load} from '../progress/store.js';
+import {learningAction,courseCompletedAt} from '../progress/learning-state.js';
 import {courseMastery,topicMastery} from '../utils.js';
 
 const $=(s,r=document)=>r.querySelector(s);

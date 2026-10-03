@@ -1,10 +1,12 @@
-# Milestone E QA — v1.0 Quality Gate
+# Milestone E QA — pre-1.0 acceptance
 
-Status: **RELEASED — Milestone E merged in PR #11**
+Status: **FINALISATION REOPENED — PR #11 was an initial gate, not full acceptance**
 
 Launch branch: `revamp/milestone-e-final-qa`
 
-Launch release: **Brainpower Education v1.0.0 — Brainpower Learning World**
+Public version: **0.9.2 — pre-1.0 finalisation**
+
+Earlier v1.0.0/v1.0.1 completion labels were premature. The user reserves v1.0.0 for the finished revamp. PR #15 closes gaps in actual lesson resume states, PDF exam tracking, CSS retirement, route-code loading, keyboard semantics, reflow and performance. Its evidence supersedes the earlier completion claim.
 
 Milestone E is the final regression, accessibility, asset-integrity and release gate for the A–D full-site revamp.
 
@@ -58,9 +60,9 @@ The final static audit also checks:
 - all local test/resource/solution/thumbnail references exist
 - assessment numeric metadata is valid when present
 - five-course navigation remains intact
-- v1.0 version/release markers are present
+- the pre-1.0 version and public update log are consistent
 
-Historical CSS remains in the repository during staged migration. It is not treated as production truth when a later authoritative revamp ownership layer overrides it. In particular, `art.css` owns the computed Home artwork using local repository WebPs.
+The four legacy stylesheet layers are retired. Shared components and scoped route styles own production appearance. Signed prototype Home art URLs have been removed.
 
 ## Defects found and fixed by Milestone E
 
@@ -80,6 +82,6 @@ Brainy remains the canonical open-book character throughout production: cream/op
 
 ## Release state
 
-The v1.0.0 launch shipped in PR #11. PR #12 corrected Arcade control contrast/hidden states; PR #13 added four-choice Derivative Dash. PR #13's final gate, Actions run **37089729826**, passed all 42 route/viewport checks plus the D1/D2/D3 browser suites. The matching Pages deployment, run **37090045992**, succeeded; live answer scoring and pause were verified.
+PR #11 shipped the initial full-site implementation with a premature v1.0.0 label. PR #12 corrected Arcade control contrast/hidden states; PR #13 added four-choice Derivative Dash. PR #13's final gate, Actions run **37089729826**, passed all 42 route/viewport checks plus the D1/D2/D3 browser suites. The matching Pages deployment, run **37090045992**, succeeded; live answer scoring and pause were verified.
 
-The v1.0.1 follow-up fixes page entrance replay on countdown/score mutations, retires the overlapping legacy entrance animation and reserves scrollbar space during overlays. Motion regression measures real Home countdown and mobile Dash timer updates for page movement, and checks layout width during loading. It also aligns the package, site, README and newest update-log entry. The smoke check now enforces release consistency instead of pinning every future release to 1.0.0. Full-site regression checks the visible footer version and update-log entry on desktop/mobile, including layout width, Escape and returned keyboard focus. Each release still requires green branch QA and verification of its matching Pages deployment.
+PR #14 (prematurely labelled v1.0.1) fixes page entrance replay on countdown/score mutations, retires the overlapping legacy entrance animation and reserves scrollbar space during overlays. Motion regression measures real Home countdown and mobile Dash timer updates for page movement, and checks layout width during loading. It also aligns the package, site, README and newest update-log entry. The smoke check now enforces release consistency instead of pinning every future release to 1.0.0. Full-site regression checks the visible footer version and update-log entry on desktop/mobile, including layout width, Escape and returned keyboard focus. Each release still requires green branch QA and verification of its matching Pages deployment.

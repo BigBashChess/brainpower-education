@@ -1,8 +1,8 @@
 /* Milestone B2 — reusable Course Overview experience. */
-body[data-route="course"]{background:#030a12!important;color:var(--bp-text)!important}
-body[data-route="course"] .shell{background:#030a12!important}
-body[data-route="course"] .bp-topbar{background:rgba(3,10,18,.94)!important}
-body[data-route="course"] main.bp-course-page{--course-accent:#54b9ff;--course-accent-rgb:84,185,255;--course-accent-2:#8fe2ff;max-width:none!important;width:100%!important;margin:0!important;padding:0!important;background:linear-gradient(180deg,#030a12 0%,#06131f 42%,#030911 100%)!important;color:var(--bp-text)!important;overflow:hidden}
+body[data-route="course"]{background:#030a12;color:var(--bp-text)}
+body[data-route="course"] .shell{background:#030a12}
+body[data-route="course"] .bp-topbar{background:rgba(3,10,18,.94)}
+body[data-route="course"] main.bp-course-page{--course-accent:#54b9ff;--course-accent-rgb:84,185,255;--course-accent-2:#8fe2ff;max-width:none;width:100%;margin:0;padding:0;background:linear-gradient(180deg,#030a12 0%,#06131f 42%,#030911 100%);color:var(--bp-text);overflow:hidden}
 body[data-course-id="methods-12"] main.bp-course-page,body[data-course-id="methods-34"] main.bp-course-page{--course-accent:#48b8ff;--course-accent-rgb:72,184,255;--course-accent-2:#8bdcff}
 body[data-course-id="specialist-12"] main.bp-course-page,body[data-course-id="specialist-34"] main.bp-course-page{--course-accent:#9677ff;--course-accent-rgb:150,119,255;--course-accent-2:#65d7ff}
 body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--course-accent-rgb:86,200,255;--course-accent-2:#ffad62}
@@ -190,6 +190,6 @@ body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--
   .bp-course-aside{grid-template-columns:1fr}.bp-course-support--resources{padding-bottom:70px}.bp-course-assessment-grid,.bp-course-resource-grid{grid-template-columns:1fr}.bp-course-assessment{min-height:190px}
 }
 @media(max-width:390px){.bp-course-hero__inner{width:calc(100% - 24px)}.bp-course-overview-strip,.bp-course-layout,.bp-course-support{width:calc(100% - 20px)}.bp-course-progress-card{grid-template-columns:38px 78px minmax(0,1fr);padding:13px}.bp-course-progress-ring{width:72px;height:72px}.bp-course-progress-ring strong{font-size:17px}.bp-course-progress-ring span{top:44px}.bp-course-lesson__copy i{display:none}}
-@media(prefers-reduced-motion:reduce){.bp-course-hero__art,.bp-chapter,.bp-course-lesson,.bp-course-assessment,.bp-course-resource{transition:none!important;transform:none!important}}
+@media(prefers-reduced-motion:reduce){.bp-course-hero__art,.bp-chapter,.bp-course-lesson,.bp-course-assessment,.bp-course-resource{transition:none;transform:none}}
 
 .bp-course-mastered img{width:100px;height:110px;object-fit:contain;margin:0 auto 12px}.bp-course-mastered small{display:block;color:#b8d8c6;margin-top:8px}

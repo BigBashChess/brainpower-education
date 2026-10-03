@@ -69,3 +69,6 @@ body.bp-route-loading{overflow:hidden}
   html{scroll-behavior:auto}
   body.bp-revamp *,body.bp-revamp *::before,body.bp-revamp *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}
 }
+
+/* Native visibility must win over component grid/flex declarations. */
+body.bp-revamp [hidden]{display:none!important}
