@@ -114,6 +114,8 @@ function enhanceTools(main){
     card.insertAdjacentHTML('afterbegin',`<div class="bp-lab-card__top"><span>${String(i+1).padStart(2,'0')}</span><small>${esc(names[i]||'Study tool')}</small></div>`);
     const p=$('p',card);if(p)p.textContent=descriptions[i]||p.textContent;
   });
+  const trig=$('#trig-angle',grid);
+  if(trig&&!trig.getAttribute('aria-label'))trig.setAttribute('aria-label','Standard angle for exact trigonometric values');
   if(!$('.bp-lab__rail',section))section.insertAdjacentHTML('afterbegin',`<div class="bp-lab__rail"><div><span>LAB MODE</span><b>Pick a utility and keep moving.</b></div><div class="bp-lab__rail-links"><a href="#practice">Question bank</a><a href="#tests">Assessments</a><a href="#resources">Archive</a></div></div>`);
 }
 
