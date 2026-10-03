@@ -66,3 +66,5 @@
   .bp-footer__inner{grid-template-columns:1fr}
   .bp-footer__brand{grid-column:auto}
 }
+
+.bp-nav a{min-height:44px;display:flex;align-items:center}.bp-shell-action{min-width:44px;min-height:44px}

@@ -178,7 +178,7 @@ function apply(){
     main.dataset.bpSecondary='about';main.className='bp-secondary-main';main.innerHTML=aboutMarkup();
   }else if(base==='search'&&main.dataset.bpSecondary!=='search'){
     main.dataset.bpSecondary='search';main.className='bp-secondary-main';const initial=params.get('q')||'';main.innerHTML=searchMarkup(initial);bindCommandSearch(main);
-  }else if(!known.has(base)&&main.dataset.bpSecondary!=='404'){
+  }else if((!known.has(base)||main.querySelector('[data-route-error]'))&&main.dataset.bpSecondary!=='404'){
     main.dataset.bpSecondary='404';main.className='bp-secondary-main';main.innerHTML=notFoundMarkup();
   }
 }

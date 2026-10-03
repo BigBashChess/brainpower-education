@@ -13,7 +13,7 @@ async function ensureRoute(){
     const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';script.dataset.bpAdminZip='1';script.async=true;document.head.appendChild(script);
   }
 }
-addEventListener('hashchange',ensureRoute);ensureRoute();
+addEventListener('hashchange',()=>{ensureRoute();queueMicrotask(()=>{if(document.querySelector('[data-route-error]')&&!loaded.has('./secondary.js')){loaded.set('./secondary.js',import('./secondary.js'));}})});ensureRoute();queueMicrotask(()=>{if(document.querySelector('[data-route-error]')&&!loaded.has('./secondary.js'))loaded.set('./secondary.js',import('./secondary.js'));});
 
 // The command shortcut belongs to the shell even before Search has been loaded.
 addEventListener('keydown',e=>{

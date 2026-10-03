@@ -104,3 +104,5 @@ body.bp-revamp[data-route="home"] main{max-width:none;margin:0;background:var(--
 @media(prefers-reduced-motion:reduce){.bp-home-hero__art{transform:scale(1.025)}.bp-home-subject:hover::after{transform:none}.bp-home-subject:hover,.bp-home-quick-card:hover,.bp-home-course:hover,.bp-home-news article:hover{transform:none}}
 
 .bp-home-quick-card__icon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+.bp-home-section__head .eyebrow{color:var(--bp-blue-bright)}

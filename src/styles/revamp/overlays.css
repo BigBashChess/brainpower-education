@@ -6,7 +6,7 @@ body.bp-modal-open{overflow:hidden}
 .bp-update-log__header small{display:block;color:var(--bp-blue-bright);font-size:10px;font-weight:900;letter-spacing:.17em}
 .bp-update-log__header h2{margin:6px 0 5px;font-size:30px;line-height:1;letter-spacing:-.04em}
 .bp-update-log__header p{margin:0;color:var(--bp-text-muted);font-size:13px}
-.bp-modal-close{width:42px;height:42px;flex:none;border:1px solid rgba(130,184,223,.18);border-radius:12px;background:rgba(255,255,255,.025);color:#cfe2ef;font:300 28px/1 var(--bp-font);display:grid;place-items:center}
+.bp-modal-close{width:44px;height:44px;flex:none;border:1px solid rgba(130,184,223,.18);border-radius:12px;background:rgba(255,255,255,.025);color:#cfe2ef;font:300 28px/1 var(--bp-font);display:grid;place-items:center}
 .bp-modal-close:hover{border-color:rgba(109,187,255,.42);background:rgba(51,136,255,.08);color:#fff;transform:rotate(3deg)}
 .bp-update-log__list{overflow:auto;padding:10px 28px 20px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#285275 transparent}
 .bp-update-log__list article{padding:20px 0;border-bottom:1px solid rgba(116,177,220,.1)}

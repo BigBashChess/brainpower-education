@@ -11,12 +11,12 @@ body.bp-revamp .shell{min-height:100vh}
 
 /* Canonical controls. Shared controls for every route. */
 body.bp-revamp .btn{min-height:44px;border-radius:var(--bp-radius-md);padding:11px 17px;font-family:inherit;font-weight:800;letter-spacing:-.005em;box-shadow:none}
-body.bp-revamp .btn.small{min-height:38px;padding:8px 13px}
+body.bp-revamp .btn.small{min-height:44px;padding:8px 13px}
 body.bp-revamp .btn.large{min-height:50px;padding:14px 20px}
 body.bp-revamp .btn.primary{background:linear-gradient(135deg,#2166cf,#515dd7);color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 28px rgba(40,113,232,.2)}
 body.bp-revamp .btn.primary:hover{filter:none;transform:translateY(-2px);box-shadow:var(--bp-glow-primary)}
 body.bp-revamp .btn.primary:active{transform:translateY(0) scale(.985)}
-body.bp-revamp .btn.ghost{border:1px solid rgba(73,111,141,.28);background:rgba(255,255,255,.02)}
+body.bp-revamp .btn.ghost{color:inherit;border:1px solid rgba(73,111,141,.28);background:rgba(255,255,255,.02)}
 body.bp-revamp .btn.ghost:hover{border-color:rgba(65,142,204,.55);background:rgba(51,136,255,.06)}
 body.bp-revamp .btn:disabled{transform:none;box-shadow:none;opacity:.5}
 
@@ -72,3 +72,5 @@ body.bp-route-loading{overflow:hidden}
 
 /* Native visibility must win over component grid/flex declarations. */
 body.bp-revamp [hidden]{display:none!important}
+
+body.bp-revamp button,body.bp-revamp input:not([type="checkbox"]):not([type="radio"]),body.bp-revamp select{min-height:44px}

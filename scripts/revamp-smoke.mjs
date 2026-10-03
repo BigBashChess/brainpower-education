@@ -71,6 +71,7 @@ for(const [file,needle,label] of checks)if(!readFileSync(file,'utf8').includes(n
 const site=readFileSync('src/data/site.js','utf8');
 const pkg=JSON.parse(readFileSync('package.json','utf8'));
 if(!/^\d+\.\d+\.\d+$/.test(SITE.version))failures.push('A valid semantic version is required.');
+if(SITE.revampStatus!=='complete'&&!SITE.version.startsWith('0.'))failures.push('Keep the public version below 1.0 until revamp acceptance is complete.');
 if(pkg.version!==SITE.version)failures.push(`Package version ${pkg.version} differs from SITE.version ${SITE.version}.`);
 if(!WHATS_NEW[0]?.title.startsWith(`${SITE.version}:`))failures.push('Newest update-log entry does not describe the current release.');
 if(!readFileSync('README.md','utf8').startsWith(`# Brainpower Education — v${SITE.version}\n`))failures.push('README release heading differs from SITE.version.');

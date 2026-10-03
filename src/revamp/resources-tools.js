@@ -59,7 +59,7 @@ function decorateResourceCards(main){
     card.dataset.course=r.course;
     const img=$('img',card); if(img){img.loading='lazy';img.decoding='async'}
     const body=card.lastElementChild;
-    body?.insertAdjacentHTML('afterbegin',`<div class="bp-archive-card__index">${String(i+1).padStart(2,'0')}</div>`);
+    body?.insertAdjacentHTML('afterbegin',`<div class="bp-archive-card__index" aria-hidden="true">${String(i+1).padStart(2,'0')}</div>`);
     $('.meta',card)?.insertAdjacentHTML('beforebegin',`<div class="bp-archive-card__course">${esc(COURSE_NAME(r.course))}</div>`);
   });
 }

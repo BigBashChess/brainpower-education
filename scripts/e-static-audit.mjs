@@ -25,6 +25,9 @@ for(const file of required.filter(x=>x.startsWith('src/styles/revamp/')&&x.endsW
   if(!index.includes(file)&&!readFileSync('src/revamp/route-modules.js','utf8').includes(`'./${file.split('/').at(-1)}'`))failures.push(`No entry point loads ${file}`);
 }
 
+for(const retired of ['main.css','pre1-overhaul.css','release-candidate.css','v1-final.css'])if(index.includes(`src/styles/${retired}`))failures.push(`Retired stylesheet is loaded: ${retired}`);
+const priorityCount=walk(join(root,'src','styles','revamp')).filter(p=>extname(p)==='.css').filter(p=>!['base.css','motion.css'].includes(p.split('/').at(-1))).reduce((n,p)=>n+(readFileSync(p,'utf8').match(/!important/g)||[]).length,0);
+if(priorityCount)failures.push(`Normal route/component styles still contain ${priorityCount} priority overrides.`);
 const jsFiles=walk(join(root,'src')).filter(p=>extname(p)==='.js').concat(walk(join(root,'scripts')).filter(p=>extname(p)==='.mjs'));
 for(const file of jsFiles){
   try{execFileSync(process.execPath,['--check',file],{stdio:'pipe'})}
