@@ -28,6 +28,8 @@
   <link rel="stylesheet" href="src/styles/revamp/art.css">
   <link rel="stylesheet" href="src/styles/revamp/exam-season.css">
   <link rel="stylesheet" href="src/styles/revamp/overlays.css">
+  <!-- The command-centre glow intentionally exceeds its content safe-zone; clip that decoration at the route boundary so it never creates mobile page overflow. -->
+  <style>.bp-search-page{overflow-x:hidden}</style>
 
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjs@14.6.0/lib/browser/math.js"></script>
@@ -47,6 +49,7 @@
   <script type="module" src="src/revamp/practice.js"></script>
   <script type="module" src="src/revamp/assessment.js"></script>
   <script type="module" src="src/revamp/arcade.js"></script>
+  <script type="module" src="src/revamp/secondary.js"></script>
   <script type="module" src="src/revamp/update-log.js"></script>
 </head>
 <body class="bp-revamp">

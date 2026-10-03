@@ -42,7 +42,7 @@ function openLog(trigger){
 }
 
 function bind(){
-  document.querySelectorAll('[data-update-log-open]').forEach(btn=>{
+  document.querySelectorAll('[data-update-log-open],[data-open-update-log]').forEach(btn=>{
     if(btn.dataset.updateLogBound)return;
     btn.dataset.updateLogBound='1';
     btn.addEventListener('click',()=>openLog(btn));
