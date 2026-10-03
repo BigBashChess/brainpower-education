@@ -1,4 +1,4 @@
-import {load} from '../progress/store.js';
+import {load,localDay} from '../progress/store.js';
 import {courses} from '../data/courses.js';
 import {lessonsForCourse} from '../data/lessons.js';
 import {practiceQuestions} from '../data/questions.js';
