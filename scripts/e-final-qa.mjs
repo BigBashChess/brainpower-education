@@ -62,6 +62,11 @@ for(const [name,width,height] of [['desktop',1280,800],['mobile',390,844]]){
     await trigger.click();
     const dialog=page.getByRole('dialog',{name:'Brainpower update log'});
     await dialog.waitFor({state:'visible'});
+    await dialog.evaluate(async el=>{
+      await Promise.all([...el.getAnimations(),...el.parentElement.getAnimations()].map(animation=>animation.finished.catch(()=>{})));
+    });
+    const bounds=await dialog.boundingBox();
+    if(!bounds||bounds.y<0||bounds.y+bounds.height>height+1)problems.push(`Release ${name}: settled update log is clipped ${JSON.stringify(bounds)}.`);
     const widthOpen=await page.locator('main').evaluate(el=>el.getBoundingClientRect().width);
     if(Math.abs(widthOpen-widthClosed)>1)problems.push(`Release ${name}: update log changes page width by ${widthOpen-widthClosed}px.`);
     const latest=await dialog.locator('article.latest h3').innerText();

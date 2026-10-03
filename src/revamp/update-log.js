@@ -10,7 +10,7 @@ function closeLog(){
   document.body.classList.remove('bp-modal-open');
   document.removeEventListener('keydown',keyHandler);
   modal.remove();modal=null;
-  if(lastFocus?.isConnected)lastFocus.focus();
+  if(lastFocus?.isConnected)lastFocus.focus({preventScroll:true});
 }
 
 function trapFocus(e){
@@ -19,8 +19,8 @@ function trapFocus(e){
   const focusable=[...modal.querySelectorAll('button,a,[tabindex]:not([tabindex="-1"])')].filter(el=>!el.disabled&&el.offsetParent!==null);
   if(!focusable.length)return;
   const first=focusable[0],last=focusable[focusable.length-1];
-  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
-  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus({preventScroll:true})}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus({preventScroll:true})}
 }
 
 function openLog(trigger){
@@ -38,7 +38,7 @@ function openLog(trigger){
   document.querySelector('.shell')?.setAttribute('inert','');
   modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('[data-update-log-close]'))closeLog()});
   keyHandler=trapFocus;document.addEventListener('keydown',keyHandler);
-  requestAnimationFrame(()=>modal.querySelector('.bp-modal-close')?.focus());
+  requestAnimationFrame(()=>modal?.querySelector('.bp-modal-close')?.focus({preventScroll:true}));
 }
 
 function bind(){
