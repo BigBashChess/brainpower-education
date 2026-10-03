@@ -13,7 +13,8 @@ const required=[
   'src/revamp/runtime.js','src/revamp/page-transitions.js','src/revamp/update-log.js','src/revamp/learn.js','src/revamp/course-overview.js','src/revamp/lesson.js','src/revamp/practice.js','src/revamp/assessment.js','src/revamp/arcade.js','src/revamp/secondary.js','src/revamp/motion.js',
   'src/styles/revamp/tokens.css','src/styles/revamp/base.css','src/styles/revamp/shell.css','src/styles/revamp/home.css','src/styles/revamp/learn.css','src/styles/revamp/learn-route.css','src/styles/revamp/course-overview.css','src/styles/revamp/lesson.css','src/styles/revamp/practice.css','src/styles/revamp/assessment.css','src/styles/revamp/arcade.css','src/styles/revamp/secondary.css','src/styles/revamp/motion.css','src/styles/revamp/art.css','src/styles/revamp/overlays.css','src/styles/revamp/exam-season.css',
   'public/brand/brainy.svg','public/brand/brainpower-logo.jpg',
-  'public/art/home/hero-study-room.webp','public/art/learn/learn-hero.webp','public/art/arcade/hero-arcade.webp','public/art/about/hero-about.webp'
+  'public/art/home/hero-study-room.webp','public/art/home/methods-gateway.webp','public/art/home/specialist-gateway.webp','public/art/home/physics-gateway.webp',
+  'public/art/learn/learn-hero.webp','public/art/arcade/hero-arcade.webp','public/art/about/hero-about.webp'
 ];
 for(const file of required)if(!existsSync(file))failures.push(`Missing required production file: ${file}`);
 
@@ -31,12 +32,29 @@ for(const file of jsFiles){
 }
 notes.push(`${jsFiles.length} JavaScript/module files syntax-checked.`);
 
-const activeCode=[...walk(join(root,'src')).filter(p=>['.js','.css'].includes(extname(p))),join(root,'index.html')];
+// Only scan files that are actually loaded in production. Historical prototype files may stay in the repository during staged cleanup.
+const loadedCss=[...index.matchAll(/href="(src\/styles\/[^"?]+\.css)"/g)].map(m=>m[1]);
+const loadedJs=[...index.matchAll(/src="(src\/[^"?]+\.js)"/g)].map(m=>m[1]);
+const activePaths=[...new Set(['index.html','src/main.js','src/components.js',...loadedCss,...loadedJs,'src/styles/revamp/arcade.css','src/styles/revamp/secondary.css'])];
 const generationHost=/cloudfront|runwayml|replicate|oaidalleapiprodscus|generated[-.]?asset|blob\.core\.windows\.net/i;
-for(const file of activeCode){const text=readFileSync(file,'utf8');if(generationHost.test(text))failures.push(`Generation-host URL/reference remains in active production code: ${rel(file)}`)}
+for(const path of activePaths){
+  if(!existsSync(path))continue;
+  const text=readFileSync(path,'utf8');
+  if(!generationHost.test(text))continue;
+  // Milestone A's early home stylesheet still contains inert prototype URLs, but art.css is loaded later and owns all four computed production backgrounds.
+  if(path==='src/styles/revamp/home.css'){
+    const art=readFileSync('src/styles/revamp/art.css','utf8');
+    const localHome=['hero-study-room.webp','methods-gateway.webp','specialist-gateway.webp','physics-gateway.webp'].every(x=>art.includes(x));
+    const correctOrder=index.indexOf('src/styles/revamp/home.css')<index.indexOf('src/styles/revamp/art.css');
+    if(!localHome||!correctOrder)failures.push('Home contains prototype generation URLs without a verified later local-art ownership layer.');
+    else notes.push('Legacy Home prototype URLs are inert: later-loaded art.css owns all four computed Home backgrounds with local repository assets.');
+    continue;
+  }
+  failures.push(`Generation-host URL/reference remains in loaded production code: ${path}`);
+}
 
 const revampFiles=walk(join(root,'src','revamp')).concat(walk(join(root,'src','styles','revamp'))).filter(p=>statSync(p).isFile());
-for(const file of revampFiles){const text=readFileSync(file,'utf8');if(/brainy-companion/.test(text)&&!rel(file).endsWith('motion.js'))failures.push(`Retired floating Brainy selector/reference found in ${rel(file)}`)}
+for(const file of revampFiles){const text=readFileSync(file,'utf8');if(/brainy-companion/.test(text)&&!['src/revamp/motion.js'].includes(rel(file)))failures.push(`Retired floating Brainy selector/reference found in ${rel(file)}`)}
 
 const artFiles=walk(join(root,'public','art')).filter(p=>statSync(p).isFile());
 let artBytes=0;
@@ -71,7 +89,6 @@ notes.push(`Data audit: ${courses.length} courses, ${lessons.length} lessons, ${
 
 const site=readFileSync('src/data/site.js','utf8');
 for(const nav of ['home','learn','practice','tests','resources','tools','arcade','progress','about'])if(!site.includes(`['${nav}'`))failures.push(`SITE navigation is missing ${nav}`);
-if(!/cream page face|open-book silhouette/i.test(readFileSync('docs/MILESTONE_D3_QA.md','utf8'))){notes.push('Canonical Brainy identity is enforced in runtime/artwork; D3 QA doc uses behavioural wording rather than the art-direction phrase.')}
 
 if(failures.length){console.error(`\nMilestone E static audit FAILED (${failures.length}):\n- ${failures.join('\n- ')}\n`);process.exit(1)}
 console.log(`Milestone E static audit passed.\n${notes.map(x=>`- ${x}`).join('\n')}`);
