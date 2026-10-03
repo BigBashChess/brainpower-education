@@ -35,8 +35,8 @@ let state=await page.evaluate(()=>({
 if(!state.css||!state.api||state.reveal<1||state.companion||state.route!=='home')problems.push(`home-motion: motion system incomplete ${JSON.stringify(state)}`);
 await page.screenshot({path:`${out}/home-motion.png`});await overflow(ctx);errors(ctx);
 
-// Test the branded route loader directly, then perform the actual route navigation outside
-// page.evaluate. This avoids holding an evaluate promise open while the SPA replaces #app.
+// Test the branded loader directly, then trigger the real hash route in a short synchronous
+// evaluation. Do not keep an async evaluate promise alive while the SPA replaces #app.
 await page.evaluate(()=>window.BrainpowerPageTransition?.show?.());
 await page.waitForSelector('.bp-route-loader.is-active',{state:'attached'});
 state=await page.evaluate(()=>{
@@ -50,7 +50,7 @@ state=await page.evaluate(()=>{
 if(!state.seen||state.src!=='public/brand/brainy.svg'||state.hidden!=='false')problems.push(`home-motion: route loader lacks purposeful canonical Brainy ${JSON.stringify(state)}`);
 await page.waitForTimeout(700);
 if(await page.locator('.bp-route-loader.is-active').count())problems.push('home-motion: loader stayed active after transition window');
-await page.goto(`${base}#about`,{waitUntil:'domcontentloaded'});
+await page.evaluate(()=>{location.hash='#about'});
 await page.waitForSelector('.bp-about-page');
 await page.close();
 
