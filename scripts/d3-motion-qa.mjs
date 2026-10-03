@@ -35,7 +35,6 @@ let state=await page.evaluate(()=>({
 if(!state.css||!state.api||state.reveal<1||state.companion||state.route!=='home')problems.push(`home-motion: motion system incomplete ${JSON.stringify(state)}`);
 await page.screenshot({path:`${out}/home-motion.png`});await overflow(ctx);errors(ctx);
 
-// Branded page-swap loader must use canonical Brainy and dismiss itself.
 await page.evaluate(()=>window.BrainpowerPageTransition?.show?.());
 await page.waitForSelector('.bp-route-loader.is-active',{state:'attached'});
 state=await page.evaluate(()=>{
@@ -46,9 +45,7 @@ if(!state.seen||state.src!=='public/brand/brainy.svg'||state.hidden!=='false')pr
 await page.waitForTimeout(700);
 if(await page.locator('.bp-route-loader.is-active').count())problems.push('home-motion: loader stayed active after transition window');
 
-// Purposeful Brainy state is tested with an explicit D3 fixture, keeping this workflow independent
-// of the separate D2 secondary-route enhancer.
-state=await page.evaluate(async()=>{
+await page.evaluate(()=>{
   const main=document.querySelector('main');
   const slot=document.createElement('div');
   slot.id='d3-brainy-fixture';
@@ -56,23 +53,21 @@ state=await page.evaluate(async()=>{
   slot.innerHTML='<img src="public/brand/brainy.svg" alt="">';
   main.appendChild(slot);
   window.BrainpowerMotion.refresh();
-  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-  return {purposeful:slot.classList.contains('bp-brainy-purposeful'),src:slot.querySelector('img')?.getAttribute('src')};
 });
+await page.waitForTimeout(80);
+state=await page.evaluate(()=>{const slot=document.querySelector('#d3-brainy-fixture');return {purposeful:slot?.classList.contains('bp-brainy-purposeful'),src:slot?.querySelector('img')?.getAttribute('src')}});
 if(!state.purposeful||state.src!=='public/brand/brainy.svg')problems.push(`home-motion: purposeful Brainy fixture failed ${JSON.stringify(state)}`);
 await page.close();
 
-// Exam Mode must stay still: no scroll-reveal choreography and no decorative mascot injection.
 ctx=await pageAt('exam-still',1280,800);page=ctx.page;
 await open(ctx,'#exam');
 state=await page.evaluate(()=>({route:document.body.dataset.route,reveals:document.querySelectorAll('.bp-motion-reveal:not(.is-visible)').length,brainy:document.querySelectorAll('.bp-exam-page img[src*="brainy"]').length}));
 if(state.route!=='exam'||state.reveals>0||state.brainy>0)problems.push(`exam-still: focus-mode motion rule failed ${JSON.stringify(state)}`);
 await overflow(ctx);errors(ctx);await page.close();
 
-// Reduced-motion users receive static Brainy and reveal states.
 ctx=await pageAt('reduced-motion',390,844,'reduce');page=ctx.page;
 await open(ctx,'#home');
-state=await page.evaluate(async()=>{
+await page.evaluate(()=>{
   const main=document.querySelector('main');
   const slot=document.createElement('div');
   slot.id='d3-reduced-fixture';
@@ -81,13 +76,9 @@ state=await page.evaluate(async()=>{
   slot.innerHTML='<img src="public/brand/brainy.svg" alt="">';
   main.appendChild(slot);
   window.BrainpowerMotion.refresh();
-  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-  return {
-    hidden:[...document.querySelectorAll('.bp-motion-reveal')].filter(el=>getComputedStyle(el).opacity==='0').length,
-    animation:getComputedStyle(slot.querySelector('img')).animationName,
-    purposeful:slot.classList.contains('bp-brainy-purposeful')
-  };
 });
+await page.waitForTimeout(80);
+state=await page.evaluate(()=>{const slot=document.querySelector('#d3-reduced-fixture');return {hidden:[...document.querySelectorAll('.bp-motion-reveal')].filter(el=>getComputedStyle(el).opacity==='0').length,animation:getComputedStyle(slot.querySelector('img')).animationName,purposeful:slot.classList.contains('bp-brainy-purposeful')}});
 if(state.hidden||state.animation!=='none'||!state.purposeful)problems.push(`reduced-motion: static state failed ${JSON.stringify(state)}`);
 await page.screenshot({path:`${out}/reduced-motion.png`});await overflow(ctx);errors(ctx);await page.close();
 
