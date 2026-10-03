@@ -43,7 +43,7 @@ function render(){
   const {parts}=parseRouteQuery(); const base=parts[0]||'home';
   if(base==='lesson'&&lessonById(parts[1]))visitLesson(parts[1]);
   const page=currentPage();
-  if(base==='exam') app.innerHTML=page;
+  if(base==='exam'&&tests.some(t=>t.id===parts[1])) app.innerHTML=page;
   else app.innerHTML=`<div class="shell">${header(base)}<main>${page}</main>${footer()}</div>`;
   bindCommon();
   bindQuestions();

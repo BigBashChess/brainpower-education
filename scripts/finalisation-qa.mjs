@@ -37,6 +37,7 @@ await seed({completedLessons:data.lessons.map(l=>l.id)});await ready(page,'#home
 await seed({completedLessons:[sample.id]});await ready(page,'#home');const recommended=await page.locator('.bp-home-resume').getAttribute('href');assert(recommended===`#lesson/${data.lessons.find(l=>l.course===sample.course&&l.id!==sample.id).id}`,'Legacy progress should continue in the last completed course.');
 notes.push('First visit, real visits without XP, legacy progress, all five course resume/completion states and all-complete Home verified.');
 await seed();
+for(const unsupported of data.tests.filter(t=>!Number(t.minutes))){await ready(page,`#exam/${unsupported.id}`);assert(await page.locator('[data-exam-unavailable]').count()===1&&await page.locator('[data-exam-begin]').count()===0,`${unsupported.id}: unverified timing must not create a zero-minute exam.`)}
 const exam=data.tests.find(t=>t.questions>2&&t.minutes>0),examKey=`brainpower-exam-session-v1:${exam.id}`;
 await ready(page,`#exam/${exam.id}`);await page.locator('[data-exam-begin]').click();await audit(page,'#exam/workspace');
 await page.locator('[data-tracker-answered]').click();await page.locator('[data-tracker-flagged]').click();await page.locator('[data-tracker-notes]').fill('Recheck units in the final line.');
@@ -51,7 +52,7 @@ await audit(page,'#exam/score-error');await page.locator('[data-exam-score]').fi
 notes.push('Exam question navigation, keyboard shortcuts, answered/flagged states, notes, refresh, finish/cancel and explicit manual score entry verified.');
 // Collect shared selectors against settled DOM, including inactive state variants.
 async function collect(page){const selectors=await page.evaluate(()=>{const sheet=[...document.styleSheets].find(s=>s.href?.includes('/revamp/components.css'));const found=[];const states=/\.(?:dark|active|selected|solved|done|earned|good|bad|open|correct|incorrect|is-active|is-complete|is-current)(?=[\s.:#\[>+~,]|$)/g;function scan(rules){for(const rule of rules){if(rule.selectorText){for(const selector of rule.selectorText.split(',')){const probe=selector.replace(states,'').replace(/::?[\w-]+(?:\([^)]*\))?/g,'').trim();try{if(probe&&document.querySelector(probe))found.push(selector.trim())}catch{found.push(selector.trim())}}}else if(rule.cssRules)scan(rule.cssRules)}}if(sheet)scan(sheet.cssRules);return found});selectors.forEach(s=>cssSelectors.add(s))}
-const routes=['#home','#learn',...data.courses.map(c=>`#course/${c.id}`),...data.courses.map(c=>`#lesson/${data.lessons.find(l=>l.course===c.id).id}`),'#practice','#tests',`#test/${exam.id}`,`#exam/${exam.id}`,'#resources','#tools','#progress','#arcade','#about','#search',`#diagnostic/${data.courses[0].id}`,'#admin','#missing','#course/missing','#lesson/missing','#test/missing'];
+const routes=['#home','#learn',...data.courses.map(c=>`#course/${c.id}`),...data.courses.map(c=>`#lesson/${data.lessons.find(l=>l.course===c.id).id}`),'#practice','#tests',`#test/${exam.id}`,`#exam/${exam.id}`,'#resources','#tools','#progress','#arcade','#about','#search',`#diagnostic/${data.courses[0].id}`,'#admin','#missing','#course/missing','#lesson/missing','#test/missing','#exam/missing'];
 for(const hash of routes){await ready(page,hash);await collect(page);await fs.writeFile(`${out}/shared-selectors.json`,JSON.stringify([...cssSelectors].sort(),null,2));{
  await audit(page,hash);
  }}
