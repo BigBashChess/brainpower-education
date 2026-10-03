@@ -9,16 +9,22 @@ const browser=await chromium.launch({headless:true});
 
 async function pageAt(name,width,height,reducedMotion='no-preference'){
   const page=await browser.newPage({viewport:{width,height},reducedMotion});
+  page.setDefaultTimeout(8000);
+  page.setDefaultNavigationTimeout(10000);
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   page.on('response',r=>{if(r.status()===404&&!r.url().includes('favicon'))errors.push(`404:${r.url()}`)});
   return {name,page,errors,width,height};
 }
+async function open(ctx,hash){
+  await ctx.page.goto(`${base}${hash}`,{waitUntil:'domcontentloaded'});
+  await ctx.page.waitForTimeout(500);
+}
 function errors(ctx){if(ctx.errors.length)problems.push(`${ctx.name}: ${[...new Set(ctx.errors)].join(' | ')}`)}
 async function overflow(ctx){const x=await ctx.page.evaluate(()=>Math.max(document.body.scrollWidth,document.documentElement.scrollWidth)-innerWidth);if(x>2)problems.push(`${ctx.name}: horizontal overflow ${x}px`)}
 
 let ctx=await pageAt('home-motion',1440,900),page=ctx.page;
-await page.goto(`${base}#home`,{waitUntil:'networkidle'});await page.waitForTimeout(450);
+await open(ctx,'#home');
 let state=await page.evaluate(()=>({
   css:[...document.styleSheets].some(s=>String(s.href||'').includes('motion.css')),
   api:typeof window.BrainpowerMotion?.refresh==='function',
@@ -49,12 +55,12 @@ state=await page.evaluate(async()=>{
   return {seen,src,hidden};
 });
 if(!state.seen||state.src!=='public/brand/brainy.svg'||state.hidden!=='false')problems.push(`home-motion: route loader lacks purposeful canonical Brainy ${JSON.stringify(state)}`);
-await page.waitForSelector('.bp-about-page',{timeout:5000});await page.waitForTimeout(700);
+await page.waitForSelector('.bp-about-page');await page.waitForTimeout(700);
 if(await page.locator('.bp-route-loader.is-active').count())problems.push('home-motion: loader stayed active after transition window');
 await page.close();
 
 ctx=await pageAt('about-brainy',1024,768);page=ctx.page;
-await page.goto(`${base}#about`,{waitUntil:'networkidle'});await page.waitForTimeout(500);
+await open(ctx,'#about');
 state=await page.evaluate(()=>({
   purposeful:document.querySelector('.bp-about-brainy__mascot')?.classList.contains('bp-brainy-purposeful'),
   src:document.querySelector('.bp-about-brainy__mascot img')?.getAttribute('src'),
@@ -65,14 +71,14 @@ await page.screenshot({path:`${out}/about-brainy.png`,fullPage:true});await over
 
 // Exam Mode must stay still: no scroll-reveal choreography and no decorative mascot injection.
 ctx=await pageAt('exam-still',1280,800);page=ctx.page;
-await page.goto(`${base}#exam`,{waitUntil:'networkidle'});await page.waitForTimeout(350);
+await open(ctx,'#exam');
 state=await page.evaluate(()=>({route:document.body.dataset.route,reveals:document.querySelectorAll('.bp-motion-reveal:not(.is-visible)').length,brainy:document.querySelectorAll('.bp-exam-page img[src*="brainy"]').length}));
 if(state.route!=='exam'||state.reveals>0||state.brainy>0)problems.push(`exam-still: focus-mode motion rule failed ${JSON.stringify(state)}`);
 await overflow(ctx);errors(ctx);await page.close();
 
 // Reduced-motion users receive static states.
 ctx=await pageAt('reduced-motion',390,844,'reduce');page=ctx.page;
-await page.goto(`${base}#about`,{waitUntil:'networkidle'});await page.waitForTimeout(250);
+await open(ctx,'#about');
 state=await page.evaluate(()=>({
   hidden:[...document.querySelectorAll('.bp-motion-reveal')].filter(el=>getComputedStyle(el).opacity==='0').length,
   animation:getComputedStyle(document.querySelector('.bp-about-brainy__mascot img')).animationName
