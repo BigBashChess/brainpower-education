@@ -1,5 +1,6 @@
 import {chromium} from 'playwright';
 import fs from 'node:fs/promises';
+import {SITE,WHATS_NEW} from '../src/data/site.js';
 
 const base='http://127.0.0.1:8000/';
 const out='qa-e-final';
@@ -47,6 +48,30 @@ async function catalogue(){
 }
 
 const data=await catalogue();
+// Release details must be visible to students, and the update log must keep keyboard focus usable.
+for(const [name,width,height] of [['desktop',1280,800],['mobile',390,844]]){
+  const context=await browser.newContext({viewport:{width,height}});
+  const page=await context.newPage();
+  try{
+    await page.goto(`${base}#home`,{waitUntil:'networkidle',timeout:20000});
+    const trigger=page.locator('[data-update-log-open]');
+    await trigger.waitFor({state:'visible'});
+    const footer=await page.locator('.bp-footer__base').innerText();
+    if(!footer.includes(`v${SITE.version}`))problems.push(`Release ${name}: footer version differs from ${SITE.version}.`);
+    await trigger.click();
+    const dialog=page.getByRole('dialog',{name:'Brainpower update log'});
+    await dialog.waitFor({state:'visible'});
+    const latest=await dialog.locator('article.latest h3').innerText();
+    if(latest!==WHATS_NEW[0].title)problems.push(`Release ${name}: newest update-log entry differs from the current release.`);
+    if(!await dialog.getByRole('button',{name:'Close update log'}).evaluate(el=>el===document.activeElement))problems.push(`Release ${name}: dialog does not receive keyboard focus.`);
+    await page.screenshot({path:`${out}/release-log-${name}.png`});
+    await page.keyboard.press('Escape');
+    await dialog.waitFor({state:'detached'});
+    if(!await trigger.evaluate(el=>el===document.activeElement))problems.push(`Release ${name}: Escape does not return focus to the update-log trigger.`);
+  }catch(error){problems.push(`Release ${name}: ${error.message}`)}
+  finally{await context.close()}
+}
+notes.push(`Release ${SITE.version}: footer/update-log and Escape/focus checked on desktop/mobile.`);
 for(const [name,rows] of Object.entries(data.integrity)){
   if(name==='assetPaths')continue;
   if(rows.length)problems.push(`Data integrity: ${name}: ${rows.join(', ')}`);

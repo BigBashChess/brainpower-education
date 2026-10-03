@@ -1,12 +1,13 @@
 export const SITE = {
   name: 'Brainpower Education',
-  version: '1.0.0',
+  version: '1.0.1',
   tagline: 'Master VCE Mathematics and Physics.',
   instagram: 'https://www.instagram.com/brain.power.education/',
   discord: 'https://discord.gg/jC4nk2FHe',
   nav: [['home','Home'],['learn','Learn'],['practice','Practice'],['tests','Tests'],['resources','Resources'],['tools','Tools'],['arcade','Arcade'],['progress','Progress'],['about','About']]
 };
 export const WHATS_NEW = [
+  {date:'3 Oct 2026',title:'1.0.1: Derivative Dash — Choose Your Answer',text:'Derivative Dash now gives you four closely matched answers per question. Tap, click or press 1–4 to choose, and press P to pause. Watch for subtle sign, coefficient and exponent mistakes; missed answers reveal the correct derivative with a short explanation. Your 60-second runs, combos and personal bests stay intact, with clearer Arcade controls and reliable pausing when switching games.'},
   {date:'3 Oct 2026',title:'1.0.0: Brainpower Learning World',text:'The full-site revamp is complete. Home, Learn, all five course pathways, lessons, Practice, Test Centre and Exam Mode, Resources, Tools, Progress, Arcade, About and Search now form one connected Brainpower learning environment. Brainy keeps one canonical open-book identity across the site, while the final quality gate adds full-route responsive regression testing, asset and metadata audits, reduced-motion checks and accessibility fixes.'},
   {date:'1 Oct 2026',title:'0.9.1: Final Course Expansion',text:'Before 1.0, the four mathematics pathways gain 123 new deep-dive lessons and 615 lesson-linked mastery questions. Physics 1/2 now gives every lesson a fuller physical explanation, assumptions/units guidance, worked reasoning and four-question mastery set.'},
   {date:'1 Oct 2026', title:'0.9: Release Candidate Polish', text:'A final pre-1.0 quality pass improves dark-mode contrast, assessment metadata handling, test artwork fallbacks, responsive layouts, focus states and visual consistency. Unknown assessment values are omitted instead of displayed as broken data, and Exam Mode waits for verified metadata.'},

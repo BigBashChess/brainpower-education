@@ -1,5 +1,7 @@
 # Brainpower pre-1.0 review build
 
+> Archived pre-revamp record. Milestones A–E have since shipped, including removal of the floating Brainy companion. Current release and regression evidence live in `MILESTONE_E_QA.md`; this document describes the earlier candidate.
+
 This branch is intentionally **not** branded 1.0. It is the approval candidate.
 
 ## Product changes

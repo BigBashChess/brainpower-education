@@ -1,13 +1,14 @@
-# Brainpower Education — 1.0 Release Candidate
+# Brainpower Education — v1.0.1
 
 Brainpower Education is a free, static VCE learning platform for Mathematical Methods, Specialist Mathematics and Physics. It combines structured courses, practice banks, formal assessments, resources, study tools, progress tracking and an optional arcade in one GitHub Pages site.
 
-This repository is currently the **pre-1.0 release candidate**. The public version should not be labelled 1.0 until the final QA pass is complete.
+The **Brainpower Learning World** revamp is released. Milestones A–E are merged to `main`; v1.0.1 adds four-choice Derivative Dash with close distractors, keyboard/touch controls and mistake explanations.
 
 ## Current learning platform
 
-- 98 interactive mathematics lessons/checkpoints
-- 255 practice-bank questions plus Daily Brainpower challenges
+- 5 live courses with 285 lessons/checkpoints
+- 1,126 runtime practice questions plus Daily Brainpower challenges
+- 16 assessments and 23 resources
 - Mathematical Methods Units 1 & 2 and Units 3 & 4
 - Specialist Mathematics Units 1 & 2 and Units 3 & 4
 - Physics Units 1 & 2 content
@@ -37,4 +38,6 @@ GitHub Pages can serve the repository directly from the `main` branch and reposi
 
 ## Release process
 
-The final release checklist lives in `docs/PRE_1_0_REVIEW.md`. Version 1.0 should only be declared after route, content, assessment, mobile, accessibility and regression checks pass.
+Use a `revamp/` branch and a pull request for changes. Run `node scripts/revamp-smoke.mjs` and `node scripts/e-static-audit.mjs`, then the relevant browser QA and full-site regression before merging completed work to `main`. Verify the matching GitHub Pages deployment after merge.
+
+The final quality gate and launch evidence are documented in [docs/MILESTONE_E_QA.md](docs/MILESTONE_E_QA.md). [docs/PRE_1_0_REVIEW.md](docs/PRE_1_0_REVIEW.md) is an archived checklist from before the revamp. Keep the package version, `SITE.version`, this README and the newest update-log entry aligned for each release.
