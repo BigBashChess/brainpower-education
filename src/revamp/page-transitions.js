@@ -33,7 +33,8 @@ function ensureOverlay(){
   overlay.setAttribute('aria-hidden','true');
   overlay.innerHTML=`
     <div class="bp-route-loader__glow" aria-hidden="true"></div>
-    <div class="bp-route-loader__inner" role="status" aria-live="polite">
+    <div class="bp-route-loader__inner" role="status" aria-live="polite" data-brainy-state="focus">
+      <img class="bp-route-loader__brainy" src="public/brand/brainy.svg" alt="">
       <div class="bp-route-loader__logo"><img src="public/brand/brainpower-logo.jpg" alt=""></div>
       <div class="bp-route-loader__brand">BRAINPOWER <span>EDUCATION</span></div>
       <div class="bp-route-loader__message">Opening your study space…</div>

@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="src/styles/revamp/art.css">
   <link rel="stylesheet" href="src/styles/revamp/exam-season.css">
   <link rel="stylesheet" href="src/styles/revamp/overlays.css">
+  <link rel="stylesheet" href="src/styles/revamp/motion.css">
   <!-- The command-centre glow intentionally exceeds its content safe-zone; clip that decoration at the route boundary so it never creates mobile page overflow. -->
   <style>.bp-search-page{overflow-x:hidden}</style>
 
@@ -50,12 +51,14 @@
   <script type="module" src="src/revamp/assessment.js"></script>
   <script type="module" src="src/revamp/arcade.js"></script>
   <script type="module" src="src/revamp/secondary.js"></script>
+  <script type="module" src="src/revamp/motion.js"></script>
   <script type="module" src="src/revamp/update-log.js"></script>
 </head>
 <body class="bp-revamp">
   <div id="app">
     <div class="bp-boot" role="status" aria-live="polite" aria-label="Loading Brainpower Education">
-      <div class="bp-boot__inner">
+      <div class="bp-boot__inner bp-brainy-purposeful" data-brainy-state="focus">
+        <img class="bp-boot__brainy" src="public/brand/brainy.svg" alt="">
         <div class="bp-boot__logo"><img src="public/brand/brainpower-logo.jpg" alt=""></div>
         <div class="bp-boot__title">Brainpower</div>
         <div class="bp-boot__sub">Education</div>

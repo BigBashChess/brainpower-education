@@ -1,0 +1,85 @@
+/* Milestone D3 — canonical motion + Brainy state language.
+   Motion is short, state-driven and disappears entirely for reduced-motion users. */
+
+:root{
+  --bp-motion-fast:140ms;
+  --bp-motion-page:220ms;
+  --bp-motion-feedback:260ms;
+  --bp-motion-distance:10px;
+}
+
+/* Route entrance: subtle enough for academic pages, disabled for Exam Mode. */
+body.bp-revamp:not([data-route="exam"]) main.bp-motion-enter{
+  animation:bpPageEnter var(--bp-motion-page) var(--bp-ease-standard) both;
+}
+@keyframes bpPageEnter{
+  from{opacity:.72;transform:translateY(6px)}
+  to{opacity:1;transform:none}
+}
+
+/* Reveal only major structural sections. Never animate individual paragraphs/questions. */
+.bp-motion-reveal{
+  opacity:0;
+  transform:translateY(var(--bp-motion-distance));
+  transition:opacity var(--bp-motion-feedback) var(--bp-ease-standard),transform var(--bp-motion-feedback) var(--bp-ease-standard);
+}
+.bp-motion-reveal.is-visible{opacity:1;transform:none}
+
+/* Tactile controls without permanent motion. */
+body.bp-revamp :where(.btn,.bp-shell-action,.bp-home-quick-card,.bp-command-result,.bp-about-course):active{
+  transform:translateY(0) scale(.985);
+}
+
+/* Feedback should arrive once, not pulse forever. */
+.feedback.bp-feedback-arrived{animation:bpFeedbackArrive var(--bp-motion-feedback) var(--bp-ease-emphasis) both}
+.feedback.good.bp-feedback-arrived{--bp-feedback-ring:rgba(36,167,104,.28)}
+.feedback.bad.bp-feedback-arrived{--bp-feedback-ring:rgba(217,74,67,.24)}
+@keyframes bpFeedbackArrive{
+  0%{opacity:.55;transform:translateY(5px);box-shadow:0 0 0 0 var(--bp-feedback-ring,rgba(109,187,255,.2))}
+  70%{box-shadow:0 0 0 5px transparent}
+  100%{opacity:1;transform:none;box-shadow:none}
+}
+
+/* Brainy only moves inside explicit, purposeful mascot slots. */
+.bp-brainy-purposeful{--bp-brainy-y:0px}
+.bp-brainy-purposeful img[src*="brainy"]{transform:translateY(var(--bp-brainy-y));transform-origin:50% 90%;will-change:transform,opacity}
+.bp-brainy-purposeful.bp-brainy-enter img[src*="brainy"]{animation:bpBrainyEnter 420ms var(--bp-ease-emphasis) both}
+.bp-brainy-purposeful[data-brainy-state="celebrate"].bp-brainy-react img[src*="brainy"]{animation:bpBrainyCelebrate 560ms var(--bp-ease-emphasis) both}
+.bp-brainy-purposeful[data-brainy-state="think"].bp-brainy-react img[src*="brainy"]{animation:bpBrainyThink 520ms ease-in-out both}
+.bp-brainy-purposeful[data-brainy-state="focus"].bp-brainy-react img[src*="brainy"]{animation:bpBrainyFocus 320ms var(--bp-ease-standard) both}
+@keyframes bpBrainyEnter{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes bpBrainyCelebrate{0%,100%{transform:translateY(0) rotate(0)}40%{transform:translateY(-8px) rotate(-2deg)}70%{transform:translateY(-2px) rotate(1deg)}}
+@keyframes bpBrainyThink{0%,100%{transform:rotate(0)}35%{transform:rotate(-2deg)}70%{transform:rotate(1.5deg)}}
+@keyframes bpBrainyFocus{from{opacity:.75;transform:scale(.985)}to{opacity:1;transform:scale(1)}}
+
+/* Loading is a purposeful Brainy state, not a floating companion. */
+.bp-route-loader__brainy{
+  width:72px;
+  height:58px;
+  object-fit:contain;
+  margin:-2px 0 4px;
+  filter:drop-shadow(0 14px 22px rgba(0,0,0,.34));
+  animation:bpLoaderBrainy 900ms ease-in-out infinite;
+}
+@keyframes bpLoaderBrainy{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+
+/* Canonical initial boot state. */
+.bp-boot__brainy{
+  width:82px;
+  height:68px;
+  object-fit:contain;
+  margin-bottom:8px;
+  filter:drop-shadow(0 16px 24px rgba(0,0,0,.34));
+  animation:bpLoaderBrainy 1.15s ease-in-out infinite;
+}
+
+@media(max-width:600px){
+  :root{--bp-motion-distance:6px}
+  .bp-route-loader__brainy{width:64px;height:52px}
+  .bp-boot__brainy{width:72px;height:60px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .bp-motion-reveal{opacity:1!important;transform:none!important;transition:none!important}
+  body.bp-revamp main.bp-motion-enter,.feedback.bp-feedback-arrived,.bp-brainy-purposeful img[src*="brainy"],.bp-route-loader__brainy,.bp-boot__brainy{animation:none!important;transform:none!important}
+}
