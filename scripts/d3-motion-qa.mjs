@@ -35,28 +35,23 @@ let state=await page.evaluate(()=>({
 if(!state.css||!state.api||state.reveal<1||state.companion||state.route!=='home')problems.push(`home-motion: motion system incomplete ${JSON.stringify(state)}`);
 await page.screenshot({path:`${out}/home-motion.png`});await overflow(ctx);errors(ctx);
 
-// A real route change must invoke the branded loader with canonical Brainy. Capture the transient
-// active state inside the page rather than relying on Playwright to attach during the 560 ms window.
-state=await page.evaluate(async()=>{
-  let seen=false,src=null,hidden=null;
-  const observe=()=>{
-    const loader=document.querySelector('.bp-route-loader');
-    if(loader?.classList.contains('is-active')){
-      seen=true;
-      src=loader.querySelector('.bp-route-loader__brainy')?.getAttribute('src')||null;
-      hidden=loader.getAttribute('aria-hidden');
-    }
+// Test the branded route loader directly, then perform the actual route navigation outside
+// page.evaluate. This avoids holding an evaluate promise open while the SPA replaces #app.
+await page.evaluate(()=>window.BrainpowerPageTransition?.show?.());
+await page.waitForSelector('.bp-route-loader.is-active',{state:'attached'});
+state=await page.evaluate(()=>{
+  const loader=document.querySelector('.bp-route-loader.is-active');
+  return {
+    seen:!!loader,
+    src:loader?.querySelector('.bp-route-loader__brainy')?.getAttribute('src')||null,
+    hidden:loader?.getAttribute('aria-hidden')||null
   };
-  const mo=new MutationObserver(observe);
-  mo.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','aria-hidden']});
-  location.hash='#about';
-  for(let i=0;i<12&&!seen;i++){await new Promise(r=>setTimeout(r,35));observe()}
-  mo.disconnect();
-  return {seen,src,hidden};
 });
 if(!state.seen||state.src!=='public/brand/brainy.svg'||state.hidden!=='false')problems.push(`home-motion: route loader lacks purposeful canonical Brainy ${JSON.stringify(state)}`);
-await page.waitForSelector('.bp-about-page');await page.waitForTimeout(700);
+await page.waitForTimeout(700);
 if(await page.locator('.bp-route-loader.is-active').count())problems.push('home-motion: loader stayed active after transition window');
+await page.goto(`${base}#about`,{waitUntil:'domcontentloaded'});
+await page.waitForSelector('.bp-about-page');
 await page.close();
 
 ctx=await pageAt('about-brainy',1024,768);page=ctx.page;
