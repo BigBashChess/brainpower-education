@@ -208,5 +208,3 @@ if(localStorage.getItem('bp-theme')==='dark')document.documentElement.classList.
 window.addEventListener('hashchange',render);
 if(!location.hash)history.replaceState(null,'','#home');
 render();
-// If KaTeX arrives a fraction later, repaint once so raw delimiters never linger.
-setTimeout(()=>{if(window.katex)render()},250);

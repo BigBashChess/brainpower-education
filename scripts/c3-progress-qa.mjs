@@ -50,7 +50,7 @@ async function shot(name,width=1440,height=900,fullPage=false,seeded=true){
   if(state.pathways!==5)problems.push(`${name}: expected 5 pathway rows, got ${state.pathways}`);
   if(state.achievements<1)problems.push(`${name}: achievements missing`);
   if(!state.reset)problems.push(`${name}: reset control missing`);
-  if(!state.brainy.includes('brainy-celebrate.svg'))problems.push(`${name}: canonical Brainy state missing (${state.brainy})`);
+  if(!(state.brainy.endsWith('/brainy.svg')||state.brainy==='public/brand/brainy.svg'))problems.push(`${name}: canonical Brainy state missing (${state.brainy})`);
   if(!state.bg.includes('public/art/progress/progress-hero.webp'))problems.push(`${name}: local progress art missing (${state.bg})`);
   if(!state.title.includes('actually improving'))problems.push(`${name}: C3 title missing`);
   if(seeded&&!state.level.includes('LEVEL'))problems.push(`${name}: level state missing`);
