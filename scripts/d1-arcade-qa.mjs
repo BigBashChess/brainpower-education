@@ -41,6 +41,20 @@ async function openArcade(name,width,height,fullPage=false){
   if(state.oldOverhaul)problems.push(`${name}: legacy pre1-overhaul.js still loaded`);
   if(!state.bg.includes('public/art/arcade/hero-arcade.webp'))problems.push(`${name}: local Arcade hero not active (${state.bg})`);
   if(state.width>state.viewport+2)problems.push(`${name}: horizontal overflow ${state.width-state.viewport}px`);
+  // Ghost controls must remain legible on Arcade's dark surfaces, even in light theme.
+  const contrast=await page.locator('.bp-arcade-page__world .btn.ghost').evaluateAll(buttons=>{
+    const rgb=s=>(s.match(/[\d.]+/g)||[]).map(Number);
+    const luminance=c=>c.slice(0,3).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
+    return buttons.filter(b=>!b.disabled).map(b=>{
+      const style=getComputedStyle(b),fg=rgb(style.color);
+      let bg=[255,255,255];
+      const chain=[];for(let el=b;el;el=el.parentElement)chain.unshift(el);
+      chain.forEach(el=>{const c=rgb(getComputedStyle(el).backgroundColor),a=c[3]??1;if(c.length>=3)bg=bg.map((v,i)=>c[i]*a+v*(1-a))});
+      const f=luminance(fg),s=luminance(bg);
+      return {label:b.textContent.trim(),ratio:(Math.max(f,s)+.05)/(Math.min(f,s)+.05)};
+    });
+  });
+  contrast.filter(x=>x.ratio<4.5).forEach(x=>problems.push(`${name}: ${x.label} contrast ${x.ratio.toFixed(2)}:1`));
   if(width<=700&&state.flapDisplay==='none')problems.push(`${name}: mobile flap control hidden`);
   if(width>700&&state.flapDisplay!=='none')problems.push(`${name}: desktop flap control unexpectedly visible`);
   if(errors.length)problems.push(`${name}: ${[...new Set(errors)].join(' | ')}`);
@@ -52,6 +66,7 @@ let x=await openArcade('arcade-desktop',1440,900,false);let page=x.page;
 // Derivative Dash should start, accept a correct answer, increment score and pause/resume.
 await page.click('#bp-dash-start');
 await page.waitForTimeout(120);
+if(await page.locator('#bp-dash-start').isVisible())problems.push('dash: start button remains visible during a run');
 const prompt=(await page.locator('#bp-dash-question').textContent())?.trim();
 const answer=answers[prompt];
 if(!answer)problems.push(`dash: unmapped prompt ${prompt}`);
@@ -64,6 +79,7 @@ else{
 }
 await page.click('#bp-dash-pause');
 const paused=await page.locator('#bp-dash-pause').textContent();if(!paused.includes('Resume'))problems.push('dash: pause control did not enter paused state');
+if(await page.locator('#bp-dash-start').isVisible())problems.push('dash: start button remains visible while paused');
 await page.click('#bp-dash-pause');
 await page.screenshot({path:`${out}/dash-active.png`});
 // Sound toggle should be persistent and explicit.
@@ -77,6 +93,7 @@ await page.click('#bp-bird-start');await page.waitForTimeout(180);await page.pre
 if(await page.locator('#bp-bird-overlay').isVisible())problems.push('bird: start overlay remained visible');
 await page.press('body','p');await page.waitForTimeout(80);
 const birdPause=await page.locator('#bp-bird-pause').textContent();if(!birdPause.includes('Resume'))problems.push('bird: keyboard pause did not work');
+if(await page.locator('#bp-bird-start').isVisible())problems.push('bird: restart button remains visible while paused');
 await page.press('body','p');await page.waitForTimeout(80);
 await page.screenshot({path:`${out}/bird-active.png`});
 await page.close();
