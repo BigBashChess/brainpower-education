@@ -1,10 +1,10 @@
-# Milestone E QA — pre-1.0 acceptance
+# Milestone E QA — v1.0.0 acceptance
 
-Status: **PRE-1.0 FINAL ACCEPTANCE — merge requires the complete current gate**
+Status: **V1.0.0 CANDIDATE — merge requires the complete current gate and production verification follows deployment**
 
-Acceptance branch: `revamp/pre1-finalisation`
+Acceptance branch: `revamp/daily-progress-v1`
 
-Public version: **0.9.2 — pre-1.0 finalisation**
+Target release: **1.0.0 — completed full-site revamp**
 
 Earlier v1.0.0/v1.0.1 completion labels were premature. The user reserves v1.0.0 for the finished revamp. PR #15 closes gaps in actual lesson resume states, PDF exam tracking, CSS retirement, route-code loading, keyboard semantics, reflow and performance. Its evidence supersedes the earlier completion claim.
 
@@ -60,7 +60,7 @@ The final static audit also checks:
 - all local test/resource/solution/thumbnail references exist
 - assessment numeric metadata is valid when present
 - five-course navigation remains intact
-- the pre-1.0 version and public update log are consistent
+- the package, site, README and public update log use one consistent release version
 
 The four legacy stylesheet layers are retired. Shared components and scoped route styles own production appearance. Signed prototype Home art URLs have been removed.
 
@@ -101,4 +101,13 @@ The current gate adds the missing behaviors to the original route matrix:
 - The delayed whole-page KaTeX repaint is removed: formulas use the deferred library and an interactive dialog or answer input is not replaced 250 ms after startup.
 - Progress uses the directly rendered canonical `brainy.svg`. The old SVG wrapper rendered confetti without its external character reference in Chromium.
 
-The final passing Actions run and production deployment are recorded on PR #15 and in the Google Drive master plan after verification. Public version **0.9.2** is retained; passing this gate does not automatically publish v1.0.0.
+PR #15 passed the complete expanded gate on head **4e884f7f9eb2cc9ae0b9db701ab1d9a8999189ec**, Actions run **37095335865**. The matching production merge **c0ca1a868aa780defd24c4ba7e006e5679a72ca8** deployed successfully in Pages run **37095696493** at v0.9.2. Measured Home CLS was 0.0000 under CPU/network constraints.
+
+
+## PR #16 Daily saving and v1 release
+
+The user requested saved Daily answers, a recent-question indicator, full functional verification and then v1.0.0. Question drafts, submitted answers, correctness, attempt dates and last-correct timestamps persist in the existing progress store. Refresh and route navigation restore both numeric/text answers and selected choices. An explicit retry clears the working answer while retaining history; repeated correct answers do not duplicate XP or claim new XP. Blank inputs do not count as attempts. Existing solved records without timestamps say “Solved previously”. Fresh practice sessions retain empty, enabled controls and their first-try score policy. Daily rotation, activity streaks and the Progress calendar use the local calendar day.
+
+Browser checks cover all 14 rotating Daily problems on a mobile viewport, missed/correct results, refresh/navigation, retries, XP, local-day dates, legacy progress, choice restoration and fresh sessions. On **afa73b3c7849caf02832b19b5d1716689d04b6ad**, Actions run **37120467262**, these Daily checks and all nine B/C/D functional suites passed. Its accessibility gate found the new status paragraph inherited light reader text on light lesson paper; the owning lesson stylesheet now scopes its contrast. The final release commit must pass every gate before merge.
+
+The production browser workflow runs on main pushes, waits for the expected deployed version, and checks live lesson resume, canonical Brainy, four-choice Dash, page motion, Daily answer restoration and mobile reflow. Final passing commit/run, deployment and production-browser evidence are recorded on PR #16 and in the master plan after completion.

@@ -1,13 +1,14 @@
 export const SITE = {
   name: 'Brainpower Education',
-  version: '0.9.2',
-  revampStatus: 'finalising',
+  version: '1.0.0',
+  revampStatus: 'complete',
   tagline: 'Master VCE Mathematics and Physics.',
   instagram: 'https://www.instagram.com/brain.power.education/',
   discord: 'https://discord.gg/jC4nk2FHe',
   nav: [['home','Home'],['learn','Learn'],['practice','Practice'],['tests','Tests'],['resources','Resources'],['tools','Tools'],['arcade','Arcade'],['progress','Progress'],['about','About']]
 };
 export const WHATS_NEW = [
+  {date:'3 Oct 2026',title:'1.0.0: Brainpower Learning World',text:'The full-site revamp brings Home, all five course pathways, lessons, Practice, assessments, resources, tools, Progress, Arcade and secondary routes into one connected learning world. Daily Brainpower saves drafts and answers on this device, restores your result when you return, and shows when you last attempted a question. Intentional retries never duplicate XP. Real lesson resume states, saved paper checklists, four-choice Derivative Dash, canonical Brainy artwork and stable page motion complete the experience.'},
   {date:'3 Oct 2026',title:'0.9.2: Revamp Finalisation',text:'The site remains pre-1.0 while the full-site revamp is finished. Home, Learn and course pathways now share a real last-visited lesson recommendation, with honest first-visit and completed-course states. Exam Mode adds a locally saved paper checklist with answered states, review flags and notes. Technical consolidation and the final accessibility, responsive and performance checks are part of this pre-release pass.'},
   {date:'3 Oct 2026',title:'Revamp progress: Smoother Pages + Four-Choice Derivative Dash',text:'Pages stay steady while countdowns and scores update, and loading screens and the update log keep the layout in place. Derivative Dash now gives you four closely matched answers per question. Tap, click or press 1–4 to choose, and press P to pause. Watch for subtle sign, coefficient and exponent mistakes; missed answers reveal the correct derivative with a short explanation. Your 60-second runs, combos and personal bests stay intact, with clearer Arcade controls and reliable pausing when switching games.'},
   {date:'3 Oct 2026',title:'Revamp progress: Brainpower Learning World',text:'The full-site revamp is in finalisation. Home, Learn, all five course pathways, lessons, Practice, Test Centre and Exam Mode, Resources, Tools, Progress, Arcade, About and Search now form one connected Brainpower learning environment. Brainy keeps one canonical open-book identity across the site, while the final quality gate adds full-route responsive regression testing, asset and metadata audits, reduced-motion checks and accessibility fixes.'},
