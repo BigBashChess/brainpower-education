@@ -1,8 +1,8 @@
 /* Milestone B2 — reusable Course Overview experience. */
-body[data-route="course"]{background:#030a12!important;color:var(--bp-text)!important}
-body[data-route="course"] .shell{background:#030a12!important}
-body[data-route="course"] .bp-topbar{background:rgba(3,10,18,.94)!important}
-body[data-route="course"] main.bp-course-page{--course-accent:#54b9ff;--course-accent-rgb:84,185,255;--course-accent-2:#8fe2ff;max-width:none!important;width:100%!important;margin:0!important;padding:0!important;background:linear-gradient(180deg,#030a12 0%,#06131f 42%,#030911 100%)!important;color:var(--bp-text)!important;overflow:hidden}
+body[data-route="course"]{background:#030a12;color:var(--bp-text)}
+body[data-route="course"] .shell{background:#030a12}
+body[data-route="course"] .bp-topbar{background:rgba(3,10,18,.94)}
+body[data-route="course"] main.bp-course-page{--course-accent:#54b9ff;--course-accent-rgb:84,185,255;--course-accent-2:#8fe2ff;max-width:none;width:100%;margin:0;padding:0;background:linear-gradient(180deg,#030a12 0%,#06131f 42%,#030911 100%);color:var(--bp-text);overflow:hidden}
 body[data-course-id="methods-12"] main.bp-course-page,body[data-course-id="methods-34"] main.bp-course-page{--course-accent:#48b8ff;--course-accent-rgb:72,184,255;--course-accent-2:#8bdcff}
 body[data-course-id="specialist-12"] main.bp-course-page,body[data-course-id="specialist-34"] main.bp-course-page{--course-accent:#9677ff;--course-accent-rgb:150,119,255;--course-accent-2:#65d7ff}
 body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--course-accent-rgb:86,200,255;--course-accent-2:#ffad62}
@@ -41,9 +41,9 @@ body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--
 
 .bp-course-overview-strip{width:min(1500px,calc(100% - 80px));margin:26px auto 0;display:grid;grid-template-columns:repeat(4,1fr) auto;align-items:stretch;border:1px solid rgba(115,177,219,.16);border-radius:22px;background:#081d2d;box-shadow:var(--bp-shadow-card);overflow:hidden}
 .bp-course-overview-strip>div{min-height:92px;padding:18px 24px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid rgba(115,177,219,.11)}
-.bp-course-overview-strip small{color:#6689a0;font-size:9px;font-weight:900;letter-spacing:.13em}
+.bp-course-overview-strip small{color:#a9c0d2;font-size:9px;font-weight:900;letter-spacing:.13em}
 .bp-course-overview-strip strong{margin-top:3px;color:#fff;font-size:27px;letter-spacing:-.04em}
-.bp-course-overview-strip strong span{color:#64869d;font-size:14px;font-weight:750}
+.bp-course-overview-strip strong span{color:#a9c0d2;font-size:14px;font-weight:750}
 .bp-course-overview-strip>a{min-width:180px;padding:0 25px;display:grid;place-items:center;color:#d9ecf8;font-size:12px;font-weight:850;text-decoration:none;background:linear-gradient(135deg,rgba(var(--course-accent-rgb),.1),rgba(var(--course-accent-rgb),.025));transition:background 180ms ease,color 180ms ease}
 .bp-course-overview-strip>a:hover{background:rgba(var(--course-accent-rgb),.14);color:#fff}
 
@@ -67,14 +67,14 @@ body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--
 .bp-chapter__eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:4px}
 .bp-chapter__eyebrow span{color:var(--course-accent);font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
 .bp-chapter.is-complete .bp-chapter__eyebrow span{color:#5fd59b}
-.bp-chapter__eyebrow i{color:#58798e;font-size:9px;font-style:normal;font-weight:750}
+.bp-chapter__eyebrow i{color:#a9c0d2;font-size:9px;font-style:normal;font-weight:750}
 .bp-chapter__summary h3{margin:0 0 11px;color:#f0f6fa;font-size:20px;letter-spacing:-.025em}
 .bp-chapter__progress{height:4px;overflow:hidden;border-radius:999px;background:#102d41}
 .bp-chapter__progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--course-accent),var(--course-accent-2));box-shadow:0 0 12px rgba(var(--course-accent-rgb),.34)}
 .bp-chapter__score{text-align:right}
 .bp-chapter__score strong{display:block;color:#ecf7ff;font-size:20px}
-.bp-chapter__score span{display:block;color:#5f8197;font-size:9px;font-weight:700}
-.bp-chapter__chevron{color:#6f91a7;font-size:22px;transition:transform 180ms ease}
+.bp-chapter__score span{display:block;color:#a9c0d2;font-size:9px;font-weight:700}
+.bp-chapter__chevron{color:#a9c0d2;font-size:22px;transition:transform 180ms ease}
 .bp-chapter[open] .bp-chapter__chevron{transform:rotate(180deg)}
 .bp-chapter__body{padding:0 20px 20px;border-top:1px solid rgba(110,169,210,.1)}
 .bp-chapter__lessons{display:grid;gap:8px;padding-top:16px}
@@ -85,14 +85,14 @@ body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--
 .bp-course-lesson.is-complete .bp-course-lesson__status{border-color:rgba(72,208,143,.2);background:rgba(72,208,143,.08);color:#58d898}
 .bp-course-lesson.is-current .bp-course-lesson__status{border-color:rgba(var(--course-accent-rgb),.25);background:rgba(var(--course-accent-rgb),.12);color:var(--course-accent-2)}
 .bp-course-lesson__copy{min-width:0}
-.bp-course-lesson__copy small{display:block;color:#5e8095;font-size:8px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+.bp-course-lesson__copy small{display:block;color:#a9c0d2;font-size:8px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
 .bp-course-lesson__copy strong{display:block;margin:3px 0;color:#eaf4f9;font-size:14px;line-height:1.25}
-.bp-course-lesson__copy i{display:block;overflow:hidden;color:#6e8ca0;font-size:10px;font-style:normal;white-space:nowrap;text-overflow:ellipsis}
-.bp-course-lesson__meta{text-align:right;color:#698ba1;font-size:9px;line-height:1.5}
+.bp-course-lesson__copy i{display:block;overflow:hidden;color:#a9c0d2;font-size:10px;font-style:normal;white-space:nowrap;text-overflow:ellipsis}
+.bp-course-lesson__meta{text-align:right;color:#a9c0d2;font-size:9px;line-height:1.5}
 .bp-course-lesson__meta b{color:#9cb7c8;font-weight:800}
-.bp-course-lesson__arrow{color:#6b8ea4;font-size:17px}
+.bp-course-lesson__arrow{color:#a9c0d2;font-size:17px}
 .bp-chapter__practice{margin-top:12px;padding:14px 15px;display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px dashed rgba(var(--course-accent-rgb),.2);border-radius:13px;background:rgba(var(--course-accent-rgb),.035)}
-.bp-chapter__practice small{display:block;color:#5d8299;font-size:8px;font-weight:900;letter-spacing:.1em}
+.bp-chapter__practice small{display:block;color:#a9c0d2;font-size:8px;font-weight:900;letter-spacing:.1em}
 .bp-chapter__practice strong{display:block;margin-top:2px;color:#bbd0de;font-size:11px}
 .bp-chapter__practice>a{color:var(--course-accent-2);font-size:11px;font-weight:850;text-decoration:none;white-space:nowrap}
 
@@ -101,13 +101,13 @@ body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--
 .bp-course-aside__card>small{display:block;color:var(--course-accent);font-size:9px;font-weight:900;letter-spacing:.13em}
 .bp-course-aside__card>h3{margin:7px 0 15px;color:#eef7fc;font-size:18px;letter-spacing:-.025em}
 .bp-course-next{display:block;padding:14px;border:1px solid rgba(var(--course-accent-rgb),.2);border-radius:13px;background:rgba(var(--course-accent-rgb),.055);text-decoration:none}
-.bp-course-next span{display:block;color:#6e91a7;font-size:8px;font-weight:850;text-transform:uppercase}
+.bp-course-next span{display:block;color:#a9c0d2;font-size:8px;font-weight:850;text-transform:uppercase}
 .bp-course-next strong{display:block;margin:5px 0;color:#e8f5fc;font-size:13px;line-height:1.3}
 .bp-course-next i{color:var(--course-accent-2);font-size:9px;font-style:normal;font-weight:750}
 .bp-course-mini-stats{margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .bp-course-mini-stats span{padding:10px 5px;text-align:center;border-radius:10px;background:#071827}
 .bp-course-mini-stats b{display:block;color:#eaf5fb;font-size:15px}
-.bp-course-mini-stats i{display:block;color:#58788d;font-size:7px;font-style:normal;text-transform:uppercase}
+.bp-course-mini-stats i{display:block;color:#a9c0d2;font-size:7px;font-style:normal;text-transform:uppercase}
 .bp-course-weak{display:grid;gap:7px}
 .bp-course-weak>a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border-radius:10px;background:#071827;color:#91adbf;font-size:10px;font-weight:750;text-decoration:none}
 .bp-course-weak>a:hover{background:rgba(var(--course-accent-rgb),.06);color:#d9ecf8}
@@ -117,13 +117,13 @@ body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--
 .bp-course-results>a:last-child{padding-bottom:0;border-bottom:0}
 .bp-course-results span{overflow:hidden;color:#8aa7b9;font-size:9px;white-space:nowrap;text-overflow:ellipsis}
 .bp-course-results b{color:#e6f3fa;font-size:10px}
-.bp-course-results i{grid-column:1/-1;color:#4f7186;font-size:8px;font-style:normal}
-.bp-course-aside__muted{margin:0;color:#6d8da2;font-size:10px;line-height:1.5}
+.bp-course-results i{grid-column:1/-1;color:#a9c0d2;font-size:8px;font-style:normal}
+.bp-course-aside__muted{margin:0;color:#a9c0d2;font-size:10px;line-height:1.5}
 .bp-course-aside__link{display:inline-block;margin-top:10px;color:var(--course-accent-2);font-size:10px;font-weight:800;text-decoration:none}
 .bp-course-mastered{padding:14px;text-align:center;border:1px solid rgba(69,214,148,.17);border-radius:13px;background:rgba(69,214,148,.055)}
 .bp-course-mastered>span{display:block;color:#70dea6;font-size:25px}
 .bp-course-mastered strong{display:block;margin:4px 0;color:#dff9ed;font-size:12px}
-.bp-course-mastered p{margin:0;color:#6e9984;font-size:9px;line-height:1.45}
+.bp-course-mastered p{margin:0;color:#a9c0d2;font-size:9px;line-height:1.45}
 
 .bp-course-support{width:min(1500px,calc(100% - 80px));margin:76px auto 0}
 .bp-course-support--resources{margin-top:62px;padding-bottom:88px}
@@ -132,17 +132,17 @@ body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--
 .bp-course-assessment:hover,.bp-course-resource:hover{transform:translateY(-3px);border-color:rgba(var(--course-accent-rgb),.34);box-shadow:0 20px 48px rgba(0,0,0,.2)}
 .bp-course-assessment small{color:var(--course-accent);font-size:8px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
 .bp-course-assessment h3{margin:8px 0 8px;color:#edf7fc;font-size:16px;line-height:1.25}
-.bp-course-assessment p{margin:0;color:#6f8fa4;font-size:10px;line-height:1.55}
-.bp-course-assessment footer{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-top:22px;color:#55778d;font-size:8px}
+.bp-course-assessment p{margin:0;color:#a9c0d2;font-size:10px;line-height:1.55}
+.bp-course-assessment footer{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-top:22px;color:#a9c0d2;font-size:8px}
 .bp-course-assessment footer b{color:var(--course-accent-2);font-size:9px;white-space:nowrap}
 .bp-course-resource{min-height:190px;padding:19px;display:flex;flex-direction:column;border:1px solid rgba(112,173,214,.13);border-radius:17px;background:#081c2b;text-decoration:none;transition:transform 180ms ease,border-color 180ms ease,box-shadow 180ms ease}
 .bp-course-resource>span{color:var(--course-accent);font-size:8px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
 .bp-course-resource>strong{margin:8px 0;color:#eaf5fb;font-size:14px;line-height:1.3}
-.bp-course-resource p{margin:0;color:#68899e;font-size:10px;line-height:1.55}
+.bp-course-resource p{margin:0;color:#a9c0d2;font-size:10px;line-height:1.55}
 .bp-course-resource i{margin-top:auto;padding-top:18px;color:var(--course-accent-2);font-size:9px;font-style:normal;font-weight:850}
 .bp-course-empty{grid-column:1/-1;min-height:150px;padding:26px;display:flex;flex-direction:column;justify-content:center;border:1px dashed rgba(111,174,215,.18);border-radius:18px;background:#071826}
 .bp-course-empty strong{color:#dbeaf3;font-size:14px}
-.bp-course-empty span{margin-top:5px;color:#648398;font-size:10px}
+.bp-course-empty span{margin-top:5px;color:#a9c0d2;font-size:10px}
 
 @media(max-width:1180px){
   .bp-course-hero__inner{width:min(100% - 56px,1400px);grid-template-columns:minmax(0,1fr) 310px;gap:38px}
@@ -190,4 +190,6 @@ body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--
   .bp-course-aside{grid-template-columns:1fr}.bp-course-support--resources{padding-bottom:70px}.bp-course-assessment-grid,.bp-course-resource-grid{grid-template-columns:1fr}.bp-course-assessment{min-height:190px}
 }
 @media(max-width:390px){.bp-course-hero__inner{width:calc(100% - 24px)}.bp-course-overview-strip,.bp-course-layout,.bp-course-support{width:calc(100% - 20px)}.bp-course-progress-card{grid-template-columns:38px 78px minmax(0,1fr);padding:13px}.bp-course-progress-ring{width:72px;height:72px}.bp-course-progress-ring strong{font-size:17px}.bp-course-progress-ring span{top:44px}.bp-course-lesson__copy i{display:none}}
-@media(prefers-reduced-motion:reduce){.bp-course-hero__art,.bp-chapter,.bp-course-lesson,.bp-course-assessment,.bp-course-resource{transition:none!important;transform:none!important}}
+@media(prefers-reduced-motion:reduce){.bp-course-hero__art,.bp-chapter,.bp-course-lesson,.bp-course-assessment,.bp-course-resource{transition:none;transform:none}}
+
+.bp-course-mastered img{width:100px;height:110px;object-fit:contain;margin:0 auto 12px}.bp-course-mastered small{display:block;color:#b8d8c6;margin-top:8px}

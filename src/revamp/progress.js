@@ -2,6 +2,7 @@ import {load} from '../progress/store.js';
 import {courses} from '../data/courses.js';
 import {lessonsForCourse} from '../data/lessons.js';
 import {practiceQuestions} from '../data/questions.js';
+import {learningAction} from '../progress/learning-state.js';
 import {courseMastery} from '../utils.js';
 
 if(!document.querySelector('link[data-bp-progress]')){
@@ -36,12 +37,12 @@ function enhance(main){
       $('p',copy).textContent='Mastery, consistency, assessment history and the next useful move — all from progress saved on this browser.';
       copy.insertAdjacentHTML('beforeend',`<div class="bp-progress-hero__level"><span>LEVEL <b>${lvl.level}</b></span><div><i style="width:${lvl.pct}%"></i></div><small>${lvl.left} XP to Level ${lvl.level+1}</small></div><div class="bp-progress-hero__chips"><span><b>${p.xp}</b> XP</span><span><b>${p.streak||0}</b> day streak</span><span><b>${p.completedLessons.length}</b> lessons</span><span><b>${p.correctQuestions.length}</b> solved</span></div>`);
     }
-    inner?.insertAdjacentHTML('beforeend','<div class="bp-progress-hero__brainy" aria-hidden="true"><img src="public/brand/brainy-celebrate.svg" alt=""></div>');
+    inner?.insertAdjacentHTML('beforeend','<div class="bp-progress-hero__brainy" aria-hidden="true"><img src="public/brand/brainy.svg" alt=""></div>');
   }
 
   const section=$('.section',main);if(!section)return;section.classList.add('bp-observatory');
   const banner=$('.profile-banner',section);if(banner)banner.classList.add('bp-observatory__profile');
-  const actions=$('.next-actions',section);if(actions)actions.classList.add('bp-observatory__actions');
+  const actions=$('.next-actions',section);if(actions){actions.classList.add('bp-observatory__actions');const action=learningAction(p),card=actions.querySelector('.next-action');if(card){const title=card.querySelector('h3'),link=card.querySelector('a'),copy=card.querySelector('p');if(title)title.textContent=action.title;if(link){link.href=action.href;link.textContent=action.kind==='fresh'?'Start lesson →':action.kind==='complete'?'Review progress →':'Continue →'}if(copy)copy.textContent=action.lesson?`${courses.find(c=>c.id===action.lesson.course)?.short||''} • ${action.lesson.minutes||8} min`:'All available lessons are complete. Keep mastery durable with practice and assessments.'}}
   const grid=$('.dashboard-grid',section);if(grid)grid.classList.add('bp-observatory__grid');
   $$('.dashboard-card',section).forEach(x=>x.classList.add('bp-observatory-card'));
   $$('.next-action',section).forEach(x=>x.classList.add('bp-observatory-action'));

@@ -1,11 +1,11 @@
 /* Milestone B1 route canvas. Kept separate from component styling so legacy light-page globals cannot bleed through during staged migration. */
-body[data-route="learn"]{background:var(--bp-bg-0)!important;color:var(--bp-text)!important}
-body[data-route="learn"] .shell{background:var(--bp-bg-0)!important}
-body[data-route="learn"] main.bp-learn-page{max-width:none!important;width:100%!important;margin:0!important;background:linear-gradient(180deg,#030a12 0%,#06121e 46%,#040a11 100%)!important;color:var(--bp-text)!important}
-body[data-route="learn"] .bp-topbar{background:rgba(3,10,18,.94)!important}
+body[data-route="learn"]{background:var(--bp-bg-0);color:var(--bp-text)}
+body[data-route="learn"] .shell{background:var(--bp-bg-0)}
+body[data-route="learn"] main.bp-learn-page{max-width:none;width:100%;margin:0;background:linear-gradient(180deg,#030a12 0%,#06121e 46%,#040a11 100%);color:var(--bp-text)}
+body[data-route="learn"] .bp-topbar{background:rgba(3,10,18,.94)}
 body[data-route="learn"] .bp-learn-hero__art{filter:saturate(1.08) contrast(1.08) brightness(.72)}
-body[data-route="learn"] .bp-learn-family{background:linear-gradient(145deg,#091f31,#05121e)!important}
-body[data-route="learn"] .bp-learn-snapshot{background:#0a2236!important}
-body[data-route="learn"] .bp-learn-metric{background:#071d2e!important}
-body[data-route="learn"] .bp-learn-flow>a{background:linear-gradient(145deg,#0a263c,#071b2c)!important}
+body[data-route="learn"] .bp-learn-family{background:linear-gradient(145deg,#091f31,#05121e)}
+body[data-route="learn"] .bp-learn-snapshot{background:#0a2236}
+body[data-route="learn"] .bp-learn-metric{background:#071d2e}
+body[data-route="learn"] .bp-learn-flow>a{background:linear-gradient(145deg,#0a263c,#071b2c)}
 @media(max-width:650px){body[data-route="learn"] .bp-learn-hero__art{filter:saturate(.94) contrast(1.06) brightness(.56)}}

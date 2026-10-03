@@ -1,10 +1,12 @@
-# Milestone E QA — v1.0 Quality Gate
+# Milestone E QA — pre-1.0 acceptance
 
-Status: **RELEASED — Milestone E merged in PR #11**
+Status: **PRE-1.0 FINAL ACCEPTANCE — merge requires the complete current gate**
 
-Launch branch: `revamp/milestone-e-final-qa`
+Acceptance branch: `revamp/pre1-finalisation`
 
-Launch release: **Brainpower Education v1.0.0 — Brainpower Learning World**
+Public version: **0.9.2 — pre-1.0 finalisation**
+
+Earlier v1.0.0/v1.0.1 completion labels were premature. The user reserves v1.0.0 for the finished revamp. PR #15 closes gaps in actual lesson resume states, PDF exam tracking, CSS retirement, route-code loading, keyboard semantics, reflow and performance. Its evidence supersedes the earlier completion claim.
 
 Milestone E is the final regression, accessibility, asset-integrity and release gate for the A–D full-site revamp.
 
@@ -16,7 +18,7 @@ Desktop coverage includes Home, Learn, all five course control rooms, a represen
 
 Additional coverage includes 390×844 mobile routes for all high-use destinations, 834×1194 tablet lesson/exam/progress checks, reduced-motion mode, a seeded progress state, and keyboard command-search navigation.
 
-A fully green reference run before the release-label commit was GitHub Actions run **37086841436**:
+The historical initial gate was Actions run **37086841436**. PR #15 reruns and extends this coverage on its actual final commit:
 
 - 5 live courses
 - 285 lessons
@@ -58,9 +60,9 @@ The final static audit also checks:
 - all local test/resource/solution/thumbnail references exist
 - assessment numeric metadata is valid when present
 - five-course navigation remains intact
-- v1.0 version/release markers are present
+- the pre-1.0 version and public update log are consistent
 
-Historical CSS remains in the repository during staged migration. It is not treated as production truth when a later authoritative revamp ownership layer overrides it. In particular, `art.css` owns the computed Home artwork using local repository WebPs.
+The four legacy stylesheet layers are retired. Shared components and scoped route styles own production appearance. Signed prototype Home art URLs have been removed.
 
 ## Defects found and fixed by Milestone E
 
@@ -68,7 +70,7 @@ The final gate caught real issues rather than only recording screenshots:
 
 1. Four assessment fallback SVGs contained raw ampersands in XML text such as `UNITS 1 & 2`. Browsers could not decode them, so Test Centre and Resources displayed broken fallback previews. The entities are now valid `&amp;` XML.
 2. The Exact Trig Values angle selector had no accessible name. The Tools enhancement now supplies a descriptive `aria-label`.
-3. The initial static dependency check was too broad and flagged unused historical prototype files. It now audits the production-loaded dependency graph while still verifying that Home's later local-art ownership layer overrides the old inert prototype declarations.
+3. The initial static dependency check was too broad and flagged unused historical prototype files. It now audits the production-loaded dependency graph while still verifying that all Home artwork references use repository assets directly.
 
 ## Responsive/accessibility gate
 
@@ -80,6 +82,23 @@ Brainy remains the canonical open-book character throughout production: cream/op
 
 ## Release state
 
-The v1.0.0 launch shipped in PR #11. PR #12 corrected Arcade control contrast/hidden states; PR #13 added four-choice Derivative Dash. PR #13's final gate, Actions run **37089729826**, passed all 42 route/viewport checks plus the D1/D2/D3 browser suites. The matching Pages deployment, run **37090045992**, succeeded; live answer scoring and pause were verified.
+PR #11 shipped the initial full-site implementation with a premature v1.0.0 label. PR #12 corrected Arcade control contrast/hidden states; PR #13 added four-choice Derivative Dash. PR #13's final gate, Actions run **37089729826**, passed all 42 route/viewport checks plus the D1/D2/D3 browser suites. The matching Pages deployment, run **37090045992**, succeeded; live answer scoring and pause were verified.
 
-The v1.0.1 follow-up fixes page entrance replay on countdown/score mutations, retires the overlapping legacy entrance animation and reserves scrollbar space during overlays. Motion regression measures real Home countdown and mobile Dash timer updates for page movement, and checks layout width during loading. It also aligns the package, site, README and newest update-log entry. The smoke check now enforces release consistency instead of pinning every future release to 1.0.0. Full-site regression checks the visible footer version and update-log entry on desktop/mobile, including layout width, Escape and returned keyboard focus. Each release still requires green branch QA and verification of its matching Pages deployment.
+PR #14 (prematurely labelled v1.0.1) fixes page entrance replay on countdown/score mutations, retires the overlapping legacy entrance animation and reserves scrollbar space during overlays. Motion regression measures real Home countdown and mobile Dash timer updates for page movement, and checks layout width during loading. It also aligns the package, site, README and newest update-log entry. The smoke check now enforces release consistency instead of pinning every future release to 1.0.0. Full-site regression checks the visible footer version and update-log entry on desktop/mobile, including layout width, Escape and returned keyboard focus. Each release still requires green branch QA and verification of its matching Pages deployment.
+
+
+## PR #15 final acceptance scope
+
+The current gate adds the missing behaviors to the original route matrix:
+
+- Home, Learn, course control rooms and Progress share one actual last-visited lesson policy. A visit does not grant XP or completion. Fresh, partial, legacy, completed-course and all-complete states are tested.
+- PDF Exam Mode persists a manual question navigator, answered states, review flags and question notes. Refresh, shortcuts, finish/cancel counts, blank-score rejection and an explicit zero score are tested. Unknown question counts and marks remain unknown; the PDF is never treated as an automatically inspectable answer sheet.
+- Four legacy style layers and two global DOM-polish scripts are removed from production. 423 obsolete shared selectors are retired. Normal route styles do not use `!important`; the exceptions are accessibility and native hidden-state rules.
+- Route features load on first use. Cold Home/Learn requests must not fetch Arcade, the Derivative Dash bank or the Admin ZIP vendor.
+- Every major route, all five courses, representative lessons and missing-ID routes receive WCAG A/AA checks with color contrast enabled. Reflow is checked at 640 CSS pixels, representing a 1280-pixel window at 200% zoom.
+- A constrained-network/CPU Home check records paint, long tasks and cumulative layout shift. Countdown and game-timer checks separately verify stable scroll position, no repeated page entrance, and constant page width during overlays.
+- All B2/B3/B4/C1/C2/C3/D1/D2/D3 functional suites run against the consolidated styles. Their failures are collected independently, so one failure cannot hide another route's result.
+- The delayed whole-page KaTeX repaint is removed: formulas use the deferred library and an interactive dialog or answer input is not replaced 250 ms after startup.
+- Progress uses the directly rendered canonical `brainy.svg`. The old SVG wrapper rendered confetti without its external character reference in Chromium.
+
+The final passing Actions run and production deployment are recorded on PR #15 and in the Google Drive master plan after verification. Public version **0.9.2** is retained; passing this gate does not automatically publish v1.0.0.

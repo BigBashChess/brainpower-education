@@ -3,6 +3,7 @@ import {lessons,lessonsForCourse} from '../data/lessons.js';
 import {practiceQuestions} from '../data/questions.js';
 import {tests} from '../data/tests.js';
 import {load,levelForXp} from '../progress/store.js';
+import {learningAction} from '../progress/learning-state.js';
 import {courseMastery} from '../utils.js';
 
 const $=(s,r=document)=>r.querySelector(s);
@@ -14,8 +15,8 @@ function courseStats(c,p){
   const done=rows.filter(l=>p.completedLessons.includes(l.id)).length;
   const qs=practiceQuestions.filter(q=>q.course===c.id);
   const solved=qs.filter(q=>p.correctQuestions.includes(q.id)).length;
-  const next=rows.find(l=>!p.completedLessons.includes(l.id))||rows[0];
-  return {rows,done,questions:qs.length,solved,next,mastery:courseMastery(c.id,p),tests:tests.filter(t=>t.course===c.id).length};
+  const action=learningAction(p,c.id),next=action.lesson;
+  return {rows,done,action,questions:qs.length,solved,next,mastery:courseMastery(c.id,p),tests:tests.filter(t=>t.course===c.id).length};
 }
 
 function courseCard(c,p){
@@ -27,7 +28,7 @@ function courseCard(c,p){
     <p>${esc(c.desc)}</p>
     <div class="bp-learn-course__progress"><div><span>Course mastery</span><b>${s.mastery}%</b></div><div class="bp-learn-course__bar"><i style="width:${s.mastery}%"></i></div></div>
     <div class="bp-learn-course__stats"><span><b>${s.done}/${s.rows.length}</b><small>lessons</small></span><span><b>${s.solved}/${s.questions}</b><small>questions</small></span><span><b>${s.tests}</b><small>tests</small></span></div>
-    <div class="bp-learn-course__actions"><a class="btn primary" href="#course/${c.id}">Open pathway →</a>${s.next?`<a class="bp-learn-course__continue" href="#lesson/${s.next.id}">Continue ${esc(s.next.title)} <span>›</span></a>`:`<span class="bp-learn-course__continue muted">${level}</span>`}</div>
+    <div class="bp-learn-course__actions"><a class="btn primary" href="#course/${c.id}">Open pathway →</a><a class="bp-learn-course__continue" href="${s.action.href}">${esc(s.action.label)}</a></div>
   </article>`;
 }
 
@@ -48,7 +49,7 @@ function renderLearn(){
   const level=levelForXp(p.xp);
   const completed=p.completedLessons.length;
   const solved=p.correctQuestions.length;
-  const next=lessons.find(l=>!p.completedLessons.includes(l.id))||lessons[0];
+  const action=learningAction(p),next=action.lesson;
   const nextCourse=next?courseById(next.course):null;
   const allMastery=Math.round(courses.reduce((sum,c)=>sum+courseMastery(c.id,p),0)/Math.max(courses.length,1));
   const methods=courses.filter(c=>c.accent==='methods');
@@ -64,15 +65,15 @@ function renderLearn(){
         <div class="bp-learn-kicker">LEARN</div>
         <h1>Choose a pathway.<br><em>Build real mastery.</em></h1>
         <p>Five structured VCE courses connect explanation, worked examples, practice, checkpoints and formal assessment into one learning system.</p>
-        <div class="bp-learn-hero__actions">${next?`<a class="btn primary large" href="#lesson/${next.id}">Continue learning →</a>`:''}<a class="btn secondary large" href="#progress">View progress</a></div>
+        <div class="bp-learn-hero__actions"><a class="btn primary large" href="${action.href}">${action.kind==='fresh'?'Start learning →':action.kind==='complete'?'Review progress →':'Continue learning →'}</a><a class="btn secondary large" href="#progress">View progress</a></div>
         <div class="bp-learn-hero__meta"><span>${courses.length} course pathways</span><span>${lessons.length} lessons</span><span>${practiceQuestions.length} practice questions</span></div>
       </div>
       <aside class="bp-learn-resume">
-        <small>YOUR NEXT STEP</small>
+        <small>${action.kind==='fresh'?'YOUR FIRST STEP':action.kind==='complete'?'PATHWAYS COMPLETE':'YOUR NEXT STEP'}</small>
         <div class="bp-learn-resume__icon">${nextCourse?.accent==='specialist'?'Σ':nextCourse?.accent==='physics'?'λ':'ƒ'}</div>
-        <h2>${esc(next?.title||'Start learning')}</h2>
+        <h2>${esc(action.title)}</h2>
         <p>${esc(nextCourse?.short||'Brainpower')} ${next?.minutes?`• ${next.minutes} min`:''} ${next?.difficulty?`• ${esc(next.difficulty)}`:''}</p>
-        <a href="#lesson/${next?.id||''}">Open lesson <span>→</span></a>
+        <a href="${action.href}">${action.kind==='complete'?'Review progress':action.kind==='fresh'?'Start lesson':'Open lesson'} <span>→</span></a>
       </aside>
     </div>
   </section>

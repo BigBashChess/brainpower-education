@@ -4,6 +4,12 @@ import {questions} from './data/questions.js';
 
 export const esc = value => String(value ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+// Formula-only buttons need an explicit name as well as their accessible MathML.
+export function mathChoiceLabel(value){
+  const names={ge:'greater than or equal to',geq:'greater than or equal to',le:'less than or equal to',leq:'less than or equal to',ne:'not equal to',neq:'not equal to',pm:'plus or minus',times:'times',cdot:'times',pi:'pi',sqrt:'square root',infty:'infinity',theta:'theta',lambda:'lambda',alpha:'alpha',beta:'beta',sin:'sine',cos:'cosine',tan:'tangent',ln:'natural log',log:'log',left:'',right:'',text:'',mathrm:''};
+  return String(value).replace(/\$/g,'').replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g,'($1) over ($2)').replace(/\\([a-zA-Z]+)/g,(_,name)=>` ${names[name]??name} `).replace(/[{}]/g,'').replace(/\s+/g,' ').trim();
+}
+
 export function renderMathString(input=''){
   const s=String(input);
   if(!window.katex) return s;

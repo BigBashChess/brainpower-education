@@ -4,6 +4,7 @@ import {practiceQuestions} from '../data/questions.js';
 import {tests} from '../data/tests.js';
 import {resources} from '../data/resources.js';
 import {load} from '../progress/store.js';
+import {learningAction,courseCompletedAt} from '../progress/learning-state.js';
 import {courseMastery,topicMastery} from '../utils.js';
 
 const $=(s,r=document)=>r.querySelector(s);
@@ -33,18 +34,17 @@ function statsFor(course,p){
   const qs=practiceQuestions.filter(q=>q.course===course.id);
   const solved=qs.filter(q=>p.correctQuestions.includes(q.id)).length;
   const courseTests=tests.filter(t=>t.course===course.id);
-  const next=rows.find(l=>!p.completedLessons.includes(l.id))||null;
+  const action=learningAction(p,course.id),next=action.lesson;
   const mastery=courseMastery(course.id,p);
   const currentTopic=next?.topic||course.topics[course.topics.length-1]?.id||'';
   const scores=p.scores.filter(s=>courseTests.some(t=>t.id===s.testId));
-  return {rows,done,qs,solved,courseTests,next,mastery,currentTopic,scores,complete:rows.length>0&&done===rows.length};
+  return {action,completedAt:courseCompletedAt(course.id,p),rows,done,qs,solved,courseTests,next,mastery,currentTopic,scores,complete:rows.length>0&&done===rows.length};
 }
 
 function nextAction(course,s){
   if(s.complete)return {href:`#practice?course=${course.id}`,label:'Review mastered course →',sub:'All lessons complete'};
   if(!s.next)return {href:`#course/${course.id}`,label:'Explore course →',sub:'Course ready'};
-  const first=s.done===0;
-  return {href:`#lesson/${s.next.id}`,label:`${first?'Start':'Continue'} ${s.next.title} →`,sub:`${s.next.minutes||8} min • ${s.next.difficulty||'Core'}`};
+  return {href:s.action.href,label:s.action.label,sub:`${s.next.minutes||8} min • ${s.next.difficulty||'Core'}`};
 }
 
 function scoreLabel(score){return score.max?`${score.score}/${score.max} • ${Math.round(score.score/score.max*100)}%`:`${score.score}`}
@@ -89,7 +89,7 @@ function insightPanel(course,p,s){
   const latest=s.scores.slice(0,3);
   return `<aside class="bp-course-aside">
     <section class="bp-course-aside__card bp-course-control"><small>COURSE CONTROL ROOM</small><h3>${s.complete?'Course mastered':'What matters next'}</h3>
-      ${s.complete?`<div class="bp-course-mastered"><span>★</span><strong>100% lesson completion</strong><p>Keep it sharp with mixed practice and formal assessments.</p></div>`:`<a class="bp-course-next" href="#lesson/${s.next?.id||''}"><span>Next lesson</span><strong>${esc(s.next?.title||'Start learning')}</strong><i>${s.next?.minutes||8} min • ${esc(s.next?.difficulty||'Core')} →</i></a>`}
+      ${s.complete?`<div class="bp-course-mastered"><img src="public/brand/brainy.svg" width="100" height="110" alt="Brainy celebrating your completed pathway"><strong>100% lesson completion</strong>${s.completedAt?`<small>Completed ${formatDate(s.completedAt)}</small>`:''}<p>Keep it sharp with mixed practice and formal assessments.</p></div>`:`<a class="bp-course-next" href="#lesson/${s.next?.id||''}"><span>Next lesson</span><strong>${esc(s.next?.title||'Start learning')}</strong><i>${s.next?.minutes||8} min • ${esc(s.next?.difficulty||'Core')} →</i></a>`}
       <div class="bp-course-mini-stats"><span><b>${s.done}/${s.rows.length}</b><i>lessons</i></span><span><b>${s.solved}/${s.qs.length}</b><i>questions</i></span><span><b>${s.courseTests.length}</b><i>tests</i></span></div>
     </section>
     <section class="bp-course-aside__card"><small>${s.complete?'REVIEW MAP':'NEEDS ATTENTION'}</small><h3>${s.complete?'Keep mastery durable':'Lowest chapter mastery'}</h3><div class="bp-course-weak">${weakest.map(x=>`<a href="#practice?course=${course.id}&topic=${x.topic.id}"><span>${esc(x.topic.title)}</span><b>${x.mastery}%</b></a>`).join('')}</div></section>

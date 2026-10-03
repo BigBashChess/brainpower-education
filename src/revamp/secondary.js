@@ -131,7 +131,7 @@ function searchMarkup(initial=''){
       <div class="bp-command-meta"><span>${INDEX.length} indexed destinations</span><span>↑ ↓ to move</span><span>Enter to open</span><span>Esc to clear</span></div>
     </section>
     <section class="bp-search-workspace">
-      <div class="bp-command-groups" role="tablist" aria-label="Search result category">${['All','Learn','Tests','Resources','Tools'].map((g,i)=>`<button type="button" role="tab" aria-selected="${i===0}" data-command-group="${g}" class="${i===0?'is-active':''}">${g}</button>`).join('')}</div>
+      <div class="bp-command-groups" role="group" aria-label="Search result category">${['All','Learn','Tests','Resources','Tools'].map((g,i)=>`<button type="button" aria-pressed="${i===0}" data-command-group="${g}" class="${i===0?'is-active':''}">${g}</button>`).join('')}</div>
       <div class="bp-command-layout">
         <main class="bp-command-results" id="bp-command-results" aria-live="polite"></main>
         <aside class="bp-command-side">
@@ -160,12 +160,12 @@ function bindCommandSearch(root){
     else if(!rows.length){out.innerHTML=`<div class="bp-command-empty"><div class="bp-command-empty__mark">?</div><h2>No match for “${esc(q)}”.</h2><p>Try a broader topic name or search all categories.</p><button class="btn ghost" data-command-broaden type="button">Search all categories</button></div>`;}
     else{out.innerHTML=`<div class="bp-command-summary"><b>${rows.length}</b><span>best match${rows.length===1?'':'es'}${group==='All'?'':` in ${group}`}</span></div><div class="bp-command-list">${rows.map((r,i)=>`<a href="#${r.go}" class="bp-command-result" data-result-index="${i}"><span class="bp-command-result__type">${esc(r.type)}</span><div><strong>${esc(r.title)}</strong><small>${esc(r.sub||'')}</small></div><b>→</b></a>`).join('')}</div>`;}
     $$('[data-search-suggestion]',out).forEach(b=>b.addEventListener('click',()=>{input.value=b.dataset.searchSuggestion;render();input.focus()}));
-    $('[data-command-broaden]',out)?.addEventListener('click',()=>{group='All';tabs.forEach(t=>{const on=t.dataset.commandGroup==='All';t.classList.toggle('is-active',on);t.setAttribute('aria-selected',String(on))});render()});
+    $('[data-command-broaden]',out)?.addEventListener('click',()=>{group='All';tabs.forEach(t=>{const on=t.dataset.commandGroup==='All';t.classList.toggle('is-active',on);t.setAttribute('aria-pressed',String(on))});render()});
   };
   const select=i=>{const rows=$$('.bp-command-result',out);if(!rows.length)return;selected=(i+rows.length)%rows.length;rows.forEach((r,j)=>r.classList.toggle('is-selected',j===selected));rows[selected].scrollIntoView({block:'nearest'});};
   const key=e=>{if(e.key==='ArrowDown'){e.preventDefault();select(selected+1)}else if(e.key==='ArrowUp'){e.preventDefault();select(selected-1)}else if(e.key==='Enter'&&selected>=0){e.preventDefault();$('.bp-command-result.is-selected',out)?.click()}else if(e.key==='Escape'&&input.value){e.preventDefault();input.value='';render()}};
   input.addEventListener('input',render);input.addEventListener('keydown',key);
-  tabs.forEach(t=>t.addEventListener('click',()=>{group=t.dataset.commandGroup;tabs.forEach(x=>{const on=x===t;x.classList.toggle('is-active',on);x.setAttribute('aria-selected',String(on))});render();input.focus()}));
+  tabs.forEach(t=>t.addEventListener('click',()=>{group=t.dataset.commandGroup;tabs.forEach(x=>{const on=x===t;x.classList.toggle('is-active',on);x.setAttribute('aria-pressed',String(on))});render();input.focus()}));
   render();requestAnimationFrame(()=>input.focus({preventScroll:true}));
   activeSearchCleanup=()=>{input.removeEventListener('keydown',key);activeSearchCleanup=null};
 }
@@ -178,17 +178,12 @@ function apply(){
     main.dataset.bpSecondary='about';main.className='bp-secondary-main';main.innerHTML=aboutMarkup();
   }else if(base==='search'&&main.dataset.bpSecondary!=='search'){
     main.dataset.bpSecondary='search';main.className='bp-secondary-main';const initial=params.get('q')||'';main.innerHTML=searchMarkup(initial);bindCommandSearch(main);
-  }else if(!known.has(base)&&main.dataset.bpSecondary!=='404'){
+  }else if((!known.has(base)||main.querySelector('[data-route-error]'))&&main.dataset.bpSecondary!=='404'){
     main.dataset.bpSecondary='404';main.className='bp-secondary-main';main.innerHTML=notFoundMarkup();
   }
 }
 function queue(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;apply()})}
 const app=$('#app');if(app)new MutationObserver(queue).observe(app,{childList:true,subtree:true});
 addEventListener('hashchange',()=>setTimeout(apply,0));
-addEventListener('keydown',e=>{
-  if(e.key!=='/'||e.metaKey||e.ctrlKey||e.altKey)return;
-  const tag=e.target?.tagName?.toLowerCase();if(tag==='input'||tag==='textarea'||e.target?.isContentEditable)return;
-  e.preventDefault();
-  if(routeInfo().base==='search')$('#bp-command-input')?.focus();else location.hash='search';
-});
+
 apply();

@@ -106,8 +106,9 @@ function restructure(main){
   list.classList.add('bp-practice-bankgrid');
 
   const hub=document.createElement('div');hub.className='bp-practice-hub';hub.dataset.practiceHub='';
-  hub.innerHTML=`<div class="bp-practice-tabs" role="tablist"><button class="is-active" type="button" data-practice-tab="builder">Build session</button><button type="button" data-practice-tab="bank">Browse bank</button></div><div class="bp-practice-tabpanel is-active" data-practice-panel="builder">${builderMarkup()}${presetMarkup()}${insightsMarkup()}</div><div class="bp-practice-tabpanel" data-practice-panel="bank"><div class="bp-practice-bankintro"><div><small>FULL QUESTION BANK</small><h2>Browse, search and solve directly.</h2><p>Use this when you want a specific question rather than a structured session.</p></div><span>${practiceQuestions.length} questions</span></div></div>`;
+  hub.innerHTML=`<div class="bp-practice-tabs" role="tablist" aria-label="Practice view"><button class="is-active" type="button" id="bp-practice-builder-tab" role="tab" aria-controls="bp-practice-builder-panel" aria-selected="true" data-practice-tab="builder">Build session</button><button type="button" id="bp-practice-bank-tab" role="tab" aria-controls="bp-practice-bank-panel" aria-selected="false" tabindex="-1" data-practice-tab="bank">Browse bank</button></div><div class="bp-practice-tabpanel is-active" id="bp-practice-builder-panel" role="tabpanel" aria-labelledby="bp-practice-builder-tab" data-practice-panel="builder">${builderMarkup()}${presetMarkup()}${insightsMarkup()}</div><div class="bp-practice-tabpanel" id="bp-practice-bank-panel" role="tabpanel" aria-labelledby="bp-practice-bank-tab" data-practice-panel="bank"><div class="bp-practice-bankintro"><div><small>FULL QUESTION BANK</small><h2>Browse, search and solve directly.</h2><p>Use this when you want a specific question rather than a structured session.</p></div><span>${practiceQuestions.length} questions</span></div></div>`;
   section.insertBefore(hub,summary);
+  hub.addEventListener('keydown',e=>{const tab=e.target.closest('[data-practice-tab]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const name=e.key==='Home'?'builder':e.key==='End'?'bank':tab.dataset.practiceTab==='builder'?'bank':'builder';setTab(hub,name);hub.querySelector(`[data-practice-tab="${name}"]`).focus()});
   const builderPanel=$('[data-practice-panel="builder"]',hub),bankPanel=$('[data-practice-panel="bank"]',hub);
   builderPanel.insertBefore(summary,$('.bp-practice-builder',builderPanel));
   bankPanel.append(modes,filters,resultsHead,list);
@@ -116,7 +117,7 @@ function restructure(main){
 }
 
 function setTab(root,name){
-  $$('[data-practice-tab]',root).forEach(b=>b.classList.toggle('is-active',b.dataset.practiceTab===name));
+  $$('[data-practice-tab]',root).forEach(b=>{const selected=b.dataset.practiceTab===name;b.classList.toggle('is-active',selected);b.setAttribute('aria-selected',String(selected));b.tabIndex=selected?0:-1});
   $$('[data-practice-panel]',root).forEach(p=>p.classList.toggle('is-active',p.dataset.practicePanel===name));
 }
 

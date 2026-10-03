@@ -123,6 +123,7 @@ async function auditRoute(hash,name,{width=1440,height=900,screenshot=false,full
     })));
   }
   await page.evaluate(h=>{location.hash=h},hash);
+  await page.waitForFunction(()=>!document.body.dataset.bpRoutePending,null,{timeout:15000});
   await page.waitForTimeout(reduced?450:1050);
   await page.waitForFunction(()=>document.querySelector('main')||document.querySelector('.bp-exam-page'),null,{timeout:10000}).catch(()=>{});
   const result=await page.evaluate(({expectedHash,reduced})=>{

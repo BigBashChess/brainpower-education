@@ -21,8 +21,8 @@ body.bp-revamp:not([data-route="exam"]) main.bp-motion-enter{
 
 /* Reveal only major structural sections. Never animate individual paragraphs/questions. */
 .bp-motion-reveal{
-  opacity:0;
-  transform:translateY(var(--bp-motion-distance));
+  opacity:1;
+  transform:none;
   transition:opacity var(--bp-motion-feedback) var(--bp-ease-standard),transform var(--bp-motion-feedback) var(--bp-ease-standard);
 }
 .bp-motion-reveal.is-visible{opacity:1;transform:none}

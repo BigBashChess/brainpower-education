@@ -1,4 +1,6 @@
-/* Brainpower revamp foundation. Loaded after legacy CSS during staged migration. */
+/* Canonical reset and foundation. */
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}body,button,input,select{font-size:16px}button,input,select{font:inherit}a{color:inherit;text-decoration:none}button,a,input,select{transition:.16s ease}img{max-width:100%;display:block}button{cursor:pointer}.boot{padding:50px;font-weight:800}.shell{min-height:100vh}.muted{color:var(--muted)}
+
 html{scroll-padding-top:calc(var(--bp-header-height) + 18px);scrollbar-gutter:stable}
 body.bp-revamp{font-family:var(--bp-font);text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
 body.bp-revamp::selection{background:rgba(51,136,255,.28)}
@@ -7,14 +9,14 @@ body.bp-revamp :where(button,a,input,select,textarea){transition:color var(--bp-
 body.bp-revamp img{max-width:100%}
 body.bp-revamp .shell{min-height:100vh}
 
-/* Canonical controls. Existing pages inherit a cleaner system without being visually rebuilt yet. */
+/* Canonical controls. Shared controls for every route. */
 body.bp-revamp .btn{min-height:44px;border-radius:var(--bp-radius-md);padding:11px 17px;font-family:inherit;font-weight:800;letter-spacing:-.005em;box-shadow:none}
-body.bp-revamp .btn.small{min-height:38px;padding:8px 13px}
+body.bp-revamp .btn.small{min-height:44px;padding:8px 13px}
 body.bp-revamp .btn.large{min-height:50px;padding:14px 20px}
-body.bp-revamp .btn.primary{background:linear-gradient(135deg,var(--bp-blue),#5c6cff);color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 28px rgba(40,113,232,.2)}
+body.bp-revamp .btn.primary{background:linear-gradient(135deg,#2166cf,#515dd7);color:#fff;border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 28px rgba(40,113,232,.2)}
 body.bp-revamp .btn.primary:hover{filter:none;transform:translateY(-2px);box-shadow:var(--bp-glow-primary)}
 body.bp-revamp .btn.primary:active{transform:translateY(0) scale(.985)}
-body.bp-revamp .btn.ghost{border:1px solid rgba(73,111,141,.28);background:rgba(255,255,255,.02)}
+body.bp-revamp .btn.ghost{color:inherit;border:1px solid rgba(73,111,141,.28);background:rgba(255,255,255,.02)}
 body.bp-revamp .btn.ghost:hover{border-color:rgba(65,142,204,.55);background:rgba(51,136,255,.06)}
 body.bp-revamp .btn:disabled{transform:none;box-shadow:none;opacity:.5}
 
@@ -67,3 +69,8 @@ body.bp-route-loading{overflow:hidden}
   html{scroll-behavior:auto}
   body.bp-revamp *,body.bp-revamp *::before,body.bp-revamp *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}
 }
+
+/* Native visibility must win over component grid/flex declarations. */
+body.bp-revamp [hidden]{display:none!important}
+
+body.bp-revamp button,body.bp-revamp input:not([type="checkbox"]):not([type="radio"]),body.bp-revamp select{min-height:44px}

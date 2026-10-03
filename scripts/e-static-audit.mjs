@@ -19,12 +19,15 @@ const required=[
 for(const file of required)if(!existsSync(file))failures.push(`Missing required production file: ${file}`);
 
 const index=readFileSync('index.html','utf8');
-for(const file of required.filter(x=>x.startsWith('src/revamp/')&&x.endsWith('.js'))){if(!index.includes(file))failures.push(`index.html does not load ${file}`)}
+for(const file of required.filter(x=>x.startsWith('src/revamp/')&&x.endsWith('.js'))){if(!index.includes(file)&&!readFileSync('src/revamp/route-modules.js','utf8').includes(`'./${file.split('/').at(-1)}'`))failures.push(`No entry point loads ${file}`)}
 for(const file of required.filter(x=>x.startsWith('src/styles/revamp/')&&x.endsWith('.css'))){
   if(['src/styles/revamp/arcade.css','src/styles/revamp/secondary.css'].includes(file))continue; // route modules load these on demand
-  if(!index.includes(file))failures.push(`index.html does not load ${file}`);
+  if(!index.includes(file)&&!readFileSync('src/revamp/route-modules.js','utf8').includes(`'./${file.split('/').at(-1)}'`))failures.push(`No entry point loads ${file}`);
 }
 
+for(const retired of ['main.css','pre1-overhaul.css','release-candidate.css','v1-final.css'])if(index.includes(`src/styles/${retired}`))failures.push(`Retired stylesheet is loaded: ${retired}`);
+const priorityCount=walk(join(root,'src','styles','revamp')).filter(p=>extname(p)==='.css').filter(p=>!['base.css','motion.css'].includes(p.split('/').at(-1))).reduce((n,p)=>n+(readFileSync(p,'utf8').match(/!important/g)||[]).length,0);
+if(priorityCount)failures.push(`Normal route/component styles still contain ${priorityCount} priority overrides.`);
 const jsFiles=walk(join(root,'src')).filter(p=>extname(p)==='.js').concat(walk(join(root,'scripts')).filter(p=>extname(p)==='.mjs'));
 for(const file of jsFiles){
   try{execFileSync(process.execPath,['--check',file],{stdio:'pipe'})}
@@ -41,15 +44,6 @@ for(const path of activePaths){
   if(!existsSync(path))continue;
   const text=readFileSync(path,'utf8');
   if(!generationHost.test(text))continue;
-  // Milestone A's early home stylesheet still contains inert prototype URLs, but art.css is loaded later and owns all four computed production backgrounds.
-  if(path==='src/styles/revamp/home.css'){
-    const art=readFileSync('src/styles/revamp/art.css','utf8');
-    const localHome=['hero-study-room.webp','methods-gateway.webp','specialist-gateway.webp','physics-gateway.webp'].every(x=>art.includes(x));
-    const correctOrder=index.indexOf('src/styles/revamp/home.css')<index.indexOf('src/styles/revamp/art.css');
-    if(!localHome||!correctOrder)failures.push('Home contains prototype generation URLs without a verified later local-art ownership layer.');
-    else notes.push('Legacy Home prototype URLs are inert: later-loaded art.css owns all four computed Home backgrounds with local repository assets.');
-    continue;
-  }
   failures.push(`Generation-host URL/reference remains in loaded production code: ${path}`);
 }
 

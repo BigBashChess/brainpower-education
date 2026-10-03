@@ -12,7 +12,7 @@
   --bp-border-strong:rgba(91,169,255,.58);
   --bp-text:#f4f8ff;
   --bp-text-secondary:#a9c0d2;
-  --bp-text-muted:#718ba0;
+  --bp-text-muted:#a9c0d2;
   --bp-blue:#3388ff;
   --bp-blue-bright:#6dbbff;
   --bp-violet:#8b63ff;
@@ -62,4 +62,11 @@
   --bp-header-height:70px;
 
   --bp-font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+
+/* Compatibility names used by the shared question, calculator and admin components. */
+:root{
+  --navy:#082f50;--navy-2:#0b456f;--blue:#0d6fb8;--blue-2:#25a0e6;--coral:#ff6155;
+  --paper:#f4f7fb;--paper-2:#eaf1f7;--card:#ffffff;--text:#10283c;--muted:#52667a;--border:#d9e3ec;
+  --green:#16864d;--danger:#b53d35;--line:var(--border);--panel:var(--card);--soft:var(--paper-2);--serif:Georgia,serif;--shadow:0 16px 44px rgba(8,47,80,.10);--radius:20px;--radius-sm:13px;
 }
