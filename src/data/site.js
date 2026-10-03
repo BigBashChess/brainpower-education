@@ -1,6 +1,6 @@
 export const SITE = {
   name: 'Brainpower Education',
-  version: '1.0.0',
+  version: '1.0.1',
   revampStatus: 'complete',
   tagline: 'Master VCE Mathematics and Physics.',
   instagram: 'https://www.instagram.com/brain.power.education/',
