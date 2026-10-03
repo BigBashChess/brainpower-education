@@ -2,9 +2,10 @@ name: D1 Arcade browser QA
 
 on:
   push:
-    branches: [revamp/milestone-d1-arcade, revamp/milestone-d-arcade-controls]
+    branches: [revamp/milestone-d1-arcade, revamp/milestone-d-arcade-controls, revamp/derivative-dash-choice]
     paths:
       - 'src/revamp/arcade.js'
+      - 'src/revamp/derivative-bank.js'
       - 'src/styles/revamp/arcade.css'
       - 'public/art/arcade/**'
       - 'index.html'
@@ -34,13 +35,18 @@ jobs:
           for i in {1..30}; do curl -fsS http://127.0.0.1:8000/ >/dev/null && exit 0; sleep 1; done
           cat /tmp/brainpower-server.log
           exit 1
+      - name: Run final static audit
+        run: node scripts/e-static-audit.mjs
       - name: Run D1 browser QA
         run: node scripts/d1-arcade-qa.mjs
       - name: Recheck D2 secondary routes and D3 motion
-        if: github.ref == 'refs/heads/revamp/milestone-d-arcade-controls'
+        if: github.ref == 'refs/heads/revamp/milestone-d-arcade-controls' || github.ref == 'refs/heads/revamp/derivative-dash-choice'
         run: |
           node scripts/d2-secondary-qa.mjs
           node scripts/d3-motion-qa.mjs
+      - name: Full-site regression after Arcade changes
+        if: github.ref == 'refs/heads/revamp/derivative-dash-choice'
+        run: node scripts/e-final-qa.mjs
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -50,4 +56,5 @@ jobs:
             qa-d1-arcade/
             qa-d2-secondary/
             qa-d3-motion/
+            qa-e-final/
           retention-days: 14

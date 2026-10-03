@@ -1,4 +1,23 @@
 /* Milestone D1 — Brainpower Arcade */
+/* Multiple-choice Dash: mathematical notation stays readable on keyboard and touch. */
+.bp-dash-choice-guide{margin:0 0 14px;color:var(--bp-text-secondary);font-size:13px;line-height:1.6}
+.bp-dash-choice-guide kbd{padding:2px 5px;border:1px solid var(--bp-border-strong);border-radius:5px;color:var(--bp-text);font:inherit;font-weight:800}
+.bp-dash-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.bp-dash-choice{display:grid;grid-template-columns:30px minmax(0,1fr);gap:8px;align-items:center;min-height:84px;padding:16px 14px;border:1px solid var(--bp-border-strong);border-radius:var(--bp-radius-md);background:var(--bp-surface-1);color:var(--bp-text);text-align:left;cursor:pointer;transition:background var(--bp-dur-fast),border-color var(--bp-dur-fast);font:inherit}
+.bp-dash-choice:not(:disabled):hover{background:var(--bp-surface-2);border-color:var(--bp-blue-bright)}
+.bp-dash-choice:focus-visible{outline:3px solid var(--bp-blue-bright);outline-offset:3px}
+.bp-dash-choice__key{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:var(--bp-bg-3);color:var(--bp-text-secondary);font-size:12px;font-weight:850}
+.bp-dash-choice__formula{min-width:0;font-size:20px;overflow-x:auto;padding:3px 0}
+.bp-dash-choice__result{grid-column:2;font-size:11px;font-weight:800;letter-spacing:.06em}
+.bp-dash-choice__result:empty{display:none}
+.bp-dash-choice:disabled{cursor:default}
+.bp-dash-choice.is-correct{border-color:var(--bp-success);background:#0c3028}
+.bp-dash-choice.is-correct .bp-dash-choice__result{color:#b3f4d6}
+.bp-dash-choice.is-wrong{border-color:var(--bp-danger);background:#352024}
+.bp-dash-choice.is-wrong .bp-dash-choice__result{color:#ffd0cf}
+.bp-dash-question .katex{font-size:1em}
+@media(max-width:700px){.bp-dash-choices{grid-template-columns:1fr;gap:9px}.bp-dash-choice{min-height:70px;padding:12px}.bp-dash-choice__formula{font-size:19px}.bp-dash-choice-guide{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.bp-dash-choice{transition:none}}
 /* Arcade owns its dark controls and game-state visibility, including native hidden. */
 body.bp-revamp .bp-arcade-page__world .btn.ghost{color:var(--bp-text);background:var(--bp-surface-1);border-color:var(--bp-border-strong)}
 body.bp-revamp .bp-arcade-page__world .btn.ghost:hover{color:var(--bp-text);background:var(--bp-surface-2)}

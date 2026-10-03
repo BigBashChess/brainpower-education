@@ -7,9 +7,37 @@ const problems=[];
 await fs.mkdir(out,{recursive:true});
 const browser=await chromium.launch({headless:true});
 
-const answers={
-  'd/dx (x³)':'3*x^2','d/dx (5x⁴)':'20*x^3','d/dx (4x² − 3x)':'8*x-3','d/dx (x⁵ + x)':'5*x^4+1','d/dx (x⁻²)':'-2*x^-3','d/dx (√x)':'1/(2*sqrt(x))','d/dx (sin x)':'cos(x)','d/dx (cos x)':'-sin(x)','d/dx (tan x)':'sec(x)^2','d/dx (eˣ)':'exp(x)','d/dx (e²ˣ)':'2*exp(2*x)','d/dx (ln x)':'1/x','d/dx (ln(3x+1))':'3/(3*x+1)','d/dx ((2x+1)³)':'6*(2*x+1)^2','d/dx (sin(2x))':'2*cos(2*x)','d/dx (cos(x²))':'-2*x*sin(x^2)','d/dx (e^(x²))':'2*x*exp(x^2)','d/dx (x sin x)':'sin(x)+x*cos(x)','d/dx (x²eˣ)':'2*x*exp(x)+x^2*exp(x)','d/dx ((x+1)/(x−1))':'-2/(x-1)^2','d/dx (1/(x²+1))':'-2*x/(x^2+1)^2','d/dx (x ln x)':'ln(x)+1','d/dx (sin²x)':'2*sin(x)*cos(x)','d/dx (√(2x+1))':'1/sqrt(2*x+1)'
-};
+async function correctIndex(page){
+  const id=await page.locator('#bp-dash-question').getAttribute('data-question-id');
+  const {DERIVATIVE_BANK}=await import('../src/revamp/derivative-bank.js');
+  const tex=DERIVATIVE_BANK.find(q=>q.id===id).choices.find(c=>c.correct).latex;
+  return page.locator('.bp-dash-choice').evaluateAll((buttons,tex)=>buttons.findIndex(b=>b.querySelector('annotation[encoding="application/x-tex"]')?.textContent===tex),tex);
+}
+
+async function auditBank(page){
+  const failures=await page.evaluate(async()=>{
+    const {DERIVATIVE_BANK}=await import('./src/revamp/derivative-bank.js');
+    const errors=[];
+    if(!window.math||!window.katex)return ['Maths renderer/engine unavailable for bank verification'];
+    const samples=[.43,.73,1.37,2.19,2.83];
+    const equal=(a,b)=>samples.every(x=>Math.abs(a.evaluate({x})-b.evaluate({x}))<1e-8*Math.max(1,Math.abs(a.evaluate({x})),Math.abs(b.evaluate({x}))));
+    for(const q of DERIVATIVE_BANK){
+      if(q.choices.length!==4||q.choices.filter(c=>c.correct).length!==1)errors.push(`${q.id}: expected four choices and exactly one answer`);
+      try{
+        window.katex.renderToString(q.latex,{throwOnError:true});
+        const derivative=window.math.derivative(q.f,'x').compile();
+        const compiled=q.choices.map(c=>window.math.compile(c.value));
+        q.choices.forEach((c,i)=>{
+          window.katex.renderToString(c.latex,{throwOnError:true});
+          if(equal(derivative,compiled[i])!==!!c.correct)errors.push(`${q.id}: incorrect answer key for ${c.value}`);
+          for(let j=0;j<i;j++)if(equal(compiled[i],compiled[j]))errors.push(`${q.id}: equivalent answer options`);
+        });
+      }catch(e){errors.push(`${q.id}: ${e.message}`)}
+    }
+    return errors;
+  });
+  problems.push(...failures);
+}
 
 async function seed(page){
   await page.goto(base,{waitUntil:'domcontentloaded'});
@@ -17,7 +45,7 @@ async function seed(page){
 }
 
 async function openArcade(name,width,height,fullPage=false){
-  const page=await browser.newPage({viewport:{width,height}});
+  const page=await browser.newPage({viewport:{width,height},hasTouch:width<=700});
   const errors=[];
   page.on('pageerror',e=>errors.push(`pageerror:${e.message}`));
   page.on('response',r=>{if(r.status()===404)errors.push(`404:${r.url()}`)});
@@ -63,25 +91,53 @@ async function openArcade(name,width,height,fullPage=false){
 }
 
 let x=await openArcade('arcade-desktop',1440,900,false);let page=x.page;
-// Derivative Dash should start, accept a correct answer, increment score and pause/resume.
+// Audit every correct answer and distractor independently using symbolic differentiation.
+await auditBank(page);
+await page.clock.install();
+await page.clock.pauseAt(await page.evaluate(()=>Date.now()));
 await page.click('#bp-dash-start');
-await page.waitForTimeout(120);
 if(await page.locator('#bp-dash-start').isVisible())problems.push('dash: start button remains visible during a run');
-const prompt=(await page.locator('#bp-dash-question').textContent())?.trim();
-const answer=answers[prompt];
-if(!answer)problems.push(`dash: unmapped prompt ${prompt}`);
-else{
-  await page.fill('#bp-dash-answer',answer);
-  await page.press('#bp-dash-answer','Enter');
-  await page.waitForTimeout(100);
-  const score=Number(await page.locator('#bp-dash-score').textContent());
-  if(score<1)problems.push('dash: correct answer did not increase score');
-}
+if(await page.locator('#bp-dash-answer').count())problems.push('dash: typed input remains');
+if(await page.locator('.bp-dash-choice:enabled').count()!==4)problems.push('dash: expected four enabled choices');
+const correct=await correctIndex(page);
+if(correct<0)throw new Error('Correct typeset answer not present');
+await page.keyboard.press(String(correct+1));
+if(Number(await page.locator('#bp-dash-score').textContent())!==1)problems.push('dash: keyboard answer did not increment score');
+await page.keyboard.press(String(correct+1));
+if(Number(await page.locator('#bp-dash-score').textContent())!==1)problems.push('dash: repeated input double-scored a question');
+if(await page.locator('.bp-dash-choice:enabled').count())problems.push('dash: answered choices remain enabled');
+await page.clock.runFor(500);
+const right=await correctIndex(page),wrong=(right+1)%4;
+const timeBefore=Number(await page.locator('#bp-dash-time').textContent());
+await page.locator('.bp-dash-choice').nth(wrong).click();
+if(Number(await page.locator('#bp-dash-time').textContent())!==timeBefore-2)problems.push('dash: wrong answer did not cost exactly two seconds');
+if(await page.locator('.bp-dash-choice.is-correct').count()!==1||await page.locator('.bp-dash-choice.is-wrong').count()!==1)problems.push('dash: incorrect feedback did not show the correct choice');
+if(!await page.locator('#bp-dash-message').textContent())problems.push('dash: mistake explanation missing');
 await page.click('#bp-dash-pause');
 const paused=await page.locator('#bp-dash-pause').textContent();if(!paused.includes('Resume'))problems.push('dash: pause control did not enter paused state');
 if(await page.locator('#bp-dash-start').isVisible())problems.push('dash: start button remains visible while paused');
-await page.click('#bp-dash-pause');
+const questionId=await page.locator('#bp-dash-question').getAttribute('data-question-id');
+const frozen=await page.locator('#bp-dash-time').textContent();
+await page.clock.runFor(2000);
+await page.keyboard.press('1');
+if(await page.locator('#bp-dash-time').textContent()!==frozen||await page.locator('#bp-dash-question').getAttribute('data-question-id')!==questionId)problems.push('dash: timer/question changed while paused');
+await page.keyboard.press('p');
+await page.clock.runFor(500);
+if(await page.locator('.bp-dash-choice:enabled').count()!==4)problems.push('dash: resume did not unlock the next question');
 await page.screenshot({path:`${out}/dash-active.png`});
+// Verify combo progression, finish, saved best and restarting with a clean score.
+for(let i=0;i<4;i++){
+  await page.locator('.bp-dash-choice').nth(await correctIndex(page)).click();
+  await page.clock.runFor(500);
+}
+if(Number(await page.locator('#bp-dash-score').textContent())!==6)problems.push('dash: combo scoring failed');
+await page.clock.runFor(61000);
+if(!await page.locator('#bp-dash-start').isVisible()||await page.locator('.bp-dash-choice:enabled').count())problems.push('dash: finish state failed');
+const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('brainpower-progress-v3')));
+if(saved.arcade.derivativeDash!==7||saved.xp!==560)problems.push('dash: personal best/academic XP changed incorrectly');
+await page.click('#bp-dash-start');
+if(Number(await page.locator('#bp-dash-score').textContent())!==0||await page.locator('.bp-dash-choice:enabled').count()!==4)problems.push('dash: restart failed');
+await page.clock.resume();
 // Sound toggle should be persistent and explicit.
 await page.click('.bp-arcade-sound');
 const sound=await page.evaluate(()=>localStorage.getItem('bp-arcade-sound'));if(sound!=='off')problems.push(`sound: expected off, got ${sound}`);
@@ -100,6 +156,18 @@ await page.close();
 
 x=await openArcade('arcade-tablet',1024,768,false);await x.page.close();
 x=await openArcade('arcade-mobile',390,844,false);page=x.page;
+await page.click('#bp-dash-start');
+const mobileAnswer=await correctIndex(page);
+await page.locator('.bp-dash-choice').nth(mobileAnswer).tap();
+if(Number(await page.locator('#bp-dash-score').textContent())!==1)problems.push('dash: mobile tap did not increment score');
+await page.waitForTimeout(500);
+await page.screenshot({path:`${out}/dash-mobile-active.png`});
+const touchSizes=await page.locator('.bp-dash-choice').evaluateAll(buttons=>buttons.map(b=>({width:b.getBoundingClientRect().width,height:b.getBoundingClientRect().height})));
+if(touchSizes.some(s=>s.width<44||s.height<44))problems.push('dash: choice touch targets too small');
+await page.click('[data-arcade-select="bird"].bp-cabinet');
+const dashTime=await page.locator('#bp-dash-time').textContent();
+await page.click('[data-arcade-select="bird"].bp-cabinet');await page.waitForTimeout(1100);
+if(await page.locator('#bp-dash-time').textContent()!==dashTime)problems.push('dash: selecting Bird twice resumed the hidden run');
 await page.click('[data-arcade-select="bird"].bp-cabinet');await page.waitForTimeout(150);await page.click('#bp-bird-start');await page.waitForTimeout(150);await page.click('#bp-bird-flap');await page.waitForTimeout(100);await page.screenshot({path:`${out}/bird-mobile-active.png`});await page.close();
 x=await openArcade('arcade-full',1440,900,true);await x.page.close();
 
