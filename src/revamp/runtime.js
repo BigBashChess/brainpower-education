@@ -1,9 +1,9 @@
-import './resources-tools.js';
-import './progress.js';
 import {courses,courseById} from '../data/courses.js';
 import {lessons,lessonsForCourse} from '../data/lessons.js';
 import {WHATS_NEW} from '../data/site.js';
 import {load} from '../progress/store.js';
+import {learningAction} from '../progress/learning-state.js';
+import {icon} from '../components.js';
 import {courseMastery} from '../utils.js';
 
 const $=(s,r=document)=>r.querySelector(s);
@@ -11,7 +11,7 @@ const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const baseRoute=()=>((location.hash.slice(1)||'home').split(/[/?]/)[0]||'home');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-function nextLesson(progress){return lessons.find(l=>!progress.completedLessons.includes(l.id))||lessons[0]}
+
 function courseProgress(course,progress){
   const rows=lessonsForCourse(course.id);
   const done=rows.filter(l=>progress.completedLessons.includes(l.id)).length;
@@ -22,13 +22,13 @@ function sectionByEyebrow(text){return $$('.section').find(s=>$('.eyebrow',s)?.t
 function sectionHead(eyebrow,title,copy,right=''){return `<div class="bp-home-section__head"><div><small>${eyebrow}</small><h2>${title}</h2><p>${copy}</p></div>${right}</div>`}
 
 function buildHero(progress){
-  const next=nextLesson(progress);
+  const action=learningAction(progress);
   return `<div class="bp-home-hero__art" aria-hidden="true"></div><div class="bp-home-hero__inner">
     <div class="bp-home-hero__copy">
       <div class="bp-home-kicker">Welcome to</div>
       <h1>Brainpower <em>Education</em></h1>
       <p>VCE Mathematics, Physics and serious practice — connected in one immersive study environment.</p>
-      <div class="bp-home-actions"><a class="btn primary large" href="#lesson/${next?.id||''}">Continue Learning →</a><a class="btn secondary large" href="#learn">Explore Courses</a></div>
+      <div class="bp-home-actions"><a class="btn primary large" href="${action.href}">${action.kind==='fresh'?'Start Learning →':action.kind==='complete'?'Review Progress →':'Continue Learning →'}</a><a class="btn secondary large" href="#learn">Explore Courses</a></div>
       <div class="bp-home-proof"><span>Structured mastery courses</span><span>Formal Brainpower assessments</span><span>Progress saved locally</span></div>
     </div>
     <div class="bp-home-subjects" aria-label="Featured subjects">
@@ -40,14 +40,14 @@ function buildHero(progress){
 }
 
 function buildQuick(){
-  const rows=[['#learn','▣','Lessons','Structured learning paths'],['#practice','✎','Practice','Target topics or mix questions'],['#tests','▤','Test Centre','Formal Brainpower assessments'],['#resources','▰','Resources','Notes, sheets and references'],['#arcade','◆','Arcade','A deliberate study break']];
-  return `<div class="bp-home-quick__inner"><div class="bp-home-section-label"><strong>Quick Access</strong><span>Jump straight back into the platform</span></div><div class="bp-home-quick__grid">${rows.map(([href,icon,title,copy])=>`<a class="bp-home-quick-card" href="${href}"><span class="bp-home-quick-card__icon">${icon}</span><span><strong>${title}</strong><small>${copy}</small></span><span>›</span></a>`).join('')}</div></div>`;
+  const rows=[['#learn','learn','Lessons','Structured learning paths'],['#practice','practice','Practice','Target topics or mix questions'],['#tests','tests','Test Centre','Formal Brainpower assessments'],['#resources','resources','Resources','Notes, sheets and references'],['#arcade','arcade','Arcade','A deliberate study break']];
+  return `<div class="bp-home-quick__inner"><div class="bp-home-section-label"><strong>Quick Access</strong><span>Jump straight back into the platform</span></div><div class="bp-home-quick__grid">${rows.map(([href,iconName,title,copy])=>`<a class="bp-home-quick-card" href="${href}"><span class="bp-home-quick-card__icon">${icon(iconName)}</span><span><strong>${title}</strong><small>${copy}</small></span><span>›</span></a>`).join('')}</div></div>`;
 }
 
 function buildDashboard(progress){
-  const next=nextLesson(progress),course=courseById(next?.course),cp=course?courseProgress(course,progress):null;
+  const action=learningAction(progress),next=action.lesson,course=courseById(next?.course),cp=course?courseProgress(course,progress):null;
   return `<section class="bp-home-dashboard" data-revamp-dashboard>
-    <a class="bp-home-resume" href="#lesson/${next?.id||''}"><div><small>PICK UP WHERE YOU LEFT OFF</small><h3>${esc(next?.title||'Start your first lesson')}</h3><p>${course?esc(course.short):'Brainpower course'}${next?.minutes?` • ${next.minutes} min`:''}${next?.difficulty?` • ${esc(next.difficulty)}`:''}</p><div class="bp-home-resume__progress"><span style="width:${cp?.pct||0}%"></span></div></div><span class="bp-home-resume__arrow">→</span></a>
+    <a class="bp-home-resume" href="${action.href}" data-learning-state="${action.kind}"><div><small>${action.kind==='fresh'?'YOUR FIRST STEP':action.kind==='complete'?'PATHWAYS COMPLETE':'PICK UP WHERE YOU LEFT OFF'}</small><h3>${esc(action.title)}</h3><p>${action.kind==='fresh'?'Your learning history starts here. ':action.kind==='complete'?'Keep your skills sharp with practice and assessments.':''}${course?esc(course.short):''}${next?.minutes?` • ${next.minutes} min`:''}${next?.difficulty?` • ${esc(next.difficulty)}`:''}</p><div class="bp-home-resume__progress"><span style="width:${cp?.pct||0}%"></span></div></div><span class="bp-home-resume__arrow">→</span></a>
     <div class="bp-home-explore"><small>EXPLORE ALL SUBJECTS</small><div class="bp-home-explore__grid"><a href="#course/methods-12"><b>ƒ</b><span>Methods 1/2</span></a><a href="#course/specialist-12"><b>Σ</b><span>Specialist 1/2</span></a><a href="#course/physics-12"><b>λ</b><span>Physics 1/2</span></a><a href="#learn"><b>＋</b><span>All courses</span></a></div></div>
   </section>`;
 }

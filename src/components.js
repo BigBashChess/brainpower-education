@@ -3,7 +3,7 @@ import {lessonsForCourse} from './data/lessons.js';
 import {renderMathString,courseMastery,firstIncompleteLesson,esc} from './utils.js';
 import {isBookmarked,load} from './progress/store.js';
 
-const icon=(name)=>{
+export const icon=(name)=>{
   const icons={
     search:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.7-3.7"></path></svg>',
     theme:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3 6.8 6.8 0 0 0 21 12.8Z"></path></svg>',
@@ -12,6 +12,8 @@ const icon=(name)=>{
     learn:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A3.5 3.5 0 0 1 7.5 2H20v17H7.5A3.5 3.5 0 0 0 4 22V5.5Z"></path><path d="M4 19a3 3 0 0 1 3-3h13"></path></svg>',
     practice:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>',
     tests:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v4h3v14H4V7h3Z"></path><path d="M8 11h8M8 15h8"></path></svg>',
+    resources:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h7l2 3h9v12H3Z"></path></svg>',
+    arcade:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="4"></rect><path d="M7 11v5M4.5 13.5h5M16 12h.01M18 15h.01M9 7V4h6"></path></svg>',
     progress:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg>'
   };
   return icons[name]||icons.home;

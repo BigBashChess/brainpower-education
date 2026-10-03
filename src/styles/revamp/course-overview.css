@@ -191,3 +191,5 @@ body[data-course-id="physics-12"] main.bp-course-page{--course-accent:#56c8ff;--
 }
 @media(max-width:390px){.bp-course-hero__inner{width:calc(100% - 24px)}.bp-course-overview-strip,.bp-course-layout,.bp-course-support{width:calc(100% - 20px)}.bp-course-progress-card{grid-template-columns:38px 78px minmax(0,1fr);padding:13px}.bp-course-progress-ring{width:72px;height:72px}.bp-course-progress-ring strong{font-size:17px}.bp-course-progress-ring span{top:44px}.bp-course-lesson__copy i{display:none}}
 @media(prefers-reduced-motion:reduce){.bp-course-hero__art,.bp-chapter,.bp-course-lesson,.bp-course-assessment,.bp-course-resource{transition:none!important;transform:none!important}}
+
+.bp-course-mastered img{width:100px;height:110px;object-fit:contain;margin:0 auto 12px}.bp-course-mastered small{display:block;color:#b8d8c6;margin-top:8px}

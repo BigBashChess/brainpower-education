@@ -67,7 +67,7 @@ await checkCentre({width:1440,height:900},'test-centre-full',true);
   await page.click('[data-exam-toggle]');await page.waitForTimeout(1100);await page.reload({waitUntil:'networkidle'});await page.waitForSelector('[data-exam-clock]');await page.waitForTimeout(250);
   state=await page.evaluate(()=>({phase:document.querySelector('[data-exam-phase]')?.textContent,seconds:document.querySelector('[data-exam-clock]')?.textContent}));
   if(state.phase!=='WRITING'||state.seconds==='5:00')problems.push(`running exam did not persist elapsed time ${JSON.stringify(state)}`);
-  await page.click('[data-exam-finish]');await page.waitForSelector('[data-exam-confirm][open]');const confirm=await page.locator('[data-exam-confirm]').innerText();if(!confirm.includes('Unknown')||!confirm.includes('PDF-only'))problems.push('finish confirmation does not disclose unknown unfinished/flagged state');
+  await page.click('[data-exam-finish]');await page.waitForSelector('[data-exam-confirm][open]');const confirm=await page.locator('[data-exam-confirm]').innerText();if(!confirm.includes('checklist')||!confirm.includes('PDF cannot be inspected'))problems.push('finish confirmation does not disclose manual checklist limitations');
   await page.click('[data-confirm-finish]');await page.waitForSelector('[data-exam-finished]:not([hidden])');await page.fill('[data-exam-score]','20');await page.click('[data-exam-save-score]');const msg=await page.locator('[data-exam-score-message]').innerText();if(!msg.includes('Saved'))problems.push('manual exam score did not save');
   await page.screenshot({path:`${out}/exam-finished.png`,fullPage:false});if(errors.length)problems.push(`exam state errors: ${[...new Set(errors)].join(' | ')}`);await page.close();
 }

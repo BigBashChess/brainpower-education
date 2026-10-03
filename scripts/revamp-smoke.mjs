@@ -5,7 +5,7 @@ import {SITE,WHATS_NEW} from '../src/data/site.js';
 const required=[
   'index.html','src/main.js','src/components.js','src/data/site.js',
   'src/revamp/page-transitions.js','src/revamp/runtime.js','src/revamp/update-log.js','src/revamp/learn.js','src/revamp/course-overview.js','src/revamp/lesson.js','src/revamp/practice.js','src/revamp/assessment.js','src/revamp/resources-tools.js','src/revamp/progress.js','src/revamp/arcade.js','src/revamp/secondary.js','src/revamp/motion.js',
-  'src/styles/revamp/tokens.css','src/styles/revamp/base.css','src/styles/revamp/shell.css','src/styles/revamp/home.css','src/styles/revamp/learn.css','src/styles/revamp/learn-route.css','src/styles/revamp/course-overview.css','src/styles/revamp/lesson.css','src/styles/revamp/practice.css','src/styles/revamp/assessment.css','src/styles/revamp/resources-tools.css','src/styles/revamp/progress.css','src/styles/revamp/arcade.css','src/styles/revamp/secondary.css','src/styles/revamp/motion.css','src/styles/revamp/art.css','src/styles/revamp/exam-season.css','src/styles/revamp/overlays.css',
+  'src/styles/revamp/tokens.css','src/styles/revamp/components.css','src/styles/revamp/base.css','src/styles/revamp/shell.css','src/styles/revamp/home.css','src/styles/revamp/learn.css','src/styles/revamp/learn-route.css','src/styles/revamp/course-overview.css','src/styles/revamp/lesson.css','src/styles/revamp/practice.css','src/styles/revamp/assessment.css','src/styles/revamp/resources-tools.css','src/styles/revamp/progress.css','src/styles/revamp/arcade.css','src/styles/revamp/secondary.css','src/styles/revamp/motion.css','src/styles/revamp/art.css','src/styles/revamp/exam-season.css','src/styles/revamp/overlays.css',
   'public/brand/brainpower-logo.jpg','public/brand/brainy.svg','public/art/home/hero-study-room.webp','public/art/learn/learn-hero.webp','public/art/arcade/hero-arcade.webp','public/art/about/hero-about.webp'
 ];
 const failures=[];
@@ -14,9 +14,17 @@ for(const file of required)if(!existsSync(file))failures.push(`Missing required 
 const index=readFileSync('index.html','utf8');
 const runtime=readFileSync('src/revamp/runtime.js','utf8');
 const runtimeLoadedModules={
-  'src/revamp/resources-tools.js':"import './resources-tools.js'",
-  'src/revamp/progress.js':"import './progress.js'"
+  'src/revamp/learn.js':"'./learn.js'",
+  'src/revamp/course-overview.js':"'./course-overview.js'",
+  'src/revamp/lesson.js':"'./lesson.js'",
+  'src/revamp/practice.js':"'./practice.js'",
+  'src/revamp/assessment.js':"'./assessment.js'",
+  'src/revamp/resources-tools.js':"'./resources-tools.js'",
+  'src/revamp/progress.js':"'./progress.js'",
+  'src/revamp/arcade.js':"'./arcade.js'",
+  'src/revamp/secondary.js':"'./secondary.js'"
 };
+const routeModules=readFileSync('src/revamp/route-modules.js','utf8');
 const routeLoadedStyles={
   'src/styles/revamp/resources-tools.css':['src/revamp/resources-tools.js','resources-tools.css'],
   'src/styles/revamp/progress.css':['src/revamp/progress.js','progress.css'],
@@ -27,7 +35,7 @@ const routeLoadedStyles={
 for(const file of required.filter(x=>x.startsWith('src/revamp/')||x.startsWith('src/styles/revamp/'))){
   if(index.includes(file))continue;
   if(runtimeLoadedModules[file]){
-    if(!runtime.includes(runtimeLoadedModules[file]))failures.push(`Runtime does not import required module: ${file}`);
+    if(!routeModules.includes(runtimeLoadedModules[file]))failures.push(`Runtime does not import required module: ${file}`);
     continue;
   }
   if(routeLoadedStyles[file]){
@@ -62,7 +70,7 @@ for(const [file,needle,label] of checks)if(!readFileSync(file,'utf8').includes(n
 
 const site=readFileSync('src/data/site.js','utf8');
 const pkg=JSON.parse(readFileSync('package.json','utf8'));
-if(!/^[1-9]\d*\.\d+\.\d+$/.test(SITE.version))failures.push('A stable v1+ release version is required.');
+if(!/^\d+\.\d+\.\d+$/.test(SITE.version))failures.push('A valid semantic version is required.');
 if(pkg.version!==SITE.version)failures.push(`Package version ${pkg.version} differs from SITE.version ${SITE.version}.`);
 if(!WHATS_NEW[0]?.title.startsWith(`${SITE.version}:`))failures.push('Newest update-log entry does not describe the current release.');
 if(!readFileSync('README.md','utf8').startsWith(`# Brainpower Education — v${SITE.version}\n`))failures.push('README release heading differs from SITE.version.');

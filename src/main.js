@@ -2,10 +2,11 @@ import {header,footer,questionCard,testCard,resourceCard} from './components.js'
 import {homePage,learnPage,coursePage,diagnosticPage,lessonPage,practicePage,testsPage,testPage,examPage,resourcesPage,toolsPage,arcadePage,adminPage,progressPage,aboutPage,searchPage,notFoundPage,searchResultsMarkup} from './pages.js';
 import {practiceQuestions,questionById} from './data/questions.js';
 import {courses} from './data/courses.js';
+import {lessonById} from './data/lessons.js';
 import {tests} from './data/tests.js';
 import {resources} from './data/resources.js';
 import {checkAnswer,parseRouteQuery,qs,qsa,renderMathString,routeTo,clamp,answerPreview} from './utils.js';
-import {awardQuestion,completeLesson,addScore,toggleBookmark,load,saveArcade,resetProgress,isBookmarked} from './progress/store.js';
+import {awardQuestion,completeLesson,addScore,toggleBookmark,load,visitLesson,saveArcade,resetProgress,isBookmarked} from './progress/store.js';
 import {ADMIN_USERNAME,ADMIN_PASSWORD_SHA256,ADMIN_SESSION_KEY,ADMIN_DRAFT_KEY} from './data/admin.js';
 import {adminTests,adminResources,adminQuestions} from './data/admin-content.js';
 
@@ -40,6 +41,7 @@ function currentPage(){
 function render(){
   cleanup();
   const {parts}=parseRouteQuery(); const base=parts[0]||'home';
+  if(base==='lesson'&&lessonById(parts[1]))visitLesson(parts[1]);
   const page=currentPage();
   if(base==='exam') app.innerHTML=page;
   else app.innerHTML=`<div class="shell">${header(base)}<main>${page}</main>${footer()}</div>`;
@@ -96,7 +98,6 @@ function bindRoute(base){
   if(base==='exam') bindExam();
   if(base==='resources') bindResources();
   if(base==='tools') bindTools();
-  if(base==='arcade') bindArcade();
   if(base==='admin') bindAdmin();
   if(base==='progress') bindProgress();
   if(base==='search') bindSearch();
@@ -175,41 +176,6 @@ function bindTools(){
   let studyRemain=25*60,studyTimer=null;const clock=qs('#study-clock');const studyPaint=()=>clock.textContent=`${Math.floor(studyRemain/60)}:${String(studyRemain%60).padStart(2,'0')}`;qs('#study-start')?.addEventListener('click',e=>{if(studyTimer){clearInterval(studyTimer);studyTimer=null;e.currentTarget.textContent='Start';return}e.currentTarget.textContent='Pause';studyTimer=setInterval(()=>{studyRemain=Math.max(0,studyRemain-1);studyPaint();if(!studyRemain){clearInterval(studyTimer);studyTimer=null;e.currentTarget.textContent='Start'}},1000)});qs('#study-reset')?.addEventListener('click',()=>{clearInterval(studyTimer);studyTimer=null;studyRemain=25*60;studyPaint();qs('#study-start').textContent='Start'});addCleanup(()=>clearInterval(studyTimer));studyPaint();
   const drawVector=()=>{const x=clamp(Number(qs('#vec-x').value)||0,-20,20),y=clamp(Number(qs('#vec-y').value)||0,-20,20),svg=qs('#vector-svg');const mag=Math.hypot(x,y);const scale=mag?60/Math.max(5,mag):10;const ox=120,oy=90,ex=ox+x*scale,ey=oy-y*scale;svg.innerHTML=`<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="currentColor"></path></marker></defs><line x1="15" y1="90" x2="225" y2="90" class="axis"/><line x1="120" y1="15" x2="120" y2="165" class="axis"/><line x1="${ox}" y1="${oy}" x2="${ex}" y2="${ey}" class="vector" marker-end="url(#arrow)"/><circle cx="${ex}" cy="${ey}" r="4" class="vector-point"/>`;qs('#vector-info').textContent=`v = (${x}, ${y}) • |v| = ${mag.toFixed(3)}`};qs('#vector-draw')?.addEventListener('click',drawVector);drawVector();
 }
-
-function bindArcade(){
-  bindDerivativeDash(); bindBird();
-}
-
-function bindDerivativeDash(){
-  const bank=[
-    ['d/dx (x³)','3x^2'],['d/dx (5x⁴)','20x^3'],['d/dx (sin x)','cosx'],['d/dx (e^x)','e^x'],['d/dx (4x² - 3x)','8x-3'],['d/dx ((2x+1)³)','6(2x+1)^2'],['d/dx (ln x)','1/x'],['d/dx (x⁵ + x)','5x^4+1']
-  ];
-  let active=false,score=0,lives=3,streak=0,current=null;
-  const q=qs('#dash-question'),ans=qs('#dash-answer'),submit=qs('#dash-submit'),msg=qs('#dash-message'),scoreEl=qs('#dash-score'),lifeEl=qs('#dash-lives'),streakEl=qs('#dash-streak'),start=qs('#dash-start');
-  const norm=s=>String(s).toLowerCase().replace(/\s+/g,'').replace(/\*/g,'');
-  const next=()=>{current=bank[Math.floor(Math.random()*bank.length)];q.textContent=current[0];ans.value='';ans.focus()};
-  const paint=()=>{scoreEl.textContent=score;streakEl.textContent=streak;lifeEl.textContent='♥'.repeat(lives)+'♡'.repeat(3-lives)};
-  const end=()=>{active=false;ans.disabled=true;submit.disabled=true;start.hidden=false;start.textContent='Play again';q.textContent='Game over';msg.textContent=`Final score: ${score}.`;saveArcade('derivativeDash',score)};
-  const check=()=>{if(!active)return;if(norm(ans.value)===norm(current[1])){score++;streak++;msg.textContent=streak>=3?`Correct - ${streak} in a row!`:'Correct.'}else{lives--;streak=0;msg.textContent=`Missed. Answer: ${current[1]}`}paint();if(lives<=0)end();else next()};
-  start?.addEventListener('click',()=>{active=true;score=0;lives=3;streak=0;ans.disabled=false;submit.disabled=false;start.hidden=true;msg.textContent='Go.';paint();next()});submit?.addEventListener('click',check);ans?.addEventListener('keydown',e=>{if(e.key==='Enter')check()});
-}
-
-function bindBird(){
-  const canvas=qs('#bird-canvas'); if(!canvas)return; const ctx=canvas.getContext('2d');const overlay=qs('#bird-overlay'),start=qs('#bird-start'),difficulty=qs('#bird-difficulty');
-  let raf=0,running=false,last=0,score=0,lives=3,bird,obstacles=[],invincible=0;const labels=['SAC','EXAM 1','EXAM 2','CAS ERROR','DOMAIN'];
-  const configs={chill:{gap:188,speed:2.05,gravity:.00062,flap:-5.45,lives:3,spawnAt:430},standard:{gap:155,speed:2.55,gravity:.00076,flap:-5.8,lives:2,spawnAt:455},chaos:{gap:128,speed:3.12,gravity:.0009,flap:-6.2,lives:1,spawnAt:480}};
-  const cfg=()=>configs[difficulty?.value||'chill'];
-  function reset(){bird={x:150,y:180,vy:0,r:16};obstacles=[];score=0;lives=cfg().lives;last=0;invincible=0}
-  function flap(){if(running)bird.vy=cfg().flap}
-  function spawn(){const c=cfg(),margin=c.gap/2+28;const mid=margin+Math.random()*(360-2*margin);obstacles.push({x:760,w:68,top:mid-c.gap/2,bottom:mid+c.gap/2,label:labels[Math.floor(Math.random()*labels.length)],counted:false})}
-  function hit(o){const rr=10;return bird.x+rr>o.x&&bird.x-rr<o.x+o.w&&(bird.y-rr<o.top||bird.y+rr>o.bottom)}
-  function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);const grad=ctx.createLinearGradient(0,0,0,360);grad.addColorStop(0,'#0c4776');grad.addColorStop(1,'#08283f');ctx.fillStyle=grad;ctx.fillRect(0,0,720,360);ctx.fillStyle='rgba(255,255,255,.08)';for(let i=0;i<12;i++){ctx.beginPath();ctx.arc((i*83+score*5)%760,35+(i%4)*78,2,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=invincible>0?.48:1;ctx.fillStyle='#ff6255';ctx.beginPath();ctx.arc(bird.x,bird.y,bird.r,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.font='900 16px system-ui';ctx.textAlign='center';ctx.fillText('B',bird.x,bird.y+6);ctx.globalAlpha=1;obstacles.forEach(o=>{ctx.fillStyle='#e7eef5';ctx.fillRect(o.x,0,o.w,o.top);ctx.fillRect(o.x,o.bottom,o.w,360-o.bottom);ctx.fillStyle='#082f50';ctx.font='800 11px system-ui';ctx.save();ctx.translate(o.x+o.w/2,Math.max(24,o.top-20));ctx.rotate(-Math.PI/2);ctx.fillText(o.label,0,0);ctx.restore();});ctx.fillStyle='#fff';ctx.textAlign='left';ctx.font='800 17px system-ui';ctx.fillText(`Score ${score}`,18,28);ctx.textAlign='right';ctx.fillText(`Lives ${'♥'.repeat(lives)}${'♡'.repeat(Math.max(0,cfg().lives-lives))}`,700,28)}
-  function loseLife(){if(invincible>0)return false;lives--;if(lives<=0)return true;bird.y=180;bird.vy=0;invincible=1100;obstacles=obstacles.filter(o=>o.x>260);return false}
-  function gameOver(){running=false;cancelAnimationFrame(raf);saveArcade('bird',score);if(difficulty)difficulty.disabled=false;overlay.hidden=false;overlay.querySelector('h3').textContent=`Study score: ${Math.max(23,Math.min(50,23+score))}`;overlay.querySelector('p').textContent=score===0?'Statistically impressive.':`You cleared ${score} academic obstacle${score===1?'':'s'}.`;start.textContent='Try again'}
-  function loop(ts){if(!running)return;const dt=Math.min(32,ts-last||16);last=ts;const c=cfg();invincible=Math.max(0,invincible-dt);bird.vy+=c.gravity*dt*16;bird.y+=bird.vy*dt/16;if(!obstacles.length||obstacles.at(-1).x<c.spawnAt)spawn();obstacles.forEach(o=>{o.x-=c.speed*dt/16;if(!o.counted&&o.x+o.w<bird.x){o.counted=true;score++}});obstacles=obstacles.filter(o=>o.x>-100);const collision=bird.y-bird.r<0||bird.y+bird.r>360||obstacles.some(hit);if(collision&&invincible<=0){if(loseLife()){draw();gameOver();return}}draw();raf=requestAnimationFrame(loop)}
-  start?.addEventListener('click',()=>{reset();overlay.hidden=true;running=true;difficulty.disabled=true;raf=requestAnimationFrame(loop)});canvas.addEventListener('pointerdown',flap);const key=e=>{if(e.code==='Space'&&running){e.preventDefault();flap()}};window.addEventListener('keydown',key);addCleanup(()=>{cancelAnimationFrame(raf);window.removeEventListener('keydown',key);if(difficulty)difficulty.disabled=false});reset();draw();
-}
-
 
 function slugify(value){return String(value||'item').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,80)||'item'}
 async function sha256(text){const data=new TextEncoder().encode(text);const hash=await crypto.subtle.digest('SHA-256',data);return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('')}

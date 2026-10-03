@@ -4,7 +4,7 @@ body.bp-revamp[data-route="home"] main{max-width:none;margin:0;background:var(--
 .bp-home{background:var(--bp-bg-0);color:var(--bp-text);overflow:hidden}
 
 .bp-home-hero{--home-x:0;--home-y:0;position:relative;min-height:790px;overflow:hidden;isolation:isolate;background:#030a12}
-.bp-home-hero__art{position:absolute;inset:-18px;z-index:-3;background-image:url('https://dnznrvs05pmza.cloudfront.net/gemini/gemini-3-pro-image/images/a16bd776-1b8a-494b-a4aa-ac8e077dbc48/5f8b0a8d-3508-41e1-89f4-05425aa98df4/ONE_standalone_wide_website_hero_BACKGROUND_ARTWORK_ONLY__no.png?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiMTBmOTRjMjQ0ZWVlYWE2ZCIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTA3MTAxMn0.g0x-xfqBhtMI3iZOxKN8CXY9Tljc391aicaCRxsbdMM');background-size:cover;background-position:50% 45%;transform:scale(1.025) translate(calc(var(--home-x)*-7px),calc(var(--home-y)*-4px));transition:transform 160ms linear;will-change:transform}
+.bp-home-hero__art{position:absolute;inset:-18px;z-index:-3;background-image:url('../../../public/art/home/hero-study-room.webp');background-size:cover;background-position:50% 45%;transform:scale(1.025) translate(calc(var(--home-x)*-7px),calc(var(--home-y)*-4px));transition:transform 160ms linear;will-change:transform}
 .bp-home-hero::before{content:"";position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(2,8,16,.92) 0%,rgba(2,8,16,.72) 27%,rgba(2,8,16,.2) 52%,rgba(2,8,16,.05) 72%),linear-gradient(0deg,#030a12 0%,rgba(3,10,18,.26) 23%,transparent 46%)}
 .bp-home-hero::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 19% 24%,rgba(51,136,255,.16),transparent 26%),radial-gradient(circle at 80% 30%,rgba(255,185,91,.08),transparent 22%);pointer-events:none}
 .bp-home-hero__inner{width:min(var(--bp-content-max),calc(100% - 72px));min-height:790px;margin:auto;position:relative;padding:76px 0 250px}
@@ -28,9 +28,9 @@ body.bp-revamp[data-route="home"] main{max-width:none;margin:0;background:var(--
 .bp-home-subject::after{content:"";position:absolute;inset:0;z-index:-2;background:inherit;background-size:cover;background-position:center;transform:scale(1.001);transition:transform 450ms var(--bp-ease-emphasis)}
 .bp-home-subject:hover{transform:translateY(-7px);border-color:rgba(109,187,255,.52);box-shadow:0 30px 72px rgba(0,0,0,.42)}
 .bp-home-subject:hover::after{transform:scale(1.045)}
-.bp-home-subject--methods{background-image:url('https://dnznrvs05pmza.cloudfront.net/gemini/gemini-3.1-flash-lite-image/images/9b468cee-4eac-4574-989a-2a4a5b167761/54f185ec-2162-4afb-9d93-3e7312e83226/Standalone_horizontal_course_card_BACKGROUND_ARTWORK_ONLY__n.jpg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZjFhYTZiNGNlYjkzY2QzYiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTA1Njg0NH0.nGQS0pSiJeW0OP9GxjV6Y8UALGztlo-IJc8GlGdJDDM')}
-.bp-home-subject--specialist{background-image:url('https://dnznrvs05pmza.cloudfront.net/gemini/gemini-3.1-flash-lite-image/images/39bbf60e-e03a-4190-9933-4dec3a333427/d69e6f78-8f2c-422b-a8e6-fe9cd6a3f0a7/Standalone_horizontal_course_card_BACKGROUND_ARTWORK_ONLY__n.jpg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiYzY5MmM0NTA5NDcwMjRiMyIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTA4MTY4MH0.4fAHkrv93Ai7_HnZFAKAbOhbrg6BGFOiTvp4UND4WXY')}
-.bp-home-subject--physics{background-image:url('https://dnznrvs05pmza.cloudfront.net/gemini/gemini-3.1-flash-lite-image/images/98fdc8e1-c882-4f74-9186-8d3897d2facf/88a2a73e-e4bd-4663-a754-f928c904e881/Standalone_horizontal_course_card_BACKGROUND_ARTWORK_ONLY__n.jpg?_jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXlIYXNoIjoiZDgwOTA5M2QyN2E2Yzc5NiIsImJ1Y2tldCI6InJ1bndheS10YXNrLWFydGlmYWN0cyIsInN0YWdlIjoicHJvZCIsImV4cCI6MTc5MTA2Mjg0NX0.Np-7Q_deYSWDOv22lm2WOaI1Uypp5Dnloi1E_4-ZFD8')}
+.bp-home-subject--methods{background-image:url('../../../public/art/home/methods-gateway.webp')}
+.bp-home-subject--specialist{background-image:url('../../../public/art/home/specialist-gateway.webp')}
+.bp-home-subject--physics{background-image:url('../../../public/art/home/physics-gateway.webp')}
 .bp-home-subject__copy{width:60%;min-height:212px;padding:24px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end}
 .bp-home-subject__eyebrow{color:#a8c0d2;font-size:11px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
 .bp-home-subject h2{margin:4px 0 7px;font-size:29px;line-height:1;letter-spacing:-.035em}
@@ -102,3 +102,5 @@ body.bp-revamp[data-route="home"] main{max-width:none;margin:0;background:var(--
 }
 @media(max-width:420px){.bp-home-quick__grid{grid-template-columns:1fr}.bp-home-quick-card:nth-child(5){grid-column:auto}}
 @media(prefers-reduced-motion:reduce){.bp-home-hero__art{transform:scale(1.025)!important}.bp-home-subject:hover::after{transform:none}.bp-home-subject:hover,.bp-home-quick-card:hover,.bp-home-course:hover,.bp-home-news article:hover{transform:none}}
+
+.bp-home-quick-card__icon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}

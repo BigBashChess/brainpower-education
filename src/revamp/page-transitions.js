@@ -47,6 +47,7 @@ function ensureOverlay(){
 
 function hideLoader(){
   if(!overlay)return;
+  if(document.body.dataset.bpRoutePending){clearTimeout(hideTimer);hideTimer=setTimeout(hideLoader,100);return;}
   overlay.classList.remove('is-active');
   overlay.setAttribute('aria-hidden','true');
   document.body.classList.remove('bp-route-loading');

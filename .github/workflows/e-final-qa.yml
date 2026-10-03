@@ -2,7 +2,7 @@ name: Milestone E final quality gate
 
 on:
   push:
-    branches: [revamp/milestone-e-final-qa, revamp/release-1-0-1]
+    branches: [revamp/milestone-e-final-qa, revamp/release-1-0-1, revamp/pre1-finalisation]
   workflow_dispatch:
 
 permissions:
@@ -31,7 +31,7 @@ jobs:
           node-version: 22
       - name: Install Playwright Chromium
         run: |
-          npm install --no-save --package-lock=false playwright@1.55.0
+          npm install --no-save --package-lock=false playwright@1.55.0 axe-core@4.10.3
           npx playwright install --with-deps chromium
       - name: Start static server
         run: |
@@ -40,9 +40,20 @@ jobs:
           cat /tmp/brainpower-server.log
           exit 1
       - name: Run full-site browser regression
-        run: node scripts/e-final-qa.mjs
+        run: |
+          node scripts/e-final-qa.mjs
+      - name: Check finalisation states, accessibility and performance
+        if: always()
+        run: node scripts/finalisation-qa.mjs
       - name: Check Arcade and motion stability
         run: |
+          node scripts/b2-course-qa.mjs
+          node scripts/b3-lesson-qa.mjs
+          node scripts/b4-practice-qa.mjs
+          node scripts/c1-assessment-qa.mjs
+          node scripts/c2-resources-tools-qa.mjs
+          node scripts/c3-progress-qa.mjs
+          node scripts/d2-secondary-qa.mjs
           node scripts/d1-arcade-qa.mjs
           node scripts/d3-motion-qa.mjs
       - name: Upload final QA evidence
@@ -52,6 +63,7 @@ jobs:
           name: milestone-e-final-qa
           path: |
             qa-e-final/
+            qa-finalisation/
             qa-d1-arcade/
             qa-d3-motion/
           if-no-files-found: warn
