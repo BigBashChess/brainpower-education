@@ -2,7 +2,7 @@ name: Milestone E final quality gate
 
 on:
   push:
-    branches: [revamp/milestone-e-final-qa, revamp/release-1-0-1, revamp/pre1-finalisation]
+    branches: [revamp/milestone-e-final-qa, revamp/release-1-0-1, revamp/pre1-finalisation, revamp/daily-progress-v1]
   workflow_dispatch:
 
 permissions:
@@ -45,6 +45,9 @@ jobs:
       - name: Check finalisation states, accessibility and performance
         if: always()
         run: node scripts/finalisation-qa.mjs
+      - name: Check Daily saving and recent question activity
+        if: always()
+        run: node scripts/daily-progress-qa.mjs
       - name: Check all functional flows and motion stability
         if: always()
         run: |
@@ -59,6 +62,7 @@ jobs:
         with:
           name: milestone-e-final-qa
           path: |
+            qa-daily/
             qa-e-final/
             qa-finalisation/
             qa-d1-arcade/

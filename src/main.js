@@ -6,7 +6,7 @@ import {lessonById} from './data/lessons.js';
 import {tests} from './data/tests.js';
 import {resources} from './data/resources.js';
 import {checkAnswer,parseRouteQuery,qs,qsa,renderMathString,routeTo,clamp,answerPreview} from './utils.js';
-import {awardQuestion,completeLesson,addScore,toggleBookmark,load,visitLesson,saveArcade,resetProgress,isBookmarked} from './progress/store.js';
+import {awardQuestion,saveQuestionDraft,questionActivityLabel,completeLesson,addScore,toggleBookmark,load,visitLesson,saveArcade,resetProgress,isBookmarked} from './progress/store.js';
 import {ADMIN_USERNAME,ADMIN_PASSWORD_SHA256,ADMIN_SESSION_KEY,ADMIN_DRAFT_KEY} from './data/admin.js';
 import {adminTests,adminResources,adminQuestions} from './data/admin-content.js';
 
@@ -64,28 +64,41 @@ function bindCommon(){
 
 function bindQuestions(root=document){
   qsa('[data-question]',root).forEach(card=>{
-    if(card.dataset.bound==='1')return; card.dataset.bound='1';
-    const q=questionById(card.dataset.question); if(!q)return;
-    const fb=qs('.feedback',card), input=qs('[data-math-input]',card), preview=qs('[data-math-preview]',card);
+    if(card.dataset.bound==='1')return;card.dataset.bound='1';
+    const q=questionById(card.dataset.question);if(!q)return;
+    const fb=qs('.feedback',card),input=qs('[data-math-input]',card),preview=qs('[data-math-preview]',card),status=qs('[data-question-status]',card);
+    let submitted=false;
     const updatePreview=()=>{if(preview)preview.innerHTML=answerPreview(input?.value||'')};
+    const setLocked=value=>{qsa('.choice,[data-math-insert],.check-answer',card).forEach(b=>b.disabled=value);if(input)input.disabled=value};
+    const draft=()=>{saveQuestionDraft(q.id,input?.value||'');updatePreview();if(status)status.textContent=`${questionActivityLabel(q.id)||'Not answered yet'} · Draft saved on this device`};
+    const showResult=(activity,restored=false)=>{
+      submitted=true;setLocked(true);
+      if(input)input.value=activity.answer||'';
+      qsa('[data-choice]',card).forEach(b=>b.classList.toggle('selected',b.dataset.choice===activity.answer));
+      updatePreview();const ok=activity.correct;
+      fb.hidden=false;fb.className=`feedback ${ok?'good':'bad'}`;
+      fb.innerHTML=`<strong>${ok?'✓ Correct.':'Not quite.'}</strong> ${renderMathString(q.solution)} ${ok?`<span class="feedback-xp">${restored?'XP already recorded':activity.earnedXp?`+${activity.earnedXp} XP`:'XP already earned'}</span>`:''}<div class="question-retry"><button class="btn ghost small" type="button" data-question-retry>Try again</button></div>`;
+      if(status)status.textContent=`${questionActivityLabel(q.id)} · ${restored?'Saved answer restored':'Answer saved on this device'}`;
+      qs('[data-question-retry]',fb).addEventListener('click',()=>{submitted=false;setLocked(false);fb.hidden=true;fb.innerHTML='';if(input)input.value='';qsa('[data-choice]',card).forEach(b=>b.classList.remove('selected'));draft();input?.focus()});
+      if(ok){card.classList.add('solved');qs('.xp',card).textContent='XP earned'}
+    };
     const submit=value=>{
-      const ok=checkAnswer(q,value); awardQuestion(q.id,q.xp||10,ok);
-      qsa('.choice',card).forEach(b=>b.disabled=true);
-      if(input)input.disabled=true;
-      qsa('[data-math-insert]',card).forEach(b=>b.disabled=true);
-      const check=qs('.check-answer',card); if(check)check.disabled=true;
-      fb.hidden=false; fb.className=`feedback ${ok?'good':'bad'}`;
-      fb.innerHTML=ok?`<strong>✓ Correct.</strong> ${renderMathString(q.solution)} <span class="feedback-xp">+${q.xp||10} XP</span>`:`<strong>Not quite.</strong> ${renderMathString(q.solution)}`;
+      if(submitted)return;
+      if(!String(value??'').trim()){if(status)status.textContent='Enter an answer before checking.';input?.focus();return}
+      const ok=checkAnswer(q,value),p=awardQuestion(q.id,q.xp||10,ok,value);showResult(p.questionActivity[q.id]);
     };
     qs('.check-answer',card)?.addEventListener('click',()=>submit(input?.value||''));
-    input?.addEventListener('keydown',e=>{if(e.key==='Enter')submit(e.currentTarget.value)});
-    input?.addEventListener('input',updatePreview);
+    input?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit(e.currentTarget.value)}});
+    input?.addEventListener('input',draft);
     qsa('[data-math-insert]',card).forEach(btn=>btn.addEventListener('click',()=>{
-      if(!input)return; const ins=btn.dataset.mathInsert||''; const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;
+      if(!input)return;const ins=btn.dataset.mathInsert||'',start=input.selectionStart??input.value.length,end=input.selectionEnd??start;
       input.value=input.value.slice(0,start)+ins+input.value.slice(end);
-      const pos=start+ins.length-Number(btn.dataset.back||0); input.focus(); input.setSelectionRange(pos,pos); updatePreview();
+      const pos=start+ins.length-Number(btn.dataset.back||0);input.focus();input.setSelectionRange(pos,pos);draft();
     }));
-    qsa('[data-choice]',card).forEach(btn=>btn.addEventListener('click',()=>{qsa('[data-choice]',card).forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');submit(btn.dataset.choice)}));
+    qsa('[data-choice]',card).forEach(btn=>btn.addEventListener('click',()=>submit(btn.dataset.choice)));
+    const saved=load().questionActivity[q.id];
+    if(saved?.submitted&&typeof saved.correct==='boolean'&&typeof saved.answer==='string')showResult(saved,true);
+    else if(input&&typeof saved?.draft==='string'){input.value=saved.draft;if(status)status.textContent=`${questionActivityLabel(q.id)||'Not answered yet'} · Draft restored on this device`}
     updatePreview();
   });
 }
@@ -110,7 +123,6 @@ function bindLesson(){
 function bindPractice(){
   const search=qs('#practice-search'), course=qs('#practice-course'), topic=qs('#practice-topic'), diff=qs('#practice-difficulty'), list=qs('#practice-list'), count=qs('#practice-count'), label=qs('#practice-mode-label');
   const focus=list?.dataset.focus||''; let mode='all'; let shuffled=false;
-  const p=load();
   function updateTopics(){
     const c=course.value; const topics=[...new Map(practiceQuestions.filter(q=>c==='all'||q.course===c).map(q=>[q.topic,q.topicLabel])).entries()];
     const requested=topic.dataset.preset||topic.value; topic.innerHTML='<option value="all">All topics</option>'+topics.map(([id,title])=>`<option value="${id}">${title}</option>`).join('');
@@ -118,6 +130,7 @@ function bindPractice(){
   }
   const shuffleRows=rows=>{const a=[...rows];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
   function filter(){
+    const p=load();
     const term=search.value.trim().toLowerCase(), c=course.value, t=topic.value, d=diff.value;
     let matches=practiceQuestions.filter(q=>(c==='all'||q.course===c)&&(t==='all'||q.topic===t)&&(d==='all'||q.difficulty===d)&&(!term||`${q.prompt} ${q.topicLabel} ${q.difficulty}`.toLowerCase().includes(term)));
     if(mode==='unresolved')matches=matches.filter(q=>p.attemptedQuestions?.[q.id]&&!p.correctQuestions.includes(q.id));

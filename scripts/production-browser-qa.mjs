@@ -5,11 +5,17 @@ const base='https://bigbashchess.github.io/brainpower-education/',out='qa-produc
 await fs.mkdir(out,{recursive:true});
 const browser=await chromium.launch({headless:true});
 const page=await browser.newPage({viewport:{width:1440,height:900}});
+const cdp=await page.context().newCDPSession(page);await cdp.send('Network.enable');await cdp.send('Network.setCacheDisabled',{cacheDisabled:true});
 page.on('pageerror',e=>problems.push(e.message));
 page.on('response',r=>{if(r.status()===404&&r.url().startsWith(base))problems.push('404: '+r.url())});
 async function open(hash){await page.goto(base+hash,{waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>document.querySelector('main')&&!document.body.dataset.bpRoutePending&&!document.querySelector('.bp-route-loader.is-active'),{timeout:30000});await page.waitForTimeout(600)}
+let deployed=false;
+for(let attempt=0;attempt<30;attempt++){
+ await page.goto(base+`?release=${encodeURIComponent(process.env.DEPLOYED_SHA||SITE.version)}&attempt=${attempt}#home`,{waitUntil:'domcontentloaded',timeout:60000});
+ try{await page.locator('footer').getByText('v'+SITE.version,{exact:false}).waitFor({timeout:5000});deployed=true;break}catch{await page.waitForTimeout(5000)}
+}
+if(!deployed)throw new Error('Expected release did not become available on Pages.');
 await open('#home');
-await page.locator('footer').getByText('v'+SITE.version,{exact:false}).waitFor({timeout:30000});
 if(await page.locator('[data-learning-state="fresh"]').count()!==1)problems.push('Fresh Home has no truthful first step.');
 const before=await page.evaluate(()=>({height:document.documentElement.scrollHeight,width:document.querySelector('main').getBoundingClientRect().width}));
 await page.evaluate(()=>window.scrollTo({top:450,behavior:'instant'}));
@@ -26,6 +32,12 @@ await page.screenshot({path:out+'/progress.png'});
 await open('#arcade');await page.locator('#bp-dash-start').click();await page.waitForSelector('.bp-dash-choice');
 if(await page.locator('.bp-dash-choice').count()!==4)problems.push('Derivative Dash is not four-choice.');
 await page.locator('#bp-dash-pause').click();await page.screenshot({path:out+'/arcade.png'});
+await open('#home');
+const daily=page.locator('.question-card').first(),answer=await daily.locator('[data-math-input]').count();
+if(answer){await daily.locator('[data-math-input]').fill('999999');await daily.locator('.check-answer').click()}else await daily.locator('[data-choice]').first().click();
+await page.reload({waitUntil:'domcontentloaded'});await page.waitForSelector('[data-question-retry]');
+if(!(await daily.locator('[data-question-status]').innerText()).includes('Saved answer restored'))problems.push('Live Daily answer did not restore.');
+await daily.screenshot({path:out+'/daily-saved.png'});
 await page.setViewportSize({width:390,height:844});await open('#home');
 if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2))problems.push('Live mobile Home overflows.');
 await page.screenshot({path:out+'/home-mobile.png'});

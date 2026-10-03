@@ -3,7 +3,7 @@ import {practiceQuestions,questionById} from '../data/questions.js';
 import {lessonsForTopic} from '../data/lessons.js';
 import {questionCard} from '../components.js';
 import {checkAnswer,renderMathString,answerPreview} from '../utils.js';
-import {load,awardQuestion} from '../progress/store.js';
+import {load,awardQuestion,questionActivityLabel} from '../progress/store.js';
 
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
@@ -201,13 +201,15 @@ function bindSessionQuestion(host,q){
   };
   const submit=value=>{
     if(card.dataset.submitted==='1')return;
+    if(!String(value??'').trim()){const status=$('[data-question-status]',card);if(status)status.textContent='Enter an answer before checking.';input?.focus();return}
     card.dataset.submitted='1';
-    const ok=checkAnswer(q,value);awardQuestion(q.id,q.xp||10,ok);lock();
+    const ok=checkAnswer(q,value),progress=awardQuestion(q.id,q.xp||10,ok,value);lock();
+    const status=$('[data-question-status]',card);if(status)status.textContent=`${questionActivityLabel(q.id,progress)} · Answer saved on this device`;
     let result=session.results.find(r=>r.id===q.id);
     if(!result){result={id:q.id,correct:ok,resolved:ok,retried:false,skipped:false};session.results.push(result)}
     else if(result.retried){result.resolved=ok}
     fb.hidden=false;fb.className=`feedback ${ok?'good':'bad'}`;
-    fb.innerHTML=ok?`<strong>✓ Correct.</strong> ${renderMathString(q.solution)} <span class="feedback-xp">+${q.xp||10} XP</span>`:`<strong>Not quite.</strong> ${renderMathString(q.solution)}`;
+    fb.innerHTML=ok?`<strong>✓ Correct.</strong> ${renderMathString(q.solution)} <span class="feedback-xp">${progress.questionActivity[q.id].earnedXp?`+${progress.questionActivity[q.id].earnedXp} XP`:'XP already earned'}</span>`:`<strong>Not quite.</strong> ${renderMathString(q.solution)}`;
     showAdvance(result,ok);paintSessionHeader(host);refreshLiveStats();
   };
   $('.check-answer',card)?.addEventListener('click',()=>submit(input?.value||''));

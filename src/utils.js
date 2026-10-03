@@ -1,3 +1,4 @@
+import {localDay} from './progress/store.js';
 import {courses} from './data/courses.js';
 import {lessons} from './data/lessons.js';
 import {questions} from './data/questions.js';
@@ -76,8 +77,8 @@ export function checkAnswer(q,value){
   return candidates.some(ans=>symbolicEquivalent(raw,ans));
 }
 
-export function todayKey(){return new Date().toISOString().slice(0,10)}
-export function dailyIndex(length){const d=new Date();const start=Date.UTC(d.getUTCFullYear(),0,0);const diff=Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())-start;return Math.floor(diff/86400000)%length}
+export function todayKey(){return localDay()}
+export function dailyIndex(length){const d=new Date();const start=Date.UTC(d.getFullYear(),0,0);const diff=Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-start;return Math.floor(diff/86400000)%length}
 export function fmtDate(iso){try{return new Intl.DateTimeFormat('en-AU',{day:'numeric',month:'short',year:'numeric'}).format(new Date(iso))}catch{return iso}}
 
 export function topicMastery(courseId,topicId,progress){

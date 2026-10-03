@@ -1,8 +1,8 @@
-# Brainpower Education — v0.9.2
+# Brainpower Education — v1.0.0
 
 Brainpower Education is a free, static VCE learning platform for Mathematical Methods, Specialist Mathematics and Physics. It combines structured courses, practice banks, formal assessments, resources, study tools, progress tracking and an optional arcade in one GitHub Pages site.
 
-The **Brainpower Learning World** remains pre-1.0. Milestones A–D are merged; final acceptance work covers learning states, Exam Mode, technical consolidation, accessibility and performance. v1.0.0 is reserved for the finished revamp.
+The **Brainpower Learning World** full-site revamp covers Home, all five course pathways, lessons, Practice, assessments, resources, tools, Progress, Arcade and secondary routes. Final acceptance includes actual lesson resume states, saved Exam Mode tracking, consolidated styles, deferred route code, accessibility, responsive layouts and stable motion.
 
 ## Current learning platform
 
@@ -19,6 +19,8 @@ The **Brainpower Learning World** remains pre-1.0. Milestones A–D are merged; 
 - 2026 Brainpower Mock Exam Series for Methods and Specialist
 - Searchable resource Vault
 - Progress dashboard and local score history
+- Daily answer drafts/results restored after refresh or navigation
+- Recent-question dates, deliberate retries and one XP award per solved question
 - Study tools and Brainpower Arcade
 - Responsive light/dark interface and reduced-motion support
 
@@ -40,4 +42,4 @@ GitHub Pages can serve the repository directly from the `main` branch and reposi
 
 Use a `revamp/` branch and a pull request for changes. Run `node scripts/revamp-smoke.mjs` and `node scripts/e-static-audit.mjs`, then the relevant browser QA and full-site regression before merging completed work to `main`. Verify the matching GitHub Pages deployment after merge.
 
-The initial final quality gate evidence are documented in [docs/MILESTONE_E_QA.md](docs/MILESTONE_E_QA.md). [docs/PRE_1_0_REVIEW.md](docs/PRE_1_0_REVIEW.md) is an archived checklist from before the revamp. Keep the package version, `SITE.version`, this README and the newest update-log entry aligned for each release.
+The full-site quality gate evidence is documented in [docs/MILESTONE_E_QA.md](docs/MILESTONE_E_QA.md). [docs/PRE_1_0_REVIEW.md](docs/PRE_1_0_REVIEW.md) is an archived checklist from before the revamp. Keep the package version, `SITE.version`, this README and the newest update-log entry aligned for each release.
