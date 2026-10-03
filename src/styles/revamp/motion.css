@@ -9,6 +9,8 @@
 }
 
 /* Route entrance: subtle enough for academic pages, disabled for Exam Mode. */
+/* Retire the legacy pageIn animation so removing the entrance class cannot replay it. */
+body.bp-revamp main{animation:none}
 body.bp-revamp:not([data-route="exam"]) main.bp-motion-enter{
   animation:bpPageEnter var(--bp-motion-page) var(--bp-ease-standard) both;
 }

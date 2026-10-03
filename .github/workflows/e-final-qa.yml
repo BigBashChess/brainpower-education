@@ -41,11 +41,18 @@ jobs:
           exit 1
       - name: Run full-site browser regression
         run: node scripts/e-final-qa.mjs
+      - name: Check Arcade and motion stability
+        run: |
+          node scripts/d1-arcade-qa.mjs
+          node scripts/d3-motion-qa.mjs
       - name: Upload final QA evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: milestone-e-final-qa
-          path: qa-e-final/
+          path: |
+            qa-e-final/
+            qa-d1-arcade/
+            qa-d3-motion/
           if-no-files-found: warn
           retention-days: 21

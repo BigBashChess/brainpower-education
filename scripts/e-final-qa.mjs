@@ -58,9 +58,12 @@ for(const [name,width,height] of [['desktop',1280,800],['mobile',390,844]]){
     await trigger.waitFor({state:'visible'});
     const footer=await page.locator('.bp-footer__base').innerText();
     if(!footer.includes(`v${SITE.version}`))problems.push(`Release ${name}: footer version differs from ${SITE.version}.`);
+    const widthClosed=await page.locator('main').evaluate(el=>el.getBoundingClientRect().width);
     await trigger.click();
     const dialog=page.getByRole('dialog',{name:'Brainpower update log'});
     await dialog.waitFor({state:'visible'});
+    const widthOpen=await page.locator('main').evaluate(el=>el.getBoundingClientRect().width);
+    if(Math.abs(widthOpen-widthClosed)>1)problems.push(`Release ${name}: update log changes page width by ${widthOpen-widthClosed}px.`);
     const latest=await dialog.locator('article.latest h3').innerText();
     if(latest!==WHATS_NEW[0].title)problems.push(`Release ${name}: newest update-log entry differs from the current release.`);
     if(!await dialog.getByRole('button',{name:'Close update log'}).evaluate(el=>el===document.activeElement))problems.push(`Release ${name}: dialog does not receive keyboard focus.`);
