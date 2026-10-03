@@ -8,7 +8,7 @@ async function ensureRoute(){
   const route=(location.hash.slice(1)||'home').split(/[/?]/)[0];
   const path=routes[route]||(!known.has(route)?'./secondary.js':null);
   if(path&&!loaded.has(path)){document.body.dataset.bpRoutePending='true';window.BrainpowerPageTransition?.show();loaded.set(path,import(path).catch(error=>{loaded.delete(path);console.error('Unable to load route features',error)}));}
-  if(path){await loaded.get(path);if(currentGeneration===generation){delete document.body.dataset.bpRoutePending;window.BrainpowerPageTransition?.hide();}}
+  if(path){await loaded.get(path);await Promise.all([...document.querySelectorAll('link[data-bp-progress],link[data-bp-arcade],link[data-bp-secondary],link[data-bp-resources-tools]')].filter(link=>!link.sheet).map(link=>new Promise(resolve=>{link.addEventListener('load',resolve,{once:true});link.addEventListener('error',resolve,{once:true})})));if(currentGeneration===generation){delete document.body.dataset.bpRoutePending;window.BrainpowerPageTransition?.hide();}}
   if(route==='admin'&&!document.querySelector('script[data-bp-admin-zip]')){
     const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';script.dataset.bpAdminZip='1';script.async=true;document.head.appendChild(script);
   }
