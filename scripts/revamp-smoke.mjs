@@ -11,10 +11,30 @@ const failures=[];
 for(const file of required)if(!existsSync(file))failures.push(`Missing required file: ${file}`);
 
 const index=readFileSync('index.html','utf8');
-const dynamic=['src/styles/revamp/arcade.css','src/styles/revamp/secondary.css'];
+const runtime=readFileSync('src/revamp/runtime.js','utf8');
+const runtimeLoadedModules={
+  'src/revamp/resources-tools.js':"import './resources-tools.js'",
+  'src/revamp/progress.js':"import './progress.js'"
+};
+const routeLoadedStyles={
+  'src/styles/revamp/resources-tools.css':['src/revamp/resources-tools.js','resources-tools.css'],
+  'src/styles/revamp/progress.css':['src/revamp/progress.js','progress.css'],
+  'src/styles/revamp/arcade.css':['src/revamp/arcade.js','arcade.css'],
+  'src/styles/revamp/secondary.css':['src/revamp/secondary.js','secondary.css']
+};
+
 for(const file of required.filter(x=>x.startsWith('src/revamp/')||x.startsWith('src/styles/revamp/'))){
-  if(dynamic.includes(file))continue;
-  if(!index.includes(file))failures.push(`index.html does not reference: ${file}`);
+  if(index.includes(file))continue;
+  if(runtimeLoadedModules[file]){
+    if(!runtime.includes(runtimeLoadedModules[file]))failures.push(`Runtime does not import required module: ${file}`);
+    continue;
+  }
+  if(routeLoadedStyles[file]){
+    const [owner,needle]=routeLoadedStyles[file];
+    if(!existsSync(owner)||!readFileSync(owner,'utf8').includes(needle))failures.push(`Route module ${owner} does not load required stylesheet: ${file}`);
+    continue;
+  }
+  failures.push(`index.html does not reference: ${file}`);
 }
 
 const scripts=required.filter(x=>x.endsWith('.js'));
