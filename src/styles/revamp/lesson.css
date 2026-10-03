@@ -13,7 +13,7 @@
   color:var(--bp-text);
   min-height:100vh;
 }
-.bp-lesson-page--specialist{--lesson-accent:var(--bp-specialist);--lesson-accent-soft:rgba(139,99,255,.15)}
+.bp-lesson-page--specialist{--lesson-accent:#b397ff;--lesson-accent-soft:rgba(139,99,255,.15)}
 .bp-lesson-page--physics{--lesson-accent:var(--bp-physics);--lesson-accent-soft:rgba(255,185,91,.13)}
 
 /* Quiet opening scene — live lesson text remains HTML. */
@@ -78,7 +78,7 @@
 .bp-lesson-reader{counter-reset:lesson-section}
 .bp-lesson-page .lesson-block .block-kicker,.bp-lesson-page .lesson-complete .block-kicker{color:var(--lesson-accent);font-size:9px;letter-spacing:.16em;font-weight:900}
 .bp-lesson-page .lesson-block h2{font-family:var(--bp-font);font-size:clamp(30px,4vw,43px);line-height:1.08;letter-spacing:-.038em;color:#f4f9fd;margin:8px 0 17px}.bp-lesson-page .lesson-block h3{font-size:20px;letter-spacing:-.015em;color:#edf6fc}.bp-lesson-page .lesson-block p{font-size:15.5px;line-height:1.76;color:#9eb4c4}.bp-lesson-page .lesson-lead{font-size:17px;color:#bdd0dd;max-width:760px}
-.bp-lesson-page .concept-deep{background:linear-gradient(145deg,#0b2639,#091d2d);border-color:color-mix(in srgb,var(--lesson-accent) 28%,transparent)}.bp-lesson-page .focus-callout{margin:22px 0 6px;padding:18px 20px;border-left:3px solid var(--lesson-accent);background:var(--lesson-accent-soft);border-radius:0 13px 13px 0}.bp-lesson-page .focus-callout b{color:#eff8ff;font-size:12px}.bp-lesson-page .focus-callout p{margin:6px 0 0;color:#aec4d3;font-size:14px}.bp-lesson-page .deep-key-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:20px}.bp-lesson-page .deep-key-grid>div{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:13px;border:1px solid #1d3a50;border-radius:12px;background:#081a28}.bp-lesson-page .deep-key-grid span{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--lesson-accent-soft);color:var(--lesson-accent);font-size:9px;font-weight:900}.bp-lesson-page .deep-key-grid p{margin:2px 0 0;font-size:12px;line-height:1.5}
+.bp-lesson-page .concept-deep{background:linear-gradient(145deg,#0b2639,#091d2d);border-color:color-mix(in srgb,var(--lesson-accent) 28%,transparent)}.bp-lesson-page .focus-callout{margin:22px 0 6px;padding:18px 20px;border-left:3px solid var(--lesson-accent);background:var(--lesson-accent-soft);border-radius:0 13px 13px 0}.bp-lesson-page .focus-callout b{color:#eff8ff;font-size:12px}.bp-lesson-page .focus-callout p{margin:6px 0 0;color:#aec4d3;font-size:14px}.bp-lesson-page .deep-key-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:20px}.bp-lesson-page .deep-key-grid>div{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;padding:13px;border:1px solid #1d3a50;border-radius:12px;background:#081a28}.bp-lesson-page .deep-key-grid>div>span{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--lesson-accent-soft);color:var(--lesson-accent);font-size:9px;font-weight:900}.bp-lesson-page .deep-key-grid p{margin:2px 0 0;font-size:12px;line-height:1.5}
 .bp-lesson-page .deep-two-col{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);gap:26px;align-items:start}.bp-lesson-page .formula-panel{padding:20px;border:1px solid #22445d;border-radius:15px;background:#081a29}.bp-lesson-page .formula-panel>small{display:block;margin-bottom:8px;color:#a9c0d2;font-size:9px;letter-spacing:.13em;font-weight:900}.bp-lesson-page .formula-box{margin:0;padding:20px;border:0;border-radius:12px;background:#f4f7fb;color:#142b3d;font-size:18px;overflow-x:auto}.bp-lesson-page .formula-panel p{font-size:11px;line-height:1.55;margin:12px 0 0}.bp-lesson-page .connection-strip{margin-top:20px;padding:13px 15px;border:1px solid #203f55;border-radius:12px;display:flex;gap:10px;align-items:flex-start;background:#081b29}.bp-lesson-page .connection-strip b{font-size:10px;color:var(--lesson-accent);text-transform:uppercase;letter-spacing:.09em}.bp-lesson-page .connection-strip span{font-size:12px;color:#95afc1}
 
 /* Worked examples use dark paper rather than a giant promotional panel. */
@@ -115,3 +115,6 @@ body.bp-lesson-focus{background:#05111b;overflow-x:hidden}body.bp-lesson-focus .
 .bp-lesson-page .related-strip p{color:#a9c0d2}
 
 .bp-lesson-page .bp-lesson-question{--paper:#f4f7fb;--paper-2:#eaf1f7;--card:#fff;--text:#10283c;--muted:#52667a;--border:#d9e3ec}
+
+.bp-lesson-page .lesson-brief .block-kicker{color:var(--lesson-accent)}
+.bp-lesson-page .text-link{color:#8ccfff}
