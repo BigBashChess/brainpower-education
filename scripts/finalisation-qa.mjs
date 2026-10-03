@@ -8,6 +8,14 @@ async function ready(page,hash){if(page.url()===base+hash)await page.reload({wai
 const context=await browser.newContext({viewport:{width:1280,height:800},reducedMotion:'reduce'}),page=await context.newPage();
 await ready(page,'#home');
 const data=await page.evaluate(async()=>{const {courses}=await import('./src/data/courses.js'),{lessons}=await import('./src/data/lessons.js'),{tests}=await import('./src/data/tests.js');return {courses,lessons,tests}});
+const accessibility=[];
+async function audit(page,label){
+ if(!await page.evaluate(()=>Boolean(window.axe)))await page.addScriptTag({path:'node_modules/axe-core/axe.min.js'});
+ const results=await page.evaluate(async()=>axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']},rules:{}}));
+ const violations=results.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({target:n.target,html:n.html,summary:n.failureSummary}))}));
+ accessibility.push({hash:label,violations});for(const v of violations)assert(false,`${label}: accessibility ${v.id}: ${JSON.stringify(v.nodes.map(n=>n.target))}`);
+ await fs.writeFile(`${out}/accessibility.json`,JSON.stringify(accessibility,null,2));
+}
 const key='brainpower-progress-v3';
 async function seed(progress={}){await page.evaluate(({key,progress})=>localStorage.setItem(key,JSON.stringify(progress)),{key,progress})}
 assert(await page.locator('[data-learning-state="fresh"]').count()===1,'Fresh Home must offer a first step, not fabricated history.');
@@ -30,25 +38,31 @@ await seed({completedLessons:[sample.id]});await ready(page,'#home');const recom
 notes.push('First visit, real visits without XP, legacy progress, all five course resume/completion states and all-complete Home verified.');
 await seed();
 const exam=data.tests.find(t=>t.questions>2&&t.minutes>0),examKey=`brainpower-exam-session-v1:${exam.id}`;
-await ready(page,`#exam/${exam.id}`);await page.locator('[data-exam-begin]').click();
+await ready(page,`#exam/${exam.id}`);await page.locator('[data-exam-begin]').click();await audit(page,'#exam/workspace');
 await page.locator('[data-tracker-answered]').click();await page.locator('[data-tracker-flagged]').click();await page.locator('[data-tracker-notes]').fill('Recheck units in the final line.');
 await page.locator('[data-exam-question="1"]').click();await page.keyboard.press('Alt+ArrowRight');assert(await page.locator('[data-tracker-current]').innerText()==='2','Alt+Right must move the manual question tracker.');
 await page.keyboard.press('Alt+a');await page.reload({waitUntil:'domcontentloaded'});await page.waitForSelector('[data-exam-return]');
 await page.locator('[data-exam-question="1"]').click();assert(await page.locator('[data-tracker-notes]').inputValue()==='Recheck units in the final line.','Paper notes must survive refresh.');
 assert(await page.locator('[data-tracker-answered]').getAttribute('aria-pressed')==='true','Answered state must survive refresh.');assert(await page.locator('[data-tracker-flagged]').getAttribute('aria-pressed')==='true','Review flags must survive refresh.');
 await page.locator('[data-exam-finish]').click();assert(Number(await page.locator('[data-confirm-unanswered]').innerText())===exam.questions-2,'Finish confirmation must show the actual manual unanswered count.');assert(await page.locator('[data-confirm-flagged]').innerText()==='1','Finish confirmation must show saved review flags.');
-await page.getByRole('button',{name:'Keep working'}).click();assert(!await page.locator('[data-exam-confirm]').evaluate(el=>el.open),'Cancel must retain the exam attempt.');
+await audit(page,'#exam/finish-dialog');await page.getByRole('button',{name:'Keep working'}).click();assert(!await page.locator('[data-exam-confirm]').evaluate(el=>el.open),'Cancel must retain the exam attempt.');
 await page.locator('[data-exam-finish]').click();await page.locator('[data-confirm-finish]').click();await page.locator('[data-exam-save-score]').click();assert(!(await page.locator('[data-exam-score-message]').innerText()).includes('Saved:'),'An empty manual score must not silently save zero.');
-await page.locator('[data-exam-score]').fill('0');await page.locator('[data-exam-save-score]').click();assert((await page.locator('[data-exam-score-message]').innerText()).includes('Saved: 0/'),'An explicit zero is a valid score.');
+await audit(page,'#exam/score-error');await page.locator('[data-exam-score]').fill('0');await page.locator('[data-exam-save-score]').click();assert((await page.locator('[data-exam-score-message]').innerText()).includes('Saved: 0/'),'An explicit zero is a valid score.');
 notes.push('Exam question navigation, keyboard shortcuts, answered/flagged states, notes, refresh, finish/cancel and explicit manual score entry verified.');
 // Collect shared selectors against settled DOM, including inactive state variants.
 async function collect(page){const selectors=await page.evaluate(()=>{const sheet=[...document.styleSheets].find(s=>s.href?.includes('/revamp/components.css'));const found=[];const states=/\.(?:dark|active|selected|solved|done|earned|good|bad|open|correct|incorrect|is-active|is-complete|is-current)(?=[\s.:#\[>+~,]|$)/g;function scan(rules){for(const rule of rules){if(rule.selectorText){for(const selector of rule.selectorText.split(',')){const probe=selector.replace(states,'').replace(/::?[\w-]+(?:\([^)]*\))?/g,'').trim();try{if(probe&&document.querySelector(probe))found.push(selector.trim())}catch{found.push(selector.trim())}}}else if(rule.cssRules)scan(rule.cssRules)}}if(sheet)scan(sheet.cssRules);return found});selectors.forEach(s=>cssSelectors.add(s))}
 const routes=['#home','#learn',...data.courses.map(c=>`#course/${c.id}`),...data.courses.map(c=>`#lesson/${data.lessons.find(l=>l.course===c.id).id}`),'#practice','#tests',`#test/${exam.id}`,`#exam/${exam.id}`,'#resources','#tools','#progress','#arcade','#about','#search',`#diagnostic/${data.courses[0].id}`,'#admin','#missing','#course/missing','#lesson/missing','#test/missing'];
-const accessibility=[];
 for(const hash of routes){await ready(page,hash);await collect(page);await fs.writeFile(`${out}/shared-selectors.json`,JSON.stringify([...cssSelectors].sort(),null,2));{
- await page.addScriptTag({path:'node_modules/axe-core/axe.min.js'});const results=await page.evaluate(async()=>axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']},rules:{}}));const violations=results.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({target:n.target,html:n.html,summary:n.failureSummary}))}));accessibility.push({hash,violations});for(const v of violations)assert(false,`${hash}: accessibility ${v.id}: ${JSON.stringify(v.nodes.map(n=>n.target))}`);
+ await audit(page,hash);
  }}
 await fs.writeFile(`${out}/shared-selectors.json`,JSON.stringify([...cssSelectors].sort(),null,2));await fs.writeFile(`${out}/accessibility.json`,JSON.stringify(accessibility,null,2));
+await ready(page,'#practice');await page.locator('[data-practice-tab="bank"]').click();await page.locator('#practice-search').fill('integration');await audit(page,'#practice/bank');
+await page.locator('[data-practice-tab="builder"]').click();await page.locator('#bp-session-count').selectOption('5');await page.locator('[data-start-session]').click();await page.waitForSelector('.bp-session-work .question-card');await audit(page,'#practice/session');
+for(let i=0;i<6;i++){if(await page.locator('.bp-session-review').count())break;await page.locator('[data-session-skip]').click()}
+await page.waitForSelector('.bp-session-review');await audit(page,'#practice/review');
+await ready(page,`#lesson/${sample.id}`);await page.locator('#theme-toggle').click();await audit(page,'#lesson/dark-theme');
+await ready(page,'#practice');await page.locator('[data-practice-tab="bank"]').click();await page.locator('#practice-search').fill('integration');await audit(page,'#practice/bank-dark-theme');
+await ready(page,'#home');await page.locator('#theme-toggle').click();
 await ready(page,'#progress');await page.screenshot({path:`${out}/progress-final.png`});
 // 200% reflow: a 1280px window exposes 640 CSS pixels at full browser zoom.
 await page.setViewportSize({width:640,height:450});for(const hash of routes.filter(h=>!['#admin','#missing'].includes(h))){await ready(page,hash);const bounds=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:innerWidth}));assert(bounds.width<=bounds.viewport+2,`${hash}: 200% reflow overflow ${bounds.width-bounds.viewport}px`)}
