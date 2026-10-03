@@ -45,17 +45,14 @@ jobs:
       - name: Check finalisation states, accessibility and performance
         if: always()
         run: node scripts/finalisation-qa.mjs
-      - name: Check Arcade and motion stability
+      - name: Check all functional flows and motion stability
+        if: always()
         run: |
-          node scripts/b2-course-qa.mjs
-          node scripts/b3-lesson-qa.mjs
-          node scripts/b4-practice-qa.mjs
-          node scripts/c1-assessment-qa.mjs
-          node scripts/c2-resources-tools-qa.mjs
-          node scripts/c3-progress-qa.mjs
-          node scripts/d2-secondary-qa.mjs
-          node scripts/d1-arcade-qa.mjs
-          node scripts/d3-motion-qa.mjs
+          failed=0
+          for suite in b2-course b3-lesson b4-practice c1-assessment c2-resources-tools c3-progress d2-secondary d1-arcade d3-motion; do
+            node "scripts/${suite}-qa.mjs" || failed=1
+          done
+          exit "$failed"
       - name: Upload final QA evidence
         if: always()
         uses: actions/upload-artifact@v4
