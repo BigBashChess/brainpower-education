@@ -20,7 +20,7 @@ function courseRows(p){return courses.map(c=>{
 })}
 function activeDays(p){
   const set=new Set((p.activityDays||[]).map(String));const now=new Date();const rows=[];
-  for(let i=13;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);const iso=d.toISOString().slice(0,10);rows.push({iso,day:d.toLocaleDateString('en-AU',{weekday:'short'}).slice(0,1),active:set.has(iso)})}
+  for(let i=13;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);const iso=localDay(d);rows.push({iso,day:d.toLocaleDateString('en-AU',{weekday:'short'}).slice(0,1),active:set.has(iso)})}
   return rows;
 }
 function levelInfo(p){const level=Math.max(1,Math.floor((Number(p.xp)||0)/250)+1),prev=(level-1)*250,next=level*250,pct=Math.max(0,Math.min(100,Math.round(((p.xp-prev)/(next-prev))*100)));return {level,prev,next,pct,left:Math.max(0,next-p.xp)}}
