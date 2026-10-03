@@ -123,7 +123,6 @@ function bindLesson(){
 function bindPractice(){
   const search=qs('#practice-search'), course=qs('#practice-course'), topic=qs('#practice-topic'), diff=qs('#practice-difficulty'), list=qs('#practice-list'), count=qs('#practice-count'), label=qs('#practice-mode-label');
   const focus=list?.dataset.focus||''; let mode='all'; let shuffled=false;
-  const p=load();
   function updateTopics(){
     const c=course.value; const topics=[...new Map(practiceQuestions.filter(q=>c==='all'||q.course===c).map(q=>[q.topic,q.topicLabel])).entries()];
     const requested=topic.dataset.preset||topic.value; topic.innerHTML='<option value="all">All topics</option>'+topics.map(([id,title])=>`<option value="${id}">${title}</option>`).join('');
@@ -131,6 +130,7 @@ function bindPractice(){
   }
   const shuffleRows=rows=>{const a=[...rows];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
   function filter(){
+    const p=load();
     const term=search.value.trim().toLowerCase(), c=course.value, t=topic.value, d=diff.value;
     let matches=practiceQuestions.filter(q=>(c==='all'||q.course===c)&&(t==='all'||q.topic===t)&&(d==='all'||q.difficulty===d)&&(!term||`${q.prompt} ${q.topicLabel} ${q.difficulty}`.toLowerCase().includes(term)));
     if(mode==='unresolved')matches=matches.filter(q=>p.attemptedQuestions?.[q.id]&&!p.correctQuestions.includes(q.id));
