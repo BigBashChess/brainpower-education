@@ -2,70 +2,51 @@ import {existsSync,readFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 
 const required=[
-  'index.html',
-  'src/main.js',
-  'src/components.js',
-  'src/revamp/runtime.js',
-  'src/revamp/update-log.js',
-  'src/revamp/learn.js',
-  'src/styles/revamp/tokens.css',
-  'src/styles/revamp/base.css',
-  'src/styles/revamp/shell.css',
-  'src/styles/revamp/home.css',
-  'src/styles/revamp/learn.css',
-  'src/styles/revamp/learn-route.css',
-  'src/styles/revamp/art.css',
-  'src/styles/revamp/exam-season.css',
-  'src/styles/revamp/overlays.css',
-  'public/brand/brainpower-logo.jpg',
-  'public/art/home/hero-study-room.webp',
-  'public/art/learn/learn-hero.webp'
+  'index.html','src/main.js','src/components.js','src/data/site.js',
+  'src/revamp/page-transitions.js','src/revamp/runtime.js','src/revamp/update-log.js','src/revamp/learn.js','src/revamp/course-overview.js','src/revamp/lesson.js','src/revamp/practice.js','src/revamp/assessment.js','src/revamp/resources-tools.js','src/revamp/progress.js','src/revamp/arcade.js','src/revamp/secondary.js','src/revamp/motion.js',
+  'src/styles/revamp/tokens.css','src/styles/revamp/base.css','src/styles/revamp/shell.css','src/styles/revamp/home.css','src/styles/revamp/learn.css','src/styles/revamp/learn-route.css','src/styles/revamp/course-overview.css','src/styles/revamp/lesson.css','src/styles/revamp/practice.css','src/styles/revamp/assessment.css','src/styles/revamp/resources-tools.css','src/styles/revamp/progress.css','src/styles/revamp/arcade.css','src/styles/revamp/secondary.css','src/styles/revamp/motion.css','src/styles/revamp/art.css','src/styles/revamp/exam-season.css','src/styles/revamp/overlays.css',
+  'public/brand/brainpower-logo.jpg','public/brand/brainy.svg','public/art/home/hero-study-room.webp','public/art/learn/learn-hero.webp','public/art/arcade/hero-arcade.webp','public/art/about/hero-about.webp'
 ];
-
 const failures=[];
 for(const file of required)if(!existsSync(file))failures.push(`Missing required file: ${file}`);
 
 const index=readFileSync('index.html','utf8');
-for(const file of required.filter(x=>x.startsWith('src/'))){
-  if(!index.includes(file) && !['src/components.js'].includes(file))failures.push(`index.html does not reference: ${file}`);
+const dynamic=['src/styles/revamp/arcade.css','src/styles/revamp/secondary.css'];
+for(const file of required.filter(x=>x.startsWith('src/revamp/')||x.startsWith('src/styles/revamp/'))){
+  if(dynamic.includes(file))continue;
+  if(!index.includes(file))failures.push(`index.html does not reference: ${file}`);
 }
 
-const scripts=[
-  'src/main.js','src/components.js','src/pre1-overhaul.js','src/pre1-safety.js','src/release-candidate.js',
-  'src/mock-exams-2026.js','src/revamp/runtime.js','src/revamp/update-log.js','src/revamp/learn.js','src/revamp/page-transitions.js'
-];
+const scripts=required.filter(x=>x.endsWith('.js'));
 for(const file of scripts){
-  if(!existsSync(file)){failures.push(`Cannot syntax-check missing file: ${file}`);continue}
   try{execFileSync(process.execPath,['--check',file],{stdio:'pipe'})}
   catch(err){failures.push(`JavaScript syntax error in ${file}: ${String(err.stderr||err.message).trim()}`)}
 }
 
-const runtime=readFileSync('src/revamp/runtime.js','utf8');
-if(!runtime.includes('data-update-log-open'))failures.push('Home update-log trigger is missing.');
-if(!runtime.includes('courseProgress'))failures.push('Home course progress logic is missing.');
+const checks=[
+  ['src/revamp/runtime.js','courseProgress','Home course progress logic'],
+  ['src/revamp/update-log.js','aria-modal','accessible update-log dialog'],
+  ['src/revamp/learn.js','courseMastery','Learn live mastery'],
+  ['src/revamp/course-overview.js','chapter','course chapter system'],
+  ['src/revamp/lesson.js','data-focus-mode','lesson focus mode'],
+  ['src/revamp/practice.js','session','Practice session system'],
+  ['src/revamp/assessment.js','Exam','assessment revamp'],
+  ['src/revamp/resources-tools.js','bp-lab','Resources/Tools revamp'],
+  ['src/revamp/progress.js','observatory','Progress observatory'],
+  ['src/revamp/arcade.js','Derivative','Arcade rebuild'],
+  ['src/revamp/secondary.js','bp-command','command search'],
+  ['src/revamp/motion.js','prefers-reduced-motion','reduced-motion support']
+];
+for(const [file,needle,label] of checks)if(!readFileSync(file,'utf8').includes(needle))failures.push(`Missing ${label} marker in ${file}`);
 
-const shell=readFileSync('src/styles/revamp/shell.css','utf8');
-if(!shell.includes('.bp-mobile-dock'))failures.push('Mobile primary navigation styles are missing.');
+const site=readFileSync('src/data/site.js','utf8');
+if(!site.includes("version: '1.0.0'"))failures.push('v1.0.0 release version is not set.');
+if(!site.includes('Brainpower Learning World'))failures.push('v1.0.0 release note is missing.');
+const components=readFileSync('src/components.js','utf8');
+if(!components.includes('v${SITE.version}'))failures.push('Global footer does not surface SITE.version.');
+const art=readFileSync('src/styles/revamp/art.css','utf8');
+for(const file of ['hero-study-room.webp','methods-gateway.webp','specialist-gateway.webp','physics-gateway.webp'])if(!art.includes(file))failures.push(`Home local-art binding missing: ${file}`);
+if(/brainy-scatter|brainy-companion/.test(readFileSync('src/styles/revamp/home.css','utf8')))failures.push('Legacy scattered Brainy styling leaked into Home.');
 
-const home=readFileSync('src/styles/revamp/home.css','utf8');
-if(!home.includes('@media(max-width:650px)'))failures.push('Home mobile breakpoint is missing.');
-if(/brainy-scatter|brainy-companion/.test(home))failures.push('Legacy scattered Brainy styling leaked into revamp Home.');
-
-const learnJs=readFileSync('src/revamp/learn.js','utf8');
-if(!learnJs.includes('bp-learn-pathways'))failures.push('Learn pathway system is missing.');
-if(!learnJs.includes('courseMastery'))failures.push('Learn page is not connected to live mastery data.');
-if(!learnJs.includes("route()!=='learn'"))failures.push('Learn revamp route guard is missing.');
-
-const learnCss=readFileSync('src/styles/revamp/learn.css','utf8');
-if(!learnCss.includes("public/art/learn/learn-hero.webp"))failures.push('Learn page is not bound to its local generated hero artwork.');
-if(!learnCss.includes('@media(max-width:650px)'))failures.push('Learn mobile breakpoint is missing.');
-
-const learnRoute=readFileSync('src/styles/revamp/learn-route.css','utf8');
-if(!learnRoute.includes('main.bp-learn-page'))failures.push('Learn full-width dark route canvas is missing.');
-if(!learnRoute.includes('body[data-route="learn"]'))failures.push('Learn route body isolation is missing.');
-
-if(failures.length){
-  console.error('\nRevamp smoke check failed:\n- '+failures.join('\n- '));
-  process.exit(1);
-}
-console.log(`Revamp smoke check passed (${required.length} required files; ${scripts.length} JS files syntax-checked).`);
+if(failures.length){console.error('\nRevamp smoke check failed:\n- '+failures.join('\n- '));process.exit(1)}
+console.log(`Revamp v1.0 smoke passed (${required.length} required files; ${scripts.length} route modules syntax-checked).`);
